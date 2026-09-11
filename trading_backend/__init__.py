@@ -1,0 +1,2 @@
+"""NexyCapitals trading backend package."""
+

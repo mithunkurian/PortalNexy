@@ -1,0 +1,29 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Founder-only portal access.
+    function isFounder() {
+      return request.auth != null && request.auth.token.email == "mithunkurian@gmail.com";
+    }
+
+    // Trading runtimes are persistent server-side lanes like `paper` and `live`.
+    match /runtimes/{runtimeId}/{document=**} {
+      allow read, write: if isFounder();
+    }
+
+    match /todos/{todoId} {
+      allow read, write: if isFounder();
+    }
+
+    // Reserved for later AI reasoning/chat overlays.
+    match /chats/{agentId}/messages/{messageId} {
+      allow read, write: if isFounder();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

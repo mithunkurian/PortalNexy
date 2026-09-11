@@ -1,0 +1,51 @@
+[
+  {
+    "symbol": "AAPL",
+    "name": "Apple Inc.",
+    "sector": "Technology",
+    "asset_type": "stock",
+    "large_cap": true,
+    "liquid_etf": false,
+    "min_avg_volume": 5000000,
+    "max_spread_bps": 25,
+    "earnings_dates": [],
+    "enabled": true
+  },
+  {
+    "symbol": "MSFT",
+    "name": "Microsoft Corp.",
+    "sector": "Technology",
+    "asset_type": "stock",
+    "large_cap": true,
+    "liquid_etf": false,
+    "min_avg_volume": 4000000,
+    "max_spread_bps": 25,
+    "earnings_dates": [],
+    "enabled": true
+  },
+  {
+    "symbol": "SPY",
+    "name": "SPDR S&P 500 ETF",
+    "sector": "Index ETF",
+    "asset_type": "etf",
+    "large_cap": false,
+    "liquid_etf": true,
+    "min_avg_volume": 10000000,
+    "max_spread_bps": 10,
+    "earnings_dates": [],
+    "enabled": true
+  },
+  {
+    "symbol": "QQQ",
+    "name": "Invesco QQQ Trust",
+    "sector": "Index ETF",
+    "asset_type": "etf",
+    "large_cap": false,
+    "liquid_etf": true,
+    "min_avg_volume": 6000000,
+    "max_spread_bps": 12,
+    "earnings_dates": [],
+    "enabled": true
+  }
+]
+

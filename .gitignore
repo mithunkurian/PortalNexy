@@ -1,0 +1,45 @@
+.firebase/
+node_modules/
+.env
+.env.local
+*.log
+agents/serviceAccount.json
+agents/.env
+trading_backend/.env
+__pycache__/
+*.pyc
+
+# Environment files and credentials
+.env*
+*.env
+serviceAccount*.json
+*service-account*.json
+credentials.json
+credentials/
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Dependencies, caches, and build outputs
+.venv/
+venv/
+env/
+.next/
+out/
+dist/
+build/
+coverage/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Local tooling, runtime data, and generated research output
+.claude/
+.fuse_hidden*
+*.sqlite3
+*.sqlite3-*
+trading_backend/research/strategy_loops.md
+trading_backend/research/strategy_loops.jsonl

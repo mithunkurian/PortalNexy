@@ -1,0 +1,578 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --serif:'Playfair Display',serif;
+  --sans:'IBM Plex Sans',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+  --green:#0F6E56;--green-l:#E1F5EE;--green-m:#1D9E75;
+  --amber:#BA7517;--amber-l:#FAEEDA;
+  --coral:#993C1D;--coral-l:#FAECE7;
+  --purple:#3C3489;--purple-l:#EEEDFE;
+  --blue:#185FA5;--blue-l:#E6F1FB;
+}
+.doc{font-family:var(--sans);font-size:13px;color:var(--color-text-primary);line-height:1.7;display:flex;min-height:640px}
+
+/* SIDEBAR TOC */
+.toc{width:186px;flex-shrink:0;border-right:0.5px solid var(--color-border-tertiary);padding:20px 0;position:sticky;top:0;height:640px;overflow-y:auto;background:var(--color-background-primary)}
+.toc-header{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-text-tertiary);padding:0 16px;margin-bottom:10px}
+.toc-item{display:block;padding:5px 16px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;border-left:2px solid transparent;transition:all .15s;font-family:var(--sans)}
+.toc-item:hover{color:var(--color-text-primary);background:var(--color-background-secondary)}
+.toc-item.active{color:var(--green);border-left-color:var(--green);background:var(--green-l)}
+.toc-sub{padding-left:24px;font-size:11px;color:var(--color-text-tertiary)}
+
+/* MAIN CONTENT */
+.body{flex:1;overflow-y:auto;height:640px;padding:0}
+.cover{padding:40px 36px 32px;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary)}
+.cover-eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:10px;font-family:var(--sans)}
+.cover-title{font-family:var(--serif);font-size:30px;font-weight:600;color:var(--color-text-primary);line-height:1.15;margin-bottom:6px}
+.cover-sub{font-family:var(--serif);font-size:16px;font-weight:400;font-style:italic;color:var(--color-text-secondary);margin-bottom:20px}
+.cover-meta{display:flex;gap:24px;flex-wrap:wrap}
+.cover-meta-item{font-size:11px;color:var(--color-text-tertiary);font-family:var(--mono)}
+.cover-meta-item strong{color:var(--color-text-secondary);display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+
+.section{padding:28px 36px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.section:last-child{border-bottom:none}
+
+.sec-label{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);font-family:var(--mono);margin-bottom:6px}
+.sec-num{font-family:var(--mono);font-size:10px;color:var(--color-text-tertiary);margin-right:6px}
+.sec-title{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--color-text-primary);margin-bottom:14px;line-height:1.2}
+.sec-title2{font-family:var(--sans);font-size:13px;font-weight:500;color:var(--color-text-primary);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.06em;font-size:11px}
+.prose{font-size:13px;color:var(--color-text-secondary);line-height:1.75;margin-bottom:10px}
+
+/* CALLOUT BOX */
+.callout{background:var(--green-l);border-left:3px solid var(--green-m);border-radius:0 6px 6px 0;padding:12px 14px;margin:12px 0;font-size:13px;color:var(--green)}
+
+/* STAT GRID */
+.stat-grid{display:grid;gap:10px;margin:14px 0}
+.stat-grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.stat-grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stat-grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stat-card{background:var(--color-background-secondary);border-radius:8px;padding:12px 14px}
+.stat-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-tertiary);margin-bottom:4px;font-family:var(--mono)}
+.stat-value{font-size:19px;font-weight:500;color:var(--color-text-primary);font-family:var(--mono);line-height:1.2}
+.stat-sub{font-size:11px;color:var(--color-text-tertiary);margin-top:3px}
+
+/* TABLE */
+.plan-table{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0}
+.plan-table th{text-align:left;padding:7px 10px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-tertiary);border-bottom:0.5px solid var(--color-border-secondary);font-weight:400}
+.plan-table td{padding:8px 10px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);vertical-align:top}
+.plan-table tr:last-child td{border-bottom:none}
+.plan-table tr:hover td{background:var(--color-background-secondary)}
+
+/* BADGE */
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;font-family:var(--mono)}
+.badge-green{background:var(--green-l);color:var(--green)}
+.badge-amber{background:var(--amber-l);color:var(--amber)}
+.badge-coral{background:var(--coral-l);color:var(--coral)}
+.badge-purple{background:var(--purple-l);color:var(--purple)}
+.badge-blue{background:var(--blue-l);color:var(--blue)}
+
+/* MILESTONE */
+.timeline{margin:12px 0}
+.tl-item{display:flex;gap:14px;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tl-item:last-child{border-bottom:none}
+.tl-left{width:64px;flex-shrink:0}
+.tl-phase{font-size:10px;font-family:var(--mono);color:var(--color-text-tertiary)}
+.tl-dot{width:8px;height:8px;border-radius:50%;margin-top:10px}
+.tl-body{flex:1}
+.tl-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.tl-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.6}
+
+/* SWOT */
+.swot{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.swot-cell{border-radius:8px;padding:12px 14px}
+.swot-cell-title{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;margin-bottom:8px;font-family:var(--mono)}
+.swot-cell ul{padding-left:14px;font-size:12px;line-height:1.8}
+
+/* COMPETITOR */
+.comp-row{display:grid;grid-template-columns:120px 1fr 1fr 80px;gap:0;border-bottom:0.5px solid var(--color-border-tertiary);align-items:center}
+.comp-row:first-child{background:var(--color-background-secondary);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-tertiary)}
+.comp-row > div{padding:9px 10px;font-size:12px;color:var(--color-text-secondary)}
+.comp-row:first-child > div{padding:7px 10px}
+
+/* FINANCIAL TABLE */
+.fin-table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono);margin:12px 0}
+.fin-table th{padding:7px 10px;text-align:right;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-tertiary);border-bottom:0.5px solid var(--color-border-secondary);font-weight:400}
+.fin-table th:first-child{text-align:left}
+.fin-table td{padding:7px 10px;border-bottom:0.5px solid var(--color-border-tertiary);text-align:right;color:var(--color-text-secondary)}
+.fin-table td:first-child{text-align:left;color:var(--color-text-primary);font-family:var(--sans);font-size:12px}
+.fin-table .total-row td{border-top:0.5px solid var(--color-border-secondary);font-weight:500;color:var(--color-text-primary)}
+.fin-table .green{color:var(--green)}
+.fin-table .red{color:var(--coral)}
+
+/* PROGRESS */
+.kpi-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.kpi-label{font-size:12px;color:var(--color-text-secondary);width:160px;flex-shrink:0}
+.kpi-bar-wrap{flex:1;height:4px;background:var(--color-background-secondary);border-radius:2px;overflow:hidden}
+.kpi-bar{height:100%;border-radius:2px}
+.kpi-val{font-size:11px;font-family:var(--mono);color:var(--color-text-tertiary);width:60px;text-align:right}
+
+/* RISK */
+.risk-item{display:flex;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.risk-item:last-child{border-bottom:none}
+.risk-level{width:56px;flex-shrink:0}
+.risk-body{flex:1}
+.risk-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.risk-desc{font-size:12px;color:var(--color-text-secondary)}
+
+.divider{height:0.5px;background:var(--color-border-tertiary);margin:14px 0}
+.footnote{font-size:11px;color:var(--color-text-tertiary);font-style:italic;margin-top:8px}
+</style>
+
+<div class="doc">
+
+<!-- TOC -->
+<div class="toc">
+  <div class="toc-header">Contents</div>
+  <div class="toc-item active" onclick="scrollTo('cover',this)">Cover</div>
+  <div class="toc-item" onclick="scrollTo('s1',this)">1. Executive Summary</div>
+  <div class="toc-item" onclick="scrollTo('s2',this)">2. Company Overview</div>
+  <div class="toc-item" onclick="scrollTo('s3',this)">3. Market Analysis</div>
+  <div class="toc-item toc-sub" onclick="scrollTo('s3',this)">Market size</div>
+  <div class="toc-item toc-sub" onclick="scrollTo('s3b',this)">Competitors</div>
+  <div class="toc-item toc-sub" onclick="scrollTo('s3c',this)">SWOT</div>
+  <div class="toc-item" onclick="scrollTo('s4',this)">4. Product & Service</div>
+  <div class="toc-item" onclick="scrollTo('s5',this)">5. AI Agent Strategy</div>
+  <div class="toc-item" onclick="scrollTo('s6',this)">6. Marketing & Sales</div>
+  <div class="toc-item" onclick="scrollTo('s7',this)">7. Operations & Tech</div>
+  <div class="toc-item" onclick="scrollTo('s8',this)">8. Organisation</div>
+  <div class="toc-item" onclick="scrollTo('s9',this)">9. Financial Plan</div>
+  <div class="toc-item toc-sub" onclick="scrollTo('s9',this)">Projections</div>
+  <div class="toc-item toc-sub" onclick="scrollTo('s9b',this)">Breakeven</div>
+  <div class="toc-item" onclick="scrollTo('s10',this)">10. Legal & Compliance</div>
+  <div class="toc-item" onclick="scrollTo('s11',this)">11. Risk Analysis</div>
+  <div class="toc-item" onclick="scrollTo('s12',this)">12. Milestones</div>
+</div>
+
+<!-- BODY -->
+<div class="body" id="plan-body">
+
+<!-- COVER -->
+<div class="cover" id="cover">
+  <div class="cover-eyebrow">Business Plan — Confidential</div>
+  <div class="cover-title">Nexy</div>
+  <div class="cover-sub">An AI-Operated Kaizen Productivity Platform</div>
+  <div class="cover-meta">
+    <div class="cover-meta-item"><strong>Founder</strong>Mithun Kurian</div>
+    <div class="cover-meta-item"><strong>Date</strong>March 2026</div>
+    <div class="cover-meta-item"><strong>Location</strong>Stockholm, Sweden</div>
+    <div class="cover-meta-item"><strong>Structure</strong>Enskild Firma → AB</div>
+    <div class="cover-meta-item"><strong>Stage</strong>MVP / Pre-revenue</div>
+    <div class="cover-meta-item"><strong>Horizon</strong>24-month breakeven</div>
+  </div>
+</div>
+
+<!-- 1. EXECUTIVE SUMMARY -->
+<div class="section" id="s1">
+  <div class="sec-label"><span class="sec-num">01</span>Executive Summary</div>
+  <div class="sec-title">Building a lean, AI-operated SaaS from Stockholm</div>
+  <div class="callout">Nexy is a Kaizen-philosophy project management platform where an agentic AI handles the entire back-office — marketing, legal, finance, sales, and engineering — while the founder acts as chairman: approve or reject. The goal is not rapid growth, but learning how a real business works, reaching operational breakeven in 24 months, and building a sustainable side income.</div>
+  <div class="prose">The global project management software market was valued at USD 9.6 billion in 2026 and is projected to reach USD 32 billion by 2036, growing at a 12.9% CAGR. The AI-native segment specifically is forecast to grow at 15.7% CAGR through 2034. Nexy enters this market with a differentiated positioning — not as another feature-rich enterprise tool, but as a lean, opinionated platform built on the Kaizen philosophy of continuous small improvement, powered end-to-end by agentic AI.</div>
+  <div class="prose">The company is registered in Sweden, fully GDPR-compliant from day one, and targets individual professionals and small teams across Europe. Revenue is projected to begin in Month 9 via a freemium gate on AI features, reaching breakeven at approximately Month 24 with 50–70 paying users.</div>
+  <div class="stat-grid stat-grid-4">
+    <div class="stat-card"><div class="stat-label">Market (2026)</div><div class="stat-value">$9.6B</div><div class="stat-sub">Project mgmt SaaS</div></div>
+    <div class="stat-card"><div class="stat-label">CAGR</div><div class="stat-value">12.9%</div><div class="stat-sub">Through 2036</div></div>
+    <div class="stat-card"><div class="stat-label">Breakeven target</div><div class="stat-value">M24</div><div class="stat-sub">~50 paying users</div></div>
+    <div class="stat-card"><div class="stat-label">Monthly burn</div><div class="stat-value">~280 kr</div><div class="stat-sub">Infra + AI APIs</div></div>
+  </div>
+</div>
+
+<!-- 2. COMPANY OVERVIEW -->
+<div class="section" id="s2">
+  <div class="sec-label"><span class="sec-num">02</span>Company Overview</div>
+  <div class="sec-title">Who we are and why we exist</div>
+  <div class="sec-title2">Mission</div>
+  <div class="prose">To prove that a single person, empowered by agentic AI, can build and operate a real software business — and to build a productivity tool that helps others do the same.</div>
+  <div class="sec-title2">Vision</div>
+  <div class="prose">A world where individuals can run lean, AI-operated micro-companies — with the founder focused entirely on strategy and product judgment, while AI handles execution.</div>
+  <div class="sec-title2">Core Values</div>
+  <div class="stat-grid stat-grid-3">
+    <div class="stat-card"><div class="stat-label">Kaizen</div><div class="stat-sub" style="font-size:12px;color:var(--color-text-secondary)">Continuous, small improvement over radical change. Applied to both product and company.</div></div>
+    <div class="stat-card"><div class="stat-label">Transparency</div><div class="stat-sub" style="font-size:12px;color:var(--color-text-secondary)">Build in public. Share learnings openly. The journey is as valuable as the destination.</div></div>
+    <div class="stat-card"><div class="stat-label">Simplicity</div><div class="stat-sub" style="font-size:12px;color:var(--color-text-secondary)">Ruthlessly remove complexity. Every feature earns its place. Every cost must justify itself.</div></div>
+  </div>
+  <div class="sec-title2">Legal Identity</div>
+  <table class="plan-table">
+    <tr><th>Item</th><th>Detail</th></tr>
+    <tr><td>Legal name</td><td>Nexy (trading name) — Mithun Kurian, Enskild Firma</td></tr>
+    <tr><td>Future structure</td><td>Aktiebolag (AB) — planned conversion at Month 18–24</td></tr>
+    <tr><td>Registration</td><td>Verksamt.se — Bolagsverket + Skatteverket</td></tr>
+    <tr><td>Tax registration</td><td>FA-skatt (employed + side business)</td></tr>
+    <tr><td>Headquarters</td><td>Stockholm, Sweden</td></tr>
+    <tr><td>Data jurisdiction</td><td>EU — Supabase Frankfurt region</td></tr>
+    <tr><td>VAT threshold</td><td>Register when turnover exceeds 120,000 SEK/year</td></tr>
+  </table>
+</div>
+
+<!-- 3. MARKET ANALYSIS -->
+<div class="section" id="s3">
+  <div class="sec-label"><span class="sec-num">03</span>Market Analysis</div>
+  <div class="sec-title">A fast-growing market with a clear gap for AI-native tools</div>
+  <div class="sec-title2">Market Size & Growth</div>
+  <div class="prose">The global project management software market is valued at USD 9.6 billion in 2026, projected to reach USD 32.27 billion by 2036 at a 12.9% CAGR. The AI-in-project-management segment is growing even faster — from USD 4.14 billion in 2026 to USD 13.29 billion by 2034, at a 15.7% CAGR. Europe is a particularly attractive segment, with GDPR driving demand for EU-hosted, privacy-first tools.</div>
+  <div class="stat-grid stat-grid-3">
+    <div class="stat-card"><div class="stat-label">Global PM Software (2026)</div><div class="stat-value">$9.6B</div><div class="stat-sub">Growing 12.9% annually</div></div>
+    <div class="stat-card"><div class="stat-label">AI-native PM (2026)</div><div class="stat-value">$4.1B</div><div class="stat-sub">Growing 15.7% annually</div></div>
+    <div class="stat-card"><div class="stat-label">Notion growth rate</div><div class="stat-value">+0.7pp</div><div class="stat-sub">Per month — fastest in category</div></div>
+  </div>
+  <div class="sec-title2">Target Customer Segments</div>
+  <table class="plan-table">
+    <tr><th>Segment</th><th>Description</th><th>Priority</th></tr>
+    <tr><td>Solo professionals</td><td>Freelancers, consultants, independent engineers managing personal projects and clients</td><td><span class="badge badge-green">Primary</span></td></tr>
+    <tr><td>Small teams (2–10)</td><td>Early-stage startups, small agencies needing shared project visibility without enterprise complexity</td><td><span class="badge badge-amber">Secondary</span></td></tr>
+    <tr><td>Students & self-improvers</td><td>Productivity-oriented users drawn to Kaizen philosophy and AI coaching</td><td><span class="badge badge-blue">Tertiary</span></td></tr>
+  </table>
+
+  <div id="s3b" style="margin-top:18px">
+  <div class="sec-title2">Competitive Landscape</div>
+  <div class="prose">The market is dominated by well-funded incumbents. However, none lead with a Kaizen philosophy, none are AI-operated at the company level, and most are over-built for the solo/small-team user. Nexy's differentiation is philosophical and operational, not just feature-based.</div>
+  <div class="comp-row">
+    <div>Competitor</div><div>Strengths</div><div>Weakness vs Nexy</div><div>Pricing</div>
+  </div>
+  <div class="comp-row">
+    <div style="font-weight:500;color:var(--color-text-primary)">Notion</div>
+    <div>Flexible, all-in-one, fastest growing</div>
+    <div>No Kaizen philosophy, AI is add-on not core</div>
+    <div>$10–18/mo</div>
+  </div>
+  <div class="comp-row">
+    <div style="font-weight:500;color:var(--color-text-primary)">Asana</div>
+    <div>Enterprise-grade, AI Studio, $724M revenue</div>
+    <div>Complex, expensive, overkill for solo users</div>
+    <div>$10–25/mo</div>
+  </div>
+  <div class="comp-row">
+    <div style="font-weight:500;color:var(--color-text-primary)">Monday.com</div>
+    <div>Highly visual, strong marketing</div>
+    <div>Expensive, not privacy-focused</div>
+    <div>$9–19/mo</div>
+  </div>
+  <div class="comp-row">
+    <div style="font-weight:500;color:var(--color-text-primary)">ClickUp</div>
+    <div>Feature-rich, generous free tier</div>
+    <div>Overwhelming UI, US data hosting</div>
+    <div>$7–19/mo</div>
+  </div>
+  <div class="comp-row">
+    <div style="font-weight:500;color:var(--color-text-primary)">Todoist</div>
+    <div>Simple, fast, good UX</div>
+    <div>No Kanban depth, no AI agent layer</div>
+    <div>$4–6/mo</div>
+  </div>
+  <div class="comp-row" style="border-bottom:none;background:var(--green-l)">
+    <div style="font-weight:500;color:var(--green)">Nexy</div>
+    <div style="color:var(--green)">Kaizen + AI-operated, GDPR-native, EU-hosted</div>
+    <div style="color:var(--green)">Differentiated philosophy + lean price</div>
+    <div style="color:var(--green)">Free → 79 kr/mo</div>
+  </div>
+  </div>
+
+  <div id="s3c" style="margin-top:18px">
+  <div class="sec-title2">SWOT Analysis</div>
+  <div class="swot">
+    <div class="swot-cell" style="background:var(--green-l)">
+      <div class="swot-cell-title" style="color:var(--green)">Strengths</div>
+      <ul style="color:var(--green)">
+        <li>Technical founder — can build fast</li>
+        <li>Clear philosophical differentiation (Kaizen)</li>
+        <li>AI-operated company = ultra-low OpEx</li>
+        <li>GDPR-native, EU-hosted from day one</li>
+        <li>No external funding pressure</li>
+      </ul>
+    </div>
+    <div class="swot-cell" style="background:var(--coral-l)">
+      <div class="swot-cell-title" style="color:var(--coral)">Weaknesses</div>
+      <ul style="color:var(--coral)">
+        <li>Solo founder — limited bandwidth</li>
+        <li>No brand recognition at launch</li>
+        <li>No marketing budget initially</li>
+        <li>Side project — competing with day job</li>
+        <li>No existing user base</li>
+      </ul>
+    </div>
+    <div class="swot-cell" style="background:var(--blue-l)">
+      <div class="swot-cell-title" style="color:var(--blue)">Opportunities</div>
+      <ul style="color:var(--blue)">
+        <li>AI-native PM market growing at 15.7% CAGR</li>
+        <li>European GDPR demand rewards EU-first tools</li>
+        <li>Build-in-public narrative attracts organic audience</li>
+        <li>Kaizen community is large and underserved</li>
+        <li>Agent-operated company is a novel, marketable story</li>
+      </ul>
+    </div>
+    <div class="swot-cell" style="background:var(--amber-l)">
+      <div class="swot-cell-title" style="color:var(--amber)">Threats</div>
+      <ul style="color:var(--amber)">
+        <li>Big players (Notion, Asana) adding AI fast</li>
+        <li>Market saturation at free tier</li>
+        <li>AI API cost spikes if usage scales unexpectedly</li>
+        <li>Regulatory changes in EU AI Act</li>
+        <li>Founder burnout from dual commitments</li>
+      </ul>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- 4. PRODUCT -->
+<div class="section" id="s4">
+  <div class="sec-label"><span class="sec-num">04</span>Product & Service</div>
+  <div class="sec-title">What Nexy does and how it works</div>
+  <div class="prose">Nexy is a web-based project management platform that combines a Kaizen-philosophy task system, a Kanban board, document management, and an AI agent layer into a single coherent workspace. Unlike competitors that add AI as a feature, Nexy is AI-native — the agent actively manages, suggests, and improves the user's workflow continuously.</div>
+  <div class="sec-title2">V1 Feature Set</div>
+  <table class="plan-table">
+    <tr><th>Feature</th><th>Description</th><th>Status</th></tr>
+    <tr><td>Kaizen Task Manager</td><td>Simple to-do system with daily improvement nudges</td><td><span class="badge badge-green">In MVP</span></td></tr>
+    <tr><td>Kanban Board</td><td>Visual project tracking with drag-and-drop columns</td><td><span class="badge badge-green">In MVP</span></td></tr>
+    <tr><td>AI Action Suggestions</td><td>Agent recommends next steps based on project state</td><td><span class="badge badge-amber">Building</span></td></tr>
+    <tr><td>Document Workspace</td><td>Rich text docs attached to projects — replaces folders</td><td><span class="badge badge-amber">Building</span></td></tr>
+    <tr><td>Calendar Integration</td><td>Deadlines and milestones synced to calendar view</td><td><span class="badge badge-blue">Planned</span></td></tr>
+    <tr><td>AI Weekly Digest</td><td>Agent summarises progress, flags blockers, suggests priorities</td><td><span class="badge badge-blue">Planned</span></td></tr>
+    <tr><td>Team Collaboration</td><td>Shared workspaces, comments, mentions for small teams</td><td><span class="badge badge-coral">V2</span></td></tr>
+  </table>
+  <div class="sec-title2">Pricing Model</div>
+  <div class="stat-grid stat-grid-3">
+    <div class="stat-card"><div class="stat-label">Free Tier</div><div class="stat-value" style="font-size:15px">0 kr/mo</div><div class="stat-sub">Core tasks + Kanban. 3 projects. No AI agent.</div></div>
+    <div class="stat-card" style="border:1px solid var(--green-m)"><div class="stat-label">Pro Tier</div><div class="stat-value" style="font-size:15px;color:var(--green)">79 kr/mo</div><div class="stat-sub">Unlimited projects. Full AI agent. Documents. Calendar.</div></div>
+    <div class="stat-card"><div class="stat-label">Team Tier (V2)</div><div class="stat-value" style="font-size:15px">49 kr/seat</div><div class="stat-sub">Shared workspace. Admin controls. Team digest.</div></div>
+  </div>
+</div>
+
+<!-- 5. AI AGENT STRATEGY -->
+<div class="section" id="s5">
+  <div class="sec-label"><span class="sec-num">05</span>AI Agent Strategy</div>
+  <div class="sec-title">The AI brain that runs the company</div>
+  <div class="prose">Nexy is unique in that agentic AI operates not only inside the product (for users) but also behind the company itself. Claude Sonnet serves as the primary intelligence layer, with lighter models handling high-volume tasks. The founder acts as chairman — all agent-proposed actions require human approval before execution.</div>
+  <div class="sec-title2">Agent Functions by Business Area</div>
+  <table class="plan-table">
+    <tr><th>Function</th><th>What the agent does</th><th>Tool used</th></tr>
+    <tr><td>Marketing</td><td>Drafts weekly blog posts, SEO content, social media posts, email campaigns</td><td>Claude Sonnet + Resend</td></tr>
+    <tr><td>Sales</td><td>Identifies power users, drafts upgrade nudge emails, outreach copy</td><td>Claude + Stripe API</td></tr>
+    <tr><td>Legal</td><td>Monitors GDPR/EU regulatory changes, flags Privacy Policy updates needed</td><td>Claude + web search</td></tr>
+    <tr><td>Finance</td><td>Weekly P&amp;L digest, cost vs revenue tracking, API cost alerts</td><td>Claude + Stripe + Railway APIs</td></tr>
+    <tr><td>Engineering</td><td>PR reviews, bug triage, boilerplate generation, tech debt priorities</td><td>Claude + GitHub API</td></tr>
+    <tr><td>User Research</td><td>Analyses support tickets, categorises feedback, surfaces product insights</td><td>Claude + Supabase</td></tr>
+  </table>
+  <div class="footnote">All agent outputs are queued for founder approval in the Chairman Dashboard before any action is executed.</div>
+</div>
+
+<!-- 6. MARKETING & SALES -->
+<div class="section" id="s6">
+  <div class="sec-label"><span class="sec-num">06</span>Marketing &amp; Sales Strategy</div>
+  <div class="sec-title">Organic-first, community-led growth</div>
+  <div class="prose">With no marketing budget at launch, Nexy relies on organic distribution through authentic community participation, build-in-public storytelling, and SEO content generated by the AI agent. The unique story — a solo founder running an AI-operated company — is itself a marketing asset.</div>
+  <div class="sec-title2">Channels</div>
+  <table class="plan-table">
+    <tr><th>Channel</th><th>Tactic</th><th>Timeline</th></tr>
+    <tr><td>Product Hunt</td><td>Launch on PH with full agent-drafted materials, demo video</td><td>Month 2–3</td></tr>
+    <tr><td>Reddit</td><td>Authentic participation in r/productivity, r/selfimprovement, r/SaaS</td><td>Month 1+</td></tr>
+    <tr><td>SEO / Blog</td><td>AI agent writes weekly Kaizen + productivity content targeting long-tail keywords</td><td>Month 2+</td></tr>
+    <tr><td>X / LinkedIn</td><td>Build-in-public posts: weekly company updates, agent decisions, learnings</td><td>Month 1+</td></tr>
+    <tr><td>Hacker News</td><td>Show HN post: "I built a company where an AI agent runs the back-office"</td><td>Month 3</td></tr>
+    <tr><td>Email</td><td>Weekly digest to subscribers. Agent drafts, founder approves.</td><td>Month 2+</td></tr>
+  </table>
+  <div class="sec-title2">Sales Motion</div>
+  <div class="prose">Free-to-paid conversion is driven by hitting the AI feature limit on the free tier. No outbound sales calls — all conversion is product-led. The AI agent handles upgrade nudge emails triggered by usage thresholds. Target conversion rate: 5–8% of free users to paid in Year 1.</div>
+</div>
+
+<!-- 7. OPERATIONS & TECH -->
+<div class="section" id="s7">
+  <div class="sec-label"><span class="sec-num">07</span>Operations &amp; Technology</div>
+  <div class="sec-title">Lean, managed, EU-compliant infrastructure</div>
+  <table class="plan-table">
+    <tr><th>Layer</th><th>Service</th><th>Cost/mo</th><th>Purpose</th></tr>
+    <tr><td>Frontend</td><td>Vercel (Next.js)</td><td>Free → 200 kr</td><td>Hosting, CDN, SSL, CI/CD</td></tr>
+    <tr><td>Backend</td><td>Railway.app</td><td>~50 kr</td><td>Node.js + Python services</td></tr>
+    <tr><td>Database + Auth</td><td>Supabase (Frankfurt)</td><td>Free → 250 kr</td><td>PostgreSQL, Auth, Storage — EU hosted</td></tr>
+    <tr><td>Email</td><td>Resend</td><td>Free → 200 kr</td><td>Transactional + marketing emails</td></tr>
+    <tr><td>Analytics</td><td>Plausible</td><td>~95 kr</td><td>GDPR-native, cookieless analytics</td></tr>
+    <tr><td>AI Brain</td><td>Claude Sonnet API</td><td>~50–150 kr</td><td>Agent intelligence layer</td></tr>
+    <tr><td>Scheduling</td><td>Trigger.dev</td><td>Free</td><td>Scheduled agent tasks (cron)</td></tr>
+    <tr><td>Payments</td><td>Stripe</td><td>Per transaction</td><td>Subscriptions + Swedish VAT</td></tr>
+    <tr><td>Monitoring</td><td>Sentry</td><td>Free</td><td>Error tracking</td></tr>
+    <tr><td>Domain</td><td>IIS.se + Namecheap</td><td>~25 kr</td><td>yourapp.se + .com</td></tr>
+  </table>
+  <div class="footnote">Total monthly infrastructure cost: approximately 270–720 kr depending on usage stage. Well under breakeven threshold at all stages.</div>
+</div>
+
+<!-- 8. ORGANISATION -->
+<div class="section" id="s8">
+  <div class="sec-label"><span class="sec-num">08</span>Organisation &amp; Management</div>
+  <div class="sec-title">One founder. One AI brain. Clear roles.</div>
+  <table class="plan-table">
+    <tr><th>Role</th><th>Held by</th><th>Responsibilities</th></tr>
+    <tr><td>Chairman / Product Lead</td><td>Mithun Kurian (founder)</td><td>Product vision, agent oversight, approve/reject all decisions, strategy</td></tr>
+    <tr><td>Marketing Manager</td><td>AI Agent (Claude)</td><td>Content, SEO, social, email campaigns — all subject to approval</td></tr>
+    <tr><td>Legal Adviser</td><td>AI Agent (Claude)</td><td>Compliance monitoring, policy drafts — subject to approval</td></tr>
+    <tr><td>Finance Controller</td><td>AI Agent (Claude)</td><td>Weekly P&amp;L, cost tracking, alerts — subject to approval</td></tr>
+    <tr><td>Sales Manager</td><td>AI Agent (Claude)</td><td>Upgrade nudges, outreach drafts — subject to approval</td></tr>
+    <tr><td>Engineering Assistant</td><td>AI Agent (Claude)</td><td>PR review, bug triage, boilerplate — subject to approval</td></tr>
+  </table>
+  <div class="prose">Hiring plan: No employees planned for 24 months. If volume demands, a part-time contractor for design or community management may be engaged from Month 18 onward.</div>
+  <div class="sec-title2">Founder Background</div>
+  <div class="prose">Mithun Kurian is a Design/Development Engineer in the automotive sector, based in Stockholm. He brings mechanical engineering discipline, a systems thinking mindset, and hands-on experience building multiple web applications including task management systems, chit fund platforms, and smart home AI systems. He is proficient in React, Next.js, Node.js, Python, Firebase, and the Anthropic Claude API.</div>
+</div>
+
+<!-- 9. FINANCIAL PLAN -->
+<div class="section" id="s9">
+  <div class="sec-label"><span class="sec-num">09</span>Financial Plan</div>
+  <div class="sec-title">Conservative projections. Realistic breakeven.</div>
+  <div class="sec-title2">Monthly Cost Baseline</div>
+  <table class="fin-table">
+    <tr><th>Item</th><th>Mo 1–8 (free phase)</th><th>Mo 9–16 (growth)</th><th>Mo 17–24 (scale)</th></tr>
+    <tr><td>Infrastructure</td><td>270 kr</td><td>400 kr</td><td>600 kr</td></tr>
+    <tr><td>AI API (Claude)</td><td>50 kr</td><td>150 kr</td><td>300 kr</td></tr>
+    <tr><td>Domain / tools</td><td>25 kr</td><td>25 kr</td><td>25 kr</td></tr>
+    <tr><td>Stripe fees (% rev)</td><td>0 kr</td><td>~80 kr</td><td>~200 kr</td></tr>
+    <tr class="total-row"><td>Total monthly burn</td><td>~345 kr</td><td>~655 kr</td><td>~1,125 kr</td></tr>
+  </table>
+
+  <div class="sec-title2">Revenue Projections</div>
+  <table class="fin-table">
+    <tr><th>Milestone</th><th>Month</th><th>Users (free)</th><th>Paying users</th><th>Monthly Revenue</th></tr>
+    <tr><td>Product launch</td><td>M3</td><td>100</td><td>0</td><td class="red">0 kr</td></tr>
+    <tr><td>Pricing launched</td><td>M9</td><td>400</td><td>10</td><td>790 kr</td></tr>
+    <tr><td>Steady growth</td><td>M12</td><td>700</td><td>25</td><td>1,975 kr</td></tr>
+    <tr><td>Near breakeven</td><td>M18</td><td>1,200</td><td>45</td><td>3,555 kr</td></tr>
+    <tr><td>Breakeven</td><td>M24</td><td>2,000</td><td>70</td><td class="green">5,530 kr</td></tr>
+    <tr><td>Side hustle profit</td><td>M30</td><td>3,000</td><td>120</td><td class="green">9,480 kr</td></tr>
+  </table>
+  <div class="footnote">Revenue based on 79 kr/month Pro plan. Conversion rate assumption: 3.5% free-to-paid. All figures in SEK.</div>
+
+  <div id="s9b" style="margin-top:16px">
+  <div class="sec-title2">Breakeven Analysis</div>
+  <div class="prose">At 79 kr/month per paying user, breakeven against Month 24 projected burn of ~1,125 kr/month requires approximately 15 paying users. The conservative target of 70 paying users by Month 24 provides a healthy profit buffer of ~4,400 kr/month — suitable as a meaningful side income.</div>
+  <div class="kpi-row"><div class="kpi-label">M9 — Pricing live</div><div class="kpi-bar-wrap"><div class="kpi-bar" style="width:14%;background:var(--coral)"></div></div><div class="kpi-val">790 kr</div></div>
+  <div class="kpi-row"><div class="kpi-label">M12 — Growing</div><div class="kpi-bar-wrap"><div class="kpi-bar" style="width:27%;background:var(--amber)"></div></div><div class="kpi-val">1,975 kr</div></div>
+  <div class="kpi-row"><div class="kpi-label">M18 — Near BEP</div><div class="kpi-bar-wrap"><div class="kpi-bar" style="width:48%;background:var(--amber)"></div></div><div class="kpi-val">3,555 kr</div></div>
+  <div class="kpi-row"><div class="kpi-label">M24 — Breakeven</div><div class="kpi-bar-wrap"><div class="kpi-bar" style="width:73%;background:var(--green-m)"></div></div><div class="kpi-val">5,530 kr</div></div>
+  <div class="kpi-row"><div class="kpi-label">M30 — Profit</div><div class="kpi-bar-wrap"><div class="kpi-bar" style="width:100%;background:var(--green)"></div></div><div class="kpi-val">9,480 kr</div></div>
+  </div>
+</div>
+
+<!-- 10. LEGAL & COMPLIANCE -->
+<div class="section" id="s10">
+  <div class="sec-label"><span class="sec-num">10</span>Legal &amp; Compliance</div>
+  <div class="sec-title">Swedish law, GDPR-native from day one</div>
+  <table class="plan-table">
+    <tr><th>Area</th><th>Approach</th><th>Status</th></tr>
+    <tr><td>Business registration</td><td>Enskild Firma via Verksamt.se</td><td><span class="badge badge-amber">Action required</span></td></tr>
+    <tr><td>Tax — FA-skatt</td><td>Register with Skatteverket for dual income</td><td><span class="badge badge-amber">Action required</span></td></tr>
+    <tr><td>VAT (Moms)</td><td>Exempt below 120,000 kr/year; register when threshold hit</td><td><span class="badge badge-blue">Monitor</span></td></tr>
+    <tr><td>GDPR — Privacy Policy</td><td>AI-drafted, lawyer-reviewed template. Covers data collection, storage, rights.</td><td><span class="badge badge-amber">Draft needed</span></td></tr>
+    <tr><td>GDPR — Data hosting</td><td>All user data in Supabase Frankfurt (EU region)</td><td><span class="badge badge-green">Compliant</span></td></tr>
+    <tr><td>Cookie consent</td><td>Pre-blocking consent banner. Plausible analytics is cookieless.</td><td><span class="badge badge-amber">Build needed</span></td></tr>
+    <tr><td>Terms of Service</td><td>AI-drafted, covers usage, liability, data rights</td><td><span class="badge badge-amber">Draft needed</span></td></tr>
+    <tr><td>EU AI Act</td><td>Nexy's AI agent is not a high-risk system. Monitor updates.</td><td><span class="badge badge-blue">Monitor</span></td></tr>
+    <tr><td>Corporate structure</td><td>Convert Enskild Firma → AB at Month 18–24 when revenue justifies</td><td><span class="badge badge-blue">Planned</span></td></tr>
+  </table>
+</div>
+
+<!-- 11. RISK -->
+<div class="section" id="s11">
+  <div class="sec-label"><span class="sec-num">11</span>Risk Analysis</div>
+  <div class="sec-title">Known risks and mitigation strategies</div>
+  <div class="risk-item">
+    <div class="risk-level"><span class="badge badge-coral">High</span></div>
+    <div class="risk-body"><div class="risk-title">Market saturation</div><div class="risk-desc">Notion, Asana, ClickUp dominate. Mitigation: differentiate on Kaizen philosophy + AI-native approach. Don't compete on features — compete on identity.</div></div>
+  </div>
+  <div class="risk-item">
+    <div class="risk-level"><span class="badge badge-coral">High</span></div>
+    <div class="risk-body"><div class="risk-title">Founder bandwidth</div><div class="risk-desc">Building a SaaS alongside a full-time engineering job is demanding. Mitigation: AI agents handle operational tasks. Founder focuses on product decisions only. Set a hard limit of 10 hrs/week.</div></div>
+  </div>
+  <div class="risk-item">
+    <div class="risk-level"><span class="badge badge-amber">Medium</span></div>
+    <div class="risk-body"><div class="risk-title">AI API cost spikes</div><div class="risk-desc">Unexpected usage growth could spike Claude API costs. Mitigation: rate limiting, usage caps, fallback to cheaper Haiku model for simple tasks. Budget alerts via agent.</div></div>
+  </div>
+  <div class="risk-item">
+    <div class="risk-level"><span class="badge badge-amber">Medium</span></div>
+    <div class="risk-body"><div class="risk-title">Slow user acquisition</div><div class="risk-desc">Free product with no marketing budget may struggle to reach 100 users. Mitigation: build-in-public storytelling is the marketing strategy. The AI-operated company narrative is the product launch.</div></div>
+  </div>
+  <div class="risk-item">
+    <div class="risk-level"><span class="badge badge-blue">Low</span></div>
+    <div class="risk-body"><div class="risk-title">GDPR / regulatory risk</div><div class="risk-desc">EU regulations evolving fast (EU AI Act, CSRD). Mitigation: AI agent monitors regulatory news weekly. All data EU-hosted. Agent flags policy updates proactively.</div></div>
+  </div>
+  <div class="risk-item">
+    <div class="risk-level"><span class="badge badge-blue">Low</span></div>
+    <div class="risk-body"><div class="risk-title">Anthropic API dependency</div><div class="risk-desc">Full reliance on Claude API. Mitigation: architect agent layer to be model-agnostic. Could switch to GPT-4o or Gemini if needed. No vendor lock-in at code level.</div></div>
+  </div>
+</div>
+
+<!-- 12. MILESTONES -->
+<div class="section" id="s12">
+  <div class="sec-label"><span class="sec-num">12</span>Key Milestones</div>
+  <div class="sec-title">24-month execution roadmap</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-phase">M1–3</div><div class="tl-dot" style="background:var(--green-m)"></div></div>
+      <div class="tl-body">
+        <div class="tl-title">Foundation <span class="badge badge-green" style="margin-left:6px">Now</span></div>
+        <div class="tl-desc">Register Enskild Firma on Verksamt.se. Apply FA-skatt. Register domain (yourapp.se). Deploy Next.js on Vercel, backend on Railway, Supabase in Frankfurt. Publish Privacy Policy + GDPR cookie consent. Launch free product. Target: 100 users.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-phase">M4–8</div><div class="tl-dot" style="background:var(--amber)"></div></div>
+      <div class="tl-body">
+        <div class="tl-title">Growth &amp; AI activation</div>
+        <div class="tl-desc">Activate all AI agent functions (marketing, legal, finance, engineering). Weekly digest live. Launch on Product Hunt and Hacker News. Begin build-in-public content on X/LinkedIn. Target: 400 users, first email list of 200+.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-phase">M9–16</div><div class="tl-dot" style="background:var(--purple)"></div></div>
+      <div class="tl-body">
+        <div class="tl-title">Monetisation</div>
+        <div class="tl-desc">Launch Pro tier at 79 kr/month. Gate AI features behind paywall. Stripe live with Swedish VAT handling. Agent runs upgrade email campaigns. Register for VAT if approaching 120,000 kr threshold. Target: 25–50 paying users.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-phase">M17–24</div><div class="tl-dot" style="background:var(--coral)"></div></div>
+      <div class="tl-body">
+        <div class="tl-title">Breakeven &amp; consolidation</div>
+        <div class="tl-desc">Convert Enskild Firma to Aktiebolag (AB). Evaluate team features (V2). Agent fully autonomous on all ops functions. Optimise conversion funnel. Consider first contractor hire for design/community. Target: 70 paying users, 5,530 kr MRR, operational breakeven.</div>
+      </div>
+    </div>
+    <div class="tl-item" style="border-bottom:none">
+      <div class="tl-left"><div class="tl-phase">M25–36</div><div class="tl-dot" style="background:var(--blue)"></div></div>
+      <div class="tl-body">
+        <div class="tl-title">Side hustle profit</div>
+        <div class="tl-desc">Reach 120+ paying users. Monthly profit of 8,000–10,000 kr. Evaluate whether to remain a side hustle, pursue growth funding, or productise the AI agent layer as a standalone tool. Publish case study: "How I built an AI-operated SaaS company alone."</div>
+      </div>
+    </div>
+  </div>
+  <div class="callout" style="margin-top:16px">This business plan is a living document. It will be reviewed monthly by the AI agent and updated quarterly by the founder. Version 1.0 — March 2026.</div>
+</div>
+
+</div><!-- end body -->
+</div><!-- end doc -->
+
+<script>
+function scrollTo(id, el){
+  const target = document.getElementById(id);
+  const body = document.getElementById('plan-body');
+  if(target && body){
+    body.scrollTo({top: target.offsetTop - 10, behavior:'smooth'});
+  }
+  document.querySelectorAll('.toc-item').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+}
+
+const body = document.getElementById('plan-body');
+const sections = ['cover','s1','s2','s3','s3b','s3c','s4','s5','s6','s7','s8','s9','s9b','s10','s11','s12'];
+const tocItems = document.querySelectorAll('.toc-item');
+
+body.addEventListener('scroll', ()=>{
+  let current = 'cover';
+  sections.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el && el.offsetTop - 60 <= body.scrollTop) current = id;
+  });
+  tocItems.forEach(item=>{
+    item.classList.remove('active');
+    if(item.getAttribute('onclick') && item.getAttribute('onclick').includes("'"+current+"'")){
+      item.classList.add('active');
+    }
+  });
+});
+</script>
