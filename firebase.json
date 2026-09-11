@@ -4,9 +4,10 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
-    "public": ".",
+    "public": "public",
     "ignore": [
       "firebase.json",
+      "**/.*",
       ".firebaserc",
       ".gitignore",
       "stitch/**",

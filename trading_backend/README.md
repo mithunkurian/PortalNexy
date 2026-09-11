@@ -1,35 +1,12 @@
-# Trading Backend
+# Forward Paper Service
 
-This service is the first authoritative backend publisher for NexyCapitals.
+The supported service is `python -m trading_backend.forward.service` from the repository root.
+It runs only the new ETF and direct BTC/ETH forward paper experiments.
+Legacy live, backtest and simulated broker workflows are retired; historical data remains untouched.
 
-What it does now:
+See [the root README](../README.md) for versioned rules, Windows setup, exact paper account allowlists,
+read-only preflight, start/pause/resume behavior, tests, accounting limitations and recovery.
+See [the storage schema](../docs/forward-paper-storage.md) for the new isolated Firestore and SQLite records.
 
-- Manages two persistent runtimes: `paper` and `live`
-- Connects each runtime to IBKR through `ib_insync`
-- Polls account, position, order, and fill state per runtime
-- Writes normalized runtime state into Firestore under `runtimes/{runtimeId}/...`
-- Consumes runtime control commands from the portal like `connect`, `disconnect`, `pause`, `resume`, and `stop`
-- Publishes heartbeat and operational logs per runtime
-
-What it does not do yet:
-
-- Strategy scanning
-- Order generation
-- Hard execution/risk pipeline for new trades
-- Backtest execution
-
-## Run
-
-Install dependencies:
-
-```powershell
-pip install -r trading_backend/requirements.txt
-```
-
-Set environment variables from `.env.example`, then start:
-
-```powershell
-python trading_backend/service.py
-```
-
-For UI development without IBKR, set `PAPER_USE_MOCK_BROKER=true` and/or `LIVE_USE_MOCK_BROKER=true`.
+Use `.env.example` to create the ignored `.env.forward`. The legacy `.env` is not read.
+No connection or unattended operation is implied by installing this code.

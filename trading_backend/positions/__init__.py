@@ -1,2 +1,0 @@
-"""Position monitoring package."""
-

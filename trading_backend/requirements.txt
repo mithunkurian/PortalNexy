@@ -1,3 +1,5 @@
 firebase-admin>=6.5.0
 python-dotenv>=1.0.0
 ib-insync>=0.9.86
+pandas-market-calendars>=4.4,<6
+tzdata>=2024.1

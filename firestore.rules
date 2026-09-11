@@ -5,12 +5,22 @@ service cloud.firestore {
 
     // Founder-only portal access.
     function isFounder() {
-      return request.auth != null && request.auth.token.email == "mithunkurian@gmail.com";
+      return request.auth != null && request.auth.token.email_verified == true && request.auth.token.email == "mithunkurian@gmail.com";
     }
 
     // Trading runtimes are persistent server-side lanes like `paper` and `live`.
     match /runtimes/{runtimeId}/{document=**} {
-      allow read, write: if isFounder();
+      allow read: if isFounder();
+    }
+
+    match /forward/{document} { allow read: if isFounder(); }
+    match /forwardExperiments/{experiment}/{document=**} { allow read: if isFounder(); }
+    match /forwardExperiments/{experiment}/commands/{strategy} {
+      allow create, update: if isFounder() && strategy in ['etf', 'crypto']
+        && request.resource.data.keys().hasOnly(['id', 'action', 'issued_at'])
+        && request.resource.data.id is string && request.resource.data.id.size() <= 64
+        && request.resource.data.action in ['start', 'pause', 'resume']
+        && request.resource.data.issued_at == request.time;
     }
 
     match /todos/{todoId} {
