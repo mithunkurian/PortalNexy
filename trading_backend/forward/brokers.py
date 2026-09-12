@@ -95,13 +95,14 @@ class IBPaper:
     def snapshot(self, known, inception):
         from ib_insync import ExecutionFilter
         self.check_account()
-        self.ib.reqAccountUpdates(self.account)
+        # connect() initializes the persistent account/position subscriptions.
+        # Re-requesting the same account can wait forever for a second download-end.
+        self.ib.sleep(.2)
         values = self.ib.accountValues(self.account)
         cash = next((number(v.value) for v in values if v.tag == 'CashBalance' and v.currency == 'USD'), None)
         equity = next((number(v.value) for v in values if v.tag == 'NetLiquidation' and v.currency == 'BASE'), None)
         if cash is None:
             raise Blocked('IBKR USD cash balance unavailable')
-        self.ib.reqPositions()
         positions = {p.contract.symbol: number(p.position) for p in self.ib.positions(self.account)}
         trades = self.ib.reqAllOpenOrders() + self.ib.reqCompletedOrders(apiOnly=False)
         orders = {}

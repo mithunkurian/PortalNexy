@@ -20,6 +20,17 @@ class AdapterTests(unittest.TestCase):
         b=self.ib();b.ib.managedAccounts.return_value=['U_LIVE']
         with self.assertRaises(Blocked):b.check_account()
         b.ib.placeOrder.assert_not_called()
+    def test_ib_snapshot_uses_existing_account_stream(self):
+        b=self.ib()
+        b.ib.accountValues.return_value=[NS(tag='CashBalance',currency='USD',value='1000')]
+        b.ib.positions.return_value=[]
+        b.ib.reqAllOpenOrders.return_value=[]
+        b.ib.reqCompletedOrders.return_value=[]
+        b.ib.reqExecutions.return_value=[]
+        snapshot=b.snapshot({},'2026-09-12T00:00:00Z')
+        self.assertEqual(snapshot['cash'],1000)
+        b.ib.reqAccountUpdates.assert_not_called()
+        b.ib.reqPositions.assert_not_called()
     def test_ib_contract_identity(self):
         b=self.ib();b.ib.reqContractDetails.return_value=[NS(contract=NS(symbol='SPY',secType='STK',currency='EUR',primaryExchange='ARCA',conId=12))]
         with self.assertRaises(Blocked):b.contract('SPY')
