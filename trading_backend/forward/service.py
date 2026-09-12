@@ -5,12 +5,14 @@ import logging
 import os
 import re
 import uuid
+import hashlib
 from datetime import datetime, timedelta
 from pathlib import Path
-from .rules import Blocked, UTC, iso
+from .rules import Blocked, UTC, iso, dt
 from .store import Store
 from .engine import Engine
 from .brokers import IBPaper, AlpacaPaper
+from .dashboard import activity_summary
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -95,7 +97,10 @@ class Publisher:
     def publish(self, engine):
         strategy = engine.strategy
         state = dict(engine.state)
-        state['orders'] = self.store.records('orders',strategy)[-100:]
+        all_orders = self.store.records('orders',strategy)
+        # Never drop a still-waiting order just because newer terminal orders exist.
+        state['orders'] = [o for o in all_orders if o['status'] not in ('filled','cancelled','rejected')]
+        state['orders'] += [o for o in all_orders if o['status'] in ('filled','cancelled','rejected')][-100:]
         state['fills'] = self.store.records('fills',strategy)[-100:]
         state['history'] = [json.loads(r[0]) for r in self.store.db.execute(
             'SELECT payload FROM history WHERE strategy=? ORDER BY time DESC LIMIT 500',(strategy,))][::-1]
@@ -103,6 +108,8 @@ class Publisher:
             for r in self.store.db.execute('SELECT * FROM events WHERE strategy=? ORDER BY id DESC LIMIT 60',(strategy,))]
         self.root.collection('strategies').document(strategy).set(state)
         self.root.collection('service').document('summary').set(self.store.combined(datetime.now(UTC)))
+        self.publish_fill_archive()
+        self.root.collection('service').document('dashboard').set(activity_summary(self.store,datetime.now(UTC)))
         cursor = self.store.get('published_events',0)
         rows = self.store.db.execute('SELECT * FROM events WHERE id>? ORDER BY id LIMIT 200',(cursor,)).fetchall()
         if rows:
@@ -122,6 +129,31 @@ class Publisher:
                           dict(strategy=strategy,**json.loads(row['payload'])))
             batch.commit(); self.store.put('published_history:'+strategy,rows[-1]['time'])
         self.db.collection('forward').document('current').set(dict(experiment=self.experiment,updated_at=iso(datetime.now(UTC))))
+
+    def publish_fill_archive(self):
+        # Stable document IDs make retries and updated commissions idempotent.
+        pending = []
+        for strategy in ('etf','crypto'):
+            orders = {o['id']:o for o in self.store.records('orders',strategy)}
+            for fill in self.store.records('fills',strategy):
+                inception = self.store.get('strategy:'+strategy,{}).get('inception')
+                if not inception or dt(fill['time']) < dt(inception):
+                    continue
+                payload = dict(fill,strategy=strategy,time=iso(dt(fill['time'])),
+                               order_status=orders.get(fill['order_id'],{}).get('status','unknown'))
+                document_id = hashlib.sha256((strategy+':'+fill['id']).encode()).hexdigest()
+                signature = hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
+                key = 'fill_mirror:'+document_id
+                if self.store.get(key) != signature:
+                    pending.append((document_id,payload,key,signature))
+        for start in range(0,len(pending),200):
+            batch = self.db.batch()
+            group = pending[start:start+200]
+            for document_id,payload,_,_ in group:
+                batch.set(self.root.collection('fills').document(document_id),payload)
+            batch.commit()
+            for _,_,key,signature in group:
+                self.store.put(key,signature)
 
 
 def main():

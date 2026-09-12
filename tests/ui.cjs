@@ -9,8 +9,8 @@ const mock=`
 if (!window.firebase) { (()=>{
  window.__writes=[];
  const empty={exists:false,data:()=>({}),docs:[]};
- function reference(path){return {collection:n=>reference(path+'/'+n),doc:n=>reference(path+'/'+n),orderBy:()=>reference(path),
- onSnapshot:fn=>{queueMicrotask(()=>fn(path==='forward/current'&&window.__fixture?{exists:true,data:()=>({experiment:'offline-test'})}:path.includes('/strategies/')&&window.__fixture?{exists:true,data:()=>window.__fixture[path.split('/').pop()]}:empty));return ()=>{};},
+ function reference(path,lower=null,offset=0,size=100){return {where:(field,op,value)=>reference(path,value,offset,size),limit:n=>reference(path,lower,offset,n),startAfter:doc=>reference(path,lower,doc.index+1,size),get:async()=>{const all=(window.__archive||[]).filter(f=>!lower||f.time>=lower);return {docs:all.slice(offset,offset+size).map((f,i)=>({data:()=>f,index:offset+i}))};},collection:n=>reference(path+'/'+n),doc:n=>reference(path+'/'+n),orderBy:()=>reference(path),
+ onSnapshot:fn=>{queueMicrotask(()=>fn(path==='forward/current'&&window.__fixture?{exists:true,data:()=>({experiment:'offline-test'})}:path.endsWith('/service/dashboard')&&window.__dashboard?{exists:true,data:()=>window.__dashboard}:path.includes('/strategies/')&&window.__fixture?{exists:true,data:()=>window.__fixture[path.split('/').pop()]}:empty));return ()=>{};},
  set:async data=>{window.__writes.push({path,data});},add:async()=>{},update:async()=>{}};}
  const authObject={onAuthStateChanged:fn=>queueMicrotask(()=>fn({email:'mithunkurian@gmail.com',displayName:'UI verification'})),signOut:()=>{},signInWithPopup:async()=>{}};
  function auth(){return authObject;}auth.GoogleAuthProvider=function(){};
@@ -56,6 +56,38 @@ async function run(){
   const writes=await page.evaluate(()=>window.__writes);
   assert.equal(writes.length,1);assert.equal(writes[0].path,'forwardExperiments/offline-test/commands/etf');assert.equal(writes[0].data.action,'start');
   assert.equal(await page.evaluate(()=>typeof runtimeControl),'undefined');
+  assert.deepEqual(errors,[]);
+  await page.evaluate(()=>{
+   const now=new Date().toISOString(),old='2026-01-01T00:00:00+00:00';
+   for(const id of ['etf','crypto'])forwardState[id]={...forwardState[id],inception:old,portfolio:{equity:1000,cash:900,unrealised:10,realised:2,positions:[{symbol:id==='etf'?'SPY':'BTC/USD',quantity:1,market_value:100}]},orders:[{symbol:'SPY',side:'buy',quantity:2,filled:1,status:'partial',created_at:old}]};
+   window.__archive=Array.from({length:121},(_,i)=>({id:String(i),strategy:'etf',time:now,symbol:'SPY',side:'buy',quantity:1,price:100,fee:1,order_status:'partial'}));
+   forwardState.dashboard={updated_at:now,archive_ready:true,periods:{today:{all:{started:true,fills:121,orders_with_fills:1,orders_submitted:1,executed_value:12100}}}};
+   navigate('dashboard');
+  });
+  assert.equal(await page.evaluate(()=>Dashboard.start('week',new Date('2027-01-01T12:00:00Z')).toISOString()),'2026-12-28T00:00:00.000Z');
+  assert.equal(await page.evaluate(()=>Dashboard.start('month',new Date('2027-01-01T12:00:00Z')).toISOString()),'2027-01-01T00:00:00.000Z');
+  const dashboard=page.locator('#forward-dashboard');
+  await dashboard.getByRole('button',{name:'Load more fills'}).waitFor();
+  assert.match(await dashboard.innerText(),/Showing 100 matching fills/);
+  await dashboard.getByRole('button',{name:'Load more fills'}).click();
+  await page.waitForFunction(()=>document.querySelector('#forward-dashboard').textContent.includes('Showing 121 matching fills'));
+  await dashboard.getByLabel('Strategy filter').selectOption('crypto');
+  assert.match(await dashboard.innerText(),/Showing 0 matching fills/);
+  assert.match(await dashboard.innerText(),/BTC\/USD/);
+  await dashboard.getByLabel('Strategy filter').selectOption('all');
+  for(const label of ['This week','This month','Last 30 days','All time','Today']){
+   await dashboard.getByRole('button',{name:label,exact:true}).click();
+   assert.equal(await dashboard.getByRole('button',{name:label,exact:true}).getAttribute('aria-pressed'),'true');
+   assert.match(await dashboard.innerText(),/partial/);
+  }
+  await page.waitForFunction(()=>!document.querySelector('#forward-dashboard').textContent.includes('Loading confirmed'));
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  await page.screenshot({path:path.resolve(__dirname,'../.firebase/ui-qa/dashboard-mobile.png'),fullPage:true,animations:'disabled'});
+  await page.setViewportSize({width:1440,height:1000});
+  await page.screenshot({path:path.resolve(__dirname,'../.firebase/ui-qa/dashboard-desktop.png'),fullPage:true,animations:'disabled'});
+  await page.evaluate(()=>{forwardState.etf.updated_at='2020-01-01T00:00:00Z';renderForward();});
+  assert.match(await dashboard.innerText(),/Last known \/ stale/);
+  assert.equal(await page.evaluate(()=>window.__writes.length),1,'Dashboard must not write broker commands');
   assert.deepEqual(errors,[]);
   console.log('UI PASS: desktop/mobile, empty states, management navigation, no legacy commands, allowlisted command route, no JS errors.');
  } finally {if(browser)await browser.close();server.close();}

@@ -1,6 +1,6 @@
 'use strict';
 const PAGE_TITLES={command:'Command Centre',dashboard:'Dashboard',paper:'Paper Trading',risk:'Risk Monitor',logs:'Decision Log',finance:'Finance',boardroom:'Boardroom',roadmap:'Roadmap',todo:'Action Plan',design:'Design Document'};
-const forwardState={experiment:null,etf:null,crypto:null,summary:null,error:null};
+const forwardState={experiment:null,etf:null,crypto:null,summary:null,dashboard:null,error:null};
 let listeners=[],strategyListeners=[],charts=[],activePage='command';
 const pendingCommands={};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -23,7 +23,7 @@ function tickClock(){const el=document.getElementById('stockholm-clock');if(el)e
 function init(){tickClock();renderRoadmap();renderTodos();renderForward();}
 setInterval(tickClock,1000);
 setInterval(renderForward,30000);
-function stopFirestoreListeners(){listeners.forEach(f=>f());strategyListeners.forEach(f=>f());listeners=[];strategyListeners=[];if(typeof closeChat==='function')closeChat();forwardState.etf=null;forwardState.crypto=null;forwardState.experiment=null;renderForward();}
+function stopFirestoreListeners(){listeners.forEach(f=>f());strategyListeners.forEach(f=>f());listeners=[];strategyListeners=[];if(typeof closeChat==='function')closeChat();forwardState.etf=null;forwardState.crypto=null;forwardState.experiment=null;forwardState.summary=null;forwardState.dashboard=null;Dashboard.reset(null);renderForward();}
 function startFirestoreListeners(){
   stopFirestoreListeners();
   const fail=()=>{forwardState.error='Unable to read experiment data. Check sign-in and the new Firestore rules.';renderForward();};
@@ -33,7 +33,8 @@ function startFirestoreListeners(){
     const experiment=s.exists?s.data().experiment:null;
     if(experiment!==forwardState.experiment){
       strategyListeners.forEach(f=>f());strategyListeners=[];
-      forwardState.experiment=experiment;forwardState.etf=null;forwardState.crypto=null;forwardState.summary=null;
+      forwardState.experiment=experiment;forwardState.etf=null;forwardState.crypto=null;forwardState.summary=null;forwardState.dashboard=null;Dashboard.reset(experiment);
+      if(experiment)strategyListeners.push(db.collection('forwardExperiments').doc(experiment).collection('service').doc('dashboard').onSnapshot(doc=>{forwardState.dashboard=doc.exists?doc.data():null;Dashboard.onReport(forwardState.dashboard);renderForward();},fail));
       if(experiment)strategyListeners.push(db.collection('forwardExperiments').doc(experiment).collection('service').doc('summary').onSnapshot(doc=>{forwardState.summary=doc.exists?doc.data():null;renderForward();},fail));
       if(experiment)for(const strategy of ['etf','crypto'])strategyListeners.push(db.collection('forwardExperiments').doc(experiment).collection('strategies').doc(strategy).onSnapshot(doc=>{
         forwardState[strategy]=doc.exists?doc.data():null;
@@ -109,7 +110,8 @@ function renderForward(){
   const error=forwardState.error?`<div class="fp-error" role="alert">${esc(forwardState.error)}</div>`:'';
   const combinedCard=`<section class="fp-card"><h2>Combined experiment</h2><p class="fp-muted">Sum of strategy allocations, not separate broker accounts. Unallocated account cash and historical positions are excluded. Both strategies need fresh, reconciled valuations.</p>${portfolioMetrics(aggregate)}${table(['Strategy','Symbol','Quantity','Market value'],(aggregate.portfolio?.positions||[]).map(p=>[p.strategy,p.symbol,p.quantity,money(p.market_value)]),'No combined reconciled positions available')}<div class="fp-chart"><canvas id="chart-combined" aria-label="Combined forward equity and reference"></canvas></div><p class="fp-muted">Chart shows up to 500 recent matched observations. Combined drawdown uses all matched observations since both strategies started. Full records remain in the service ledger and Firestore history.</p></section>`;
   let html='';
-  if(['paper','dashboard','finance','command'].includes(activePage)){
+  if(activePage==='dashboard')html=Dashboard.render();
+  else if(['paper','finance','command'].includes(activePage)){
     html=banner+error+combinedCard;
     if(activePage==='paper')html+=`<div class="fp-grid">${strategyCard('etf')}${strategyCard('crypto')}</div><section class="fp-card"><h2>Decision journal</h2>${logs()}</section>`;
     else html+=`<div class="fp-grid">${['etf','crypto'].map(id=>`<section class="fp-card"><h2>${id==='etf'?'ETF rotation':'BTC / ETH momentum'}</h2><p class="fp-muted">${esc(forwardState[id]?.version||'Awaiting experiment')} · ${esc(fresh(forwardState[id])?forwardState[id]?.connection:'Awaiting service')}</p>${portfolioMetrics(forwardState[id])}${forwardState[id]?.error?`<p class="fp-error">${esc(forwardState[id].error)}</p>`:''}<button class="fp-button" onclick="navigate('paper')">Open Paper Trading</button></section>`).join('')}</div>`;

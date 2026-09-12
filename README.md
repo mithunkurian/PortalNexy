@@ -2,7 +2,7 @@
 
 ETF rotation on an explicitly allowlisted IBKR paper account and direct BTC/ETH momentum on an explicitly allowlisted Alpaca paper account. The existing navy/white portal, login, management pages, todos and chat remain. Old roadmap/design content is labeled as historical reference.
 
-**Implemented and tested offline. No broker has been connected by this change, no orders submitted, no Windows task installed, and no Firestore rules or website deployed. Unattended operation is not yet verified.**
+**The portal and Firestore rules have been deployed. Broker connectivity has been checked read-only; forward strategy execution and unattended operation are not yet verified. No Windows service task has been installed.**
 
 ## Implemented components
 
@@ -11,6 +11,14 @@ ETF rotation on an explicitly allowlisted IBKR paper account and direct BTC/ETH 
 - `portal-management.js`, `portal-auth.js`: retained management and login. Firebase web configuration is public client configuration; broker keys and service-account secrets never enter browser assets.
 - `trading_backend/app.py` and `python -m trading_backend.service` route only to the new service. Legacy worker/execution/IBKR classes fail closed. Old backtest, optimiser and strategy workflows are removed. The new service has no live-order or order-cancellation implementation.
 - Historical Firestore `runtimes/*`, old SQLite databases, ignored research files and credentials are untouched. The new experiment reads none of their performance history.
+
+## Dashboard
+
+`dashboard.js` provides Today, This Week, This Month, Last 30 Days and All Time filters, plus strategy selection. Dates use UTC, and weeks start Monday. Current attributed positions and waiting orders remain visible regardless of the date filter; stale snapshots are explicitly labelled and excluded from current totals.
+
+Activity totals come from the complete SQLite experiment ledger, published to `forwardExperiments/{experiment}/service/dashboard`. Confirmed executions are mirrored idempotently to the experiment's `fills` collection, including later commission and order-status updates. The browser reads 100 records at a time; Load more retrieves older records, and the page states how many records are loaded before applying the strategy filter. New fill counts automatically reload the archive; Refresh fills also retrieves commission/status corrections. Totals update with service snapshots; fill tables show their last read time. Partial fills count as executions, and executed value is turnover, not P&L. Submission attempts include uncertain broker submissions. Neither historical simulations nor pre-inception records are included.
+
+Deploy the UI bundle and run the updated Python service to populate this projection. Until the service publishes it, activity totals remain unavailable. The dashboard is read-only and does not start, cancel or modify orders.
 
 ## Versioned rules
 
@@ -86,7 +94,7 @@ Pause stops **new submissions only**. Holdings stay invested; outstanding orders
    .\.venv\Scripts\python.exe -m http.server 8080 --bind 127.0.0.1 --directory public
    ```
 
-   Open `http://localhost:8080`, authorize localhost in Firebase Auth if required, and use the existing founder login. The build copies only five public assets and refuses unexpected files in `public/`. Do not serve the repository root.
+   Open `http://localhost:8080`, authorize localhost in Firebase Auth if required, and use the existing founder login. The build copies only six public assets and refuses unexpected files in `public/`. Do not serve the repository root.
 
 9. In another PowerShell window:
 
