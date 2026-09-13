@@ -98,6 +98,7 @@ async function run(){
   }
   await page.waitForFunction(()=>!document.querySelector('#forward-dashboard').textContent.includes('Loading confirmed'));
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  await page.evaluate(()=>{document.querySelectorAll('*').forEach(el=>{if(el.scrollTop)el.scrollTop=0;});});
   await page.screenshot({path:path.resolve(__dirname,'../.firebase/ui-qa/dashboard-mobile.png'),fullPage:true,animations:'disabled'});
   await page.setViewportSize({width:1440,height:1000});
   await page.evaluate(()=>{document.querySelectorAll('*').forEach(el=>{if(el.scrollTop)el.scrollTop=0;});});
