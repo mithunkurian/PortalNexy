@@ -103,7 +103,14 @@ class IBPaper:
         equity = next((number(v.value) for v in values if v.tag == 'NetLiquidation' and v.currency == 'BASE'), None)
         if cash is None:
             raise Blocked('IBKR USD cash balance unavailable')
-        positions = {p.contract.symbol: number(p.position) for p in self.ib.positions(self.account)}
+        reported_positions = self.ib.positions(self.account)
+        # IBKR CASH positions describe FX activity; USD CashBalance is authoritative
+        # for the allocation. Preserve FX records separately, never value them as ETFs.
+        positions = {p.contract.symbol: number(p.position) for p in reported_positions
+                     if p.contract.secType != 'CASH'}
+        fx_positions = [dict(symbol=p.contract.symbol,currency=p.contract.currency,
+                             quantity=number(p.position)) for p in reported_positions
+                        if p.contract.secType == 'CASH']
         trades = self.ib.reqAllOpenOrders() + self.ib.reqCompletedOrders(apiOnly=False)
         orders = {}
         external = []
@@ -129,7 +136,7 @@ class IBPaper:
                 quantity=number(e.shares), price=number(e.price), side='buy' if e.side == 'BOT' else 'sell',
                 time=iso(e.time), fee=number(fee) if 0 <= fee < 1e20 and f.commissionReport.currency == 'USD' else None))
         return dict(account=self.account, cash=cash, broker_equity=equity, positions=positions,
-                    orders=orders, fills=fills, external_orders=external, fees=[],
+                    orders=orders, fills=fills, external_orders=external, fees=[], fx_positions=fx_positions,
                     timestamp=iso(datetime.now(UTC)), currency='USD')
 
     def preflight(self, order):

@@ -31,6 +31,20 @@ class AdapterTests(unittest.TestCase):
         self.assertEqual(snapshot['cash'],1000)
         b.ib.reqAccountUpdates.assert_not_called()
         b.ib.reqPositions.assert_not_called()
+    def test_ib_fx_cash_records_are_separate_from_security_positions(self):
+        b=self.ib()
+        b.ib.accountValues.return_value=[NS(tag='CashBalance',currency='USD',value='29783.92')]
+        b.ib.positions.return_value=[
+            NS(contract=NS(symbol='EUR',secType='CASH',currency='USD'),position=-20000),
+            NS(contract=NS(symbol='SPY',secType='STK',currency='USD'),position=3)]
+        b.ib.reqAllOpenOrders.return_value=[]
+        b.ib.reqCompletedOrders.return_value=[]
+        b.ib.reqExecutions.return_value=[]
+        snapshot=b.snapshot({},'2026-09-14T00:00:00Z')
+        self.assertEqual(snapshot['positions'],{'SPY':3})
+        self.assertEqual(snapshot['fx_positions'],[dict(symbol='EUR',currency='USD',quantity=-20000)])
+        self.assertEqual(snapshot['cash'],29783.92)
+        b.ib.placeOrder.assert_not_called()
     def test_ib_contract_identity(self):
         b=self.ib();b.ib.reqContractDetails.return_value=[NS(contract=NS(symbol='SPY',secType='STK',currency='EUR',primaryExchange='ARCA',conId=12))]
         with self.assertRaises(Blocked):b.contract('SPY')
