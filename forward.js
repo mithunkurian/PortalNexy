@@ -1,5 +1,5 @@
 'use strict';
-const PAGE_TITLES={command:'Command Centre',dashboard:'Dashboard',homewip:'Homepage WIP',paper:'Paper Trading',risk:'Risk Monitor',logs:'Decision Log',finance:'Finance',boardroom:'Boardroom',roadmap:'Roadmap',todo:'Action Plan',design:'Design Document'};
+const PAGE_TITLES={command:'Command Centre',paper:'Paper Lab',risk:'Risk Monitor',logs:'Decision Log',finance:'Finance',boardroom:'Boardroom',roadmap:'Roadmap',todo:'Action Plan',design:'Design Document'};
 const forwardState={experiment:null,etf:null,crypto:null,summary:null,dashboard:null,error:null};
 let listeners=[],strategyListeners=[],charts=[],activePage='command';
 const pendingCommands={};
@@ -110,16 +110,15 @@ function renderForward(){
   const error=forwardState.error?`<div class="fp-error" role="alert">${esc(forwardState.error)}</div>`:'';
   const combinedCard=`<section class="fp-card"><h2>Combined experiment</h2><p class="fp-muted">Sum of strategy allocations, not separate broker accounts. Unallocated account cash and historical positions are excluded. Both strategies need fresh, reconciled valuations.</p>${portfolioMetrics(aggregate)}${table(['Strategy','Symbol','Quantity','Market value'],(aggregate.portfolio?.positions||[]).map(p=>[p.strategy,p.symbol,p.quantity,money(p.market_value)]),'No combined reconciled positions available')}<div class="fp-chart"><canvas id="chart-combined" aria-label="Combined forward equity and reference"></canvas></div><p class="fp-muted">Chart shows up to 500 recent matched observations. Combined drawdown uses all matched observations since both strategies started. Full records remain in the service ledger and Firestore history.</p></section>`;
   let html='';
-  if(activePage==='dashboard')html=Dashboard.render();
-  else if(activePage==='homewip')html=HomepageWIP.render();
-  else if(['paper','finance','command'].includes(activePage)){
+  if(activePage==='command')html=HomepageWIP.render();
+  else if(['paper','finance'].includes(activePage)){
     html=banner+error+combinedCard;
     if(activePage==='paper')html+=`<div class="fp-grid">${strategyCard('etf')}${strategyCard('crypto')}</div><section class="fp-card"><h2>Decision journal</h2>${logs()}</section>`;
-    else html+=`<div class="fp-grid">${['etf','crypto'].map(id=>`<section class="fp-card"><h2>${id==='etf'?'ETF rotation':'BTC / ETH momentum'}</h2><p class="fp-muted">${esc(forwardState[id]?.version||'Awaiting experiment')} · ${esc(fresh(forwardState[id])?forwardState[id]?.connection:'Awaiting service')}</p>${portfolioMetrics(forwardState[id])}${forwardState[id]?.error?`<p class="fp-error">${esc(forwardState[id].error)}</p>`:''}<button class="fp-button" onclick="navigate('paper')">Open Paper Trading</button></section>`).join('')}</div>`;
+    else html+=`<div class="fp-grid">${['etf','crypto'].map(id=>`<section class="fp-card"><h2>${id==='etf'?'ETF rotation':'BTC / ETH momentum'}</h2><p class="fp-muted">${esc(forwardState[id]?.version||'Awaiting experiment')} · ${esc(fresh(forwardState[id])?forwardState[id]?.connection:'Awaiting service')}</p>${portfolioMetrics(forwardState[id])}${forwardState[id]?.error?`<p class="fp-error">${esc(forwardState[id].error)}</p>`:''}<button class="fp-button" onclick="navigate('paper')">Open Paper Lab</button></section>`).join('')}</div>`;
   } else if(activePage==='logs')html=error+`<section class="fp-card">${logs()}</section>`;
   else if(activePage==='risk')html=error+`<section class="fp-card"><h2>Execution gates</h2><p class="fp-rules">Exact paper-account allowlists · server-side credentials · verified contract, currency and exchange · trading permission preflight · fresh bid/ask · eligible session · cash and fee reserve · long-only sizing · durable duplicate prevention · broker reconciliation · service ownership lease.</p><p class="fp-muted">No fixed annual-return target or portfolio drawdown rejection threshold. Any reconciliation discrepancy or uncertain submission blocks new orders; it does not liquidate holdings or cancel broker orders.</p>${table(['Strategy','Reconciliation','Last checked','Error'],['etf','crypto'].map(id=>[id,forwardState[id]?.reconciliation||'Unverified',stamp(forwardState[id]?.last_reconciled),forwardState[id]?.error||'—']),'')}</section>`;
   const container=document.getElementById('forward-'+activePage);if(container)container.innerHTML=html;
-  if(container){if(activePage==='dashboard')draw('chart-dashboard',window.dashboardHistory||[]);if(activePage==='homewip')draw('chart-home-wip',window.homeWipHistory||[]);draw('chart-combined',aggregate.history);if(activePage==='paper')for(const id of ['etf','crypto'])draw('chart-'+id,forwardState[id]?.history||[]);}
+  if(container){if(activePage==='command')draw('chart-home-wip',window.homeWipHistory||[]);draw('chart-combined',aggregate.history);if(activePage==='paper')for(const id of ['etf','crypto'])draw('chart-'+id,forwardState[id]?.history||[]);}
   const strip=document.getElementById('system-status-strip');if(strip)strip.innerHTML=['etf','crypto'].map(id=>`<div class="fp-muted">${id==='etf'?'IBKR ETF':'Alpaca crypto'}: ${esc(fresh(forwardState[id])?forwardState[id]?.connection||'Unverified':'Awaiting service')}</div>`).join('');
   const badge=document.getElementById('active-runtime-badge');if(badge)badge.textContent='Forward paper · '+(fresh(forwardState.etf)||fresh(forwardState.crypto)?'Service reporting':'Awaiting service');
 }

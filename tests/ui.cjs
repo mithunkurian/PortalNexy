@@ -29,17 +29,17 @@ async function run(){
   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:8765/',{waitUntil:'networkidle'});
   assert.deepEqual(errors,[], 'Initial page JavaScript errors');
-  await page.getByText('Paper Trading',{exact:true}).first().click();
+  await page.getByText('Paper Lab',{exact:true}).first().click();
   await page.locator('#forward-paper h2').first().waitFor();
   assert.equal(await page.locator('nav').getByText('Live Trading',{exact:true}).count(),0);
   assert.equal(await page.locator('nav').getByText('Backtest Lab',{exact:true}).count(),0);
   assert.equal(await page.locator('#forward-paper button:enabled').count(),0);
   assert.match(await page.locator('#forward-paper').innerText(),/No confirmed forward fills/);
   assert.equal(await page.evaluate(()=>window.__writes.length),0);
-  for(const name of ['Command Centre','Dashboard','Risk Monitor','Decision Log','Finance','Boardroom','Roadmap','Action Plan','Design Doc']){
+  for(const name of ['Command Centre','Risk Monitor','Decision Log','Finance','Boardroom','Roadmap','Action Plan','Design Doc']){
    await page.locator('nav').getByText(name,{exact:true}).click();
   }
-  await page.locator('nav').getByText('Paper Trading',{exact:true}).click();
+  await page.locator('nav').getByText('Paper Lab',{exact:true}).click();
   fs.mkdirSync(path.resolve(__dirname,'../.firebase/ui-qa'),{recursive:true});
   await page.screenshot({path:path.resolve(__dirname,'../.firebase/ui-qa/paper-desktop.png'),fullPage:true,animations:'disabled'});
   await page.setViewportSize({width:390,height:844});
@@ -62,50 +62,14 @@ async function run(){
    for(const id of ['etf','crypto'])forwardState[id]={...forwardState[id],inception:old,history:[{time:now,equity:1000,benchmark:1000}],portfolio:{costs:0,equity:1000,cash:900,unrealised:10,realised:2,positions:[{symbol:id==='etf'?'SPY':'BTC/USD',quantity:1,market_value:100}]},orders:[{symbol:'SPY',side:'buy',quantity:2,filled:1,status:'partial',created_at:old}]};
    window.__archive=Array.from({length:121},(_,i)=>({id:String(i),strategy:'etf',time:now,symbol:'SPY',side:'buy',quantity:1,price:100,fee:1,order_status:'partial'}));
    forwardState.dashboard={updated_at:now,archive_ready:true,periods:{today:{all:{started:true,fills:121,orders_with_fills:1,orders_submitted:1,executed_value:12100}}}};
-   navigate('dashboard');
+   navigate('command');
   });
   assert.equal(await page.evaluate(()=>Dashboard.start('week',new Date('2027-01-01T12:00:00Z')).toISOString()),'2026-12-28T00:00:00.000Z');
   assert.equal(await page.evaluate(()=>Dashboard.start('month',new Date('2027-01-01T12:00:00Z')).toISOString()),'2027-01-01T00:00:00.000Z');
-  const dashboard=page.locator('#forward-dashboard');
-  assert.equal(await dashboard.locator('#chart-dashboard').count(),1);
-  assert.equal(await dashboard.getByRole('tabpanel').count(),1);
-  assert.equal(await dashboard.getByRole('tab',{name:/Active trades/}).getAttribute('aria-selected'),'true');
-  await dashboard.getByRole('button',{name:'View',exact:true}).first().click();
-  assert.equal(await dashboard.getByLabel('Selected record details').count(),1);
-  await dashboard.getByRole('button',{name:'View',exact:true}).first().click();
-  assert.equal(await dashboard.getByLabel('Selected record details').count(),1);
-  await dashboard.getByRole('tab',{name:/Waiting orders/}).click();
-  assert.match(await dashboard.innerText(),/partial/);
-  await dashboard.getByLabel('Side',{exact:true}).selectOption('sell');
-  assert.match(await dashboard.innerText(),/No records match/);
-  await dashboard.getByLabel('Side',{exact:true}).selectOption('all');
-  await dashboard.getByLabel('Asset',{exact:true}).selectOption('SPY');
-  await dashboard.getByLabel('Status',{exact:true}).selectOption('partial');
-  await dashboard.getByRole('tab',{name:/Filled orders/}).click();
-  await dashboard.getByRole('button',{name:'Load more fills'}).waitFor();
-  assert.match(await dashboard.innerText(),/of 100 matching loaded fills/);
-  assert.equal(await dashboard.locator('tbody tr').count(),5);
-  await dashboard.getByRole('button',{name:'Next',exact:true}).click();
-  assert.match(await dashboard.innerText(),/6–10 of 100/);
-  await dashboard.getByRole('button',{name:'Load more fills'}).click();
-  await page.waitForFunction(()=>document.querySelector('#forward-dashboard').textContent.includes('of 121 matching loaded fills'));
-  await dashboard.getByLabel('Strategy filter').selectOption('crypto');
-  assert.match(await dashboard.innerText(),/0 records/);
-  await dashboard.getByLabel('Strategy filter').selectOption('all');
-  for(const key of ['week','month','days30','all','today']){
-   await dashboard.getByLabel('Time frame',{exact:true}).selectOption(key);
-   assert.equal(await dashboard.getByLabel('Time frame',{exact:true}).inputValue(),key);
-  }
-  await page.waitForFunction(()=>!document.querySelector('#forward-dashboard').textContent.includes('Loading confirmed'));
-  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
-  await page.evaluate(()=>{document.querySelectorAll('*').forEach(el=>{if(el.scrollTop)el.scrollTop=0;});});
-  await page.screenshot({path:path.resolve(__dirname,'../.firebase/ui-qa/dashboard-mobile.png'),fullPage:true,animations:'disabled'});
+  assert.equal(await page.locator('nav').getByText('Dashboard',{exact:true}).count(),0);
+  assert.equal(await page.locator('nav').getByText('Homepage WIP',{exact:true}).count(),0);
   await page.setViewportSize({width:1440,height:1000});
-  await page.evaluate(()=>{document.querySelectorAll('*').forEach(el=>{if(el.scrollTop)el.scrollTop=0;});});
-  await page.screenshot({path:path.resolve(__dirname,'../.firebase/ui-qa/dashboard-desktop.png'),fullPage:true,animations:'disabled'});
-  assert.ok(await dashboard.boundingBox().then(b=>b.height<900),'Desktop dashboard should be compact');
-  await page.evaluate(()=>navigate('homewip'));
-  const home=page.locator('#forward-homewip');
+  const home=page.locator('#forward-command');
   assert.match(await home.innerText(),/Portfolio health at a glance/);
   assert.equal(await home.getByLabel('Strategy').count(),1);
   assert.equal(await home.getByLabel('Time frame').count(),1);
@@ -117,16 +81,12 @@ async function run(){
   assert.equal(await home.locator('.hw-detail').count(),1);
   await home.getByRole('button',{name:'Show',exact:true}).click();
   assert.match(await home.innerText(),/Execution/);
-  await page.screenshot({path:path.resolve(__dirname,'../.firebase/ui-qa/homepage-wip-desktop.png'),fullPage:true,animations:'disabled'});
+  await page.screenshot({path:path.resolve(__dirname,'../.firebase/ui-qa/command-centre-desktop.png'),fullPage:true,animations:'disabled'});
   await page.setViewportSize({width:390,height:844});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
-  await page.screenshot({path:path.resolve(__dirname,'../.firebase/ui-qa/homepage-wip-mobile.png'),fullPage:true,animations:'disabled'});
+  await page.screenshot({path:path.resolve(__dirname,'../.firebase/ui-qa/command-centre-mobile.png'),fullPage:true,animations:'disabled'});
   await page.setViewportSize({width:1440,height:1000});
-  await page.evaluate(()=>navigate('dashboard'));
-  await page.evaluate(()=>{forwardState.etf.updated_at='2020-01-01T00:00:00Z';renderForward();});
-  await dashboard.getByRole('tab',{name:/Active trades/}).click();
-  assert.match(await dashboard.innerText(),/Last known \/ stale/);
-  assert.equal(await page.evaluate(()=>window.__writes.length),1,'Dashboard must not write broker commands');
+  assert.equal(await page.evaluate(()=>window.__writes.length),1,'Command Centre must not write broker commands');
   assert.deepEqual(errors,[]);
   console.log('UI PASS: desktop/mobile, empty states, management navigation, no legacy commands, allowlisted command route, no JS errors.');
  } finally {if(browser)await browser.close();server.close();}

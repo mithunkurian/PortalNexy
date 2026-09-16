@@ -190,15 +190,8 @@ tailwind.config = {
     <a class="nav-link active flex items-center gap-3 px-4 py-2.5 cursor-pointer text-[13px] font-semibold text-primary" onclick="navigate('command',this)">
       <span class="material-symbols-outlined text-[20px]">radar</span><span>Command Centre</span>
     </a>
-    <a class="nav-link flex items-center gap-3 px-4 py-2.5 cursor-pointer text-[13px] font-medium text-on-surface-variant" onclick="navigate('dashboard',this)">
-      <span class="material-symbols-outlined text-[20px]">dashboard</span><span>Dashboard</span>
-    </a>
-    <a class="nav-link flex items-center gap-3 px-4 py-2.5 cursor-pointer text-[13px] font-medium text-on-surface-variant" onclick="navigate('homewip',this)">
-      <span class="material-symbols-outlined text-[20px]">home</span><span>Homepage WIP</span>
-    </a>
-
     <a class="nav-link flex items-center gap-3 px-4 py-2.5 cursor-pointer text-[13px] font-medium text-on-surface-variant" onclick="navigate('paper',this)">
-      <span class="material-symbols-outlined text-[20px]">science</span><span>Paper Trading</span>
+      <span class="material-symbols-outlined text-[20px]">science</span><span>Paper Lab</span>
     </a>
     <a class="nav-link flex items-center gap-3 px-4 py-2.5 cursor-pointer text-[13px] font-medium text-on-surface-variant" onclick="navigate('risk',this)">
       <span class="material-symbols-outlined text-[20px]">shield</span><span>Risk Monitor</span>
@@ -286,10 +279,8 @@ tailwind.config = {
   <div id="content-area" class="flex-1 overflow-y-auto">
 
     <!-- ══ PAGE: COMMAND ══ -->
-    <div id="page-command" class="page active forward-page"><h1>Command Centre</h1><p class="forward-intro">Forward paper experiment. Broker confirmation is required before results appear.</p><div id="forward-command"></div></div>
-<div id="page-dashboard" class="page  forward-page"><h1>Dashboard</h1><p class="forward-intro">Combined and per-strategy forward observations in USD.</p><div id="forward-dashboard"></div></div>
-<div id="page-homewip" class="page forward-page"><h1>Homepage WIP</h1><div id="forward-homewip"></div></div>
-<div id="page-paper" class="page  forward-page"><h1>Paper Trading</h1><p class="forward-intro">Two independent strategies. Actual broker paper orders and fills, from inception.</p><div id="forward-paper"></div></div>
+    <div id="page-command" class="page active forward-page"><h1>Command Centre</h1><div id="forward-command"></div></div>
+<div id="page-paper" class="page  forward-page"><h1>Paper Lab</h1><p class="forward-intro">Two independent strategies. Actual broker paper orders and fills, from inception.</p><div id="forward-paper"></div></div>
 <div id="page-risk" class="page  forward-page"><h1>Operational Safeguards</h1><p class="forward-intro">Long-only allocations, fresh data and broker reconciliation before every submission.</p><div id="forward-risk"></div></div>
 <div id="page-logs" class="page  forward-page"><h1>Decision Log</h1><p class="forward-intro">Persistent signals, rejected trades, order intentions and confirmed fills.</p><div id="forward-logs"></div></div>
 <div id="page-finance" class="page  forward-page"><h1>Finance</h1><p class="forward-intro">Attributed paper results. Allocations are not separate broker accounts.</p><div id="forward-finance"></div></div>
@@ -392,7 +383,7 @@ tailwind.config = {
           <h2 class="text-[22px] font-headline font-extrabold text-primary mb-5">Testing Protocol</h2>
           <div class="space-y-4">
             <div class="bg-surface-container-lowest p-7 rounded-xl shadow-ambient"><div class="flex items-center gap-3 mb-3"><div class="w-7 h-7 bg-primary text-on-primary rounded-lg flex items-center justify-center font-black text-[12px]">1</div><h3 class="text-[15px] font-bold text-on-surface">Backtesting</h3></div><p class="text-[13px] text-on-surface-variant leading-relaxed">Run strategy rules against IBKR historical data (2020–2025 minimum). Measure return, Sharpe ratio, max drawdown, win rate. Results saved to /backtests in Firestore and visible in Backtest Lab.</p></div>
-            <div class="bg-surface-container-lowest p-7 rounded-xl shadow-ambient"><div class="flex items-center gap-3 mb-3"><div class="w-7 h-7 bg-primary text-on-primary rounded-lg flex items-center justify-center font-black text-[12px]">2</div><h3 class="text-[15px] font-bold text-on-surface">Paper Trading</h3></div><p class="text-[13px] text-on-surface-variant leading-relaxed">Deploy bot to Cloud Run connected to IBKR paper account. Trade with live data, simulated orders, for minimum 30 trading days. Validate portal data accuracy, risk limits, and edge case handling.</p></div>
+            <div class="bg-surface-container-lowest p-7 rounded-xl shadow-ambient"><div class="flex items-center gap-3 mb-3"><div class="w-7 h-7 bg-primary text-on-primary rounded-lg flex items-center justify-center font-black text-[12px]">2</div><h3 class="text-[15px] font-bold text-on-surface">Paper Lab</h3></div><p class="text-[13px] text-on-surface-variant leading-relaxed">Run the background service against verified paper accounts. Trade with live data and broker-confirmed paper orders while validating portal accuracy, safeguards and recovery behavior.</p></div>
             <div class="bg-surface-container-lowest p-7 rounded-xl shadow-ambient"><div class="flex items-center gap-3 mb-3"><div class="w-7 h-7 bg-primary text-on-primary rounded-lg flex items-center justify-center font-black text-[12px]">3</div><h3 class="text-[15px] font-bold text-on-surface">Live Trading (Small Size)</h3></div><p class="text-[13px] text-on-surface-variant leading-relaxed">Switch to live IBKR account with minimum position sizes ($500–$1,000 per trade) for 30 days. Compare to paper and backtest results. Scale only after consistent behaviour is confirmed.</p></div>
           </div>
         </div>
