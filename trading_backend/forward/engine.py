@@ -5,9 +5,9 @@ from datetime import datetime, timedelta
 from .rules import RULES, Blocked, UTC, iso, dt, signal, slots, warmup_dates, validate_quote
 
 TERMINAL = {'filled', 'cancelled', 'rejected'}
-CRYPTO_EXECUTION_POLICY = 'marketable-limit-reprice-1.0.0'
-CRYPTO_REPRICE_SECONDS = 60
-CRYPTO_MAX_PRICE_DRIFT = .01
+MONITORED_LIMIT_POLICY = 'marketable-limit-reprice-1.0.0'
+REPRICE_SECONDS = 60
+MAX_PRICE_DRIFT = .01
 
 
 class Engine:
@@ -23,8 +23,7 @@ class Engine:
         if not self.state['inception']:
             self.state.update(experiment=experiment,version=self.rule.version,rule=asdict(self.rule),
                               capital=capital,account=broker.account,broker=broker.name)
-        if strategy == 'crypto':
-            self.state['execution_policy'] = CRYPTO_EXECUTION_POLICY
+        self.state['execution_policy'] = MONITORED_LIMIT_POLICY
         configured = dict(rule=asdict(self.rule), capital=capital, account=broker.account,
                           broker=broker.name, experiment=experiment)
         self.fingerprint = hashlib.sha256(__import__('json').dumps(configured, sort_keys=True).encode()).hexdigest()
@@ -217,7 +216,7 @@ class Engine:
                 target = {}
                 for symbol in self.rule.symbols:
                     weight = 1/len(cycle['selected']) if symbol in cycle['selected'] else 0
-                    execution_buffer = 1+CRYPTO_MAX_PRICE_DRIFT if self.strategy == 'crypto' else 1
+                    execution_buffer = 1+MAX_PRICE_DRIFT
                     raw = budget*weight/(quotes[symbol]['ask']*execution_buffer)
                     target[symbol] = math.floor(raw) if self.strategy == 'etf' else math.floor(raw*1e8)/1e8
                 cycle['targets'] = target
@@ -235,7 +234,7 @@ class Engine:
                 related = [o for o in all_orders if o.get('cycle') == slot['key'] and
                            o.get('symbol') == symbol and o.get('side') == side]
                 legacy_zero_fill = [o for o in related if o.get('status') == 'cancelled' and
-                                    not o.get('filled') and o.get('execution_policy') != CRYPTO_EXECUTION_POLICY]
+                                    not o.get('filled') and o.get('execution_policy') != MONITORED_LIMIT_POLICY]
                 if self.strategy == 'crypto' and legacy_zero_fill:
                     ref = base_ref+'-r1'
                 if ref in existing or (related and not legacy_zero_fill) or abs(diff)*quotes[symbol]['ask'] < 5:
@@ -256,14 +255,13 @@ class Engine:
                     raise Blocked('Sell exceeds confirmed attributed holdings')
                 order = dict(id=ref,strategy=self.strategy,symbol=symbol,side=side,quantity=quantity,
                     limit=price,status='uncertain',created_at=iso(datetime.now(UTC)),cycle=slot['key'])
-                if self.strategy == 'crypto':
-                    order.update(execution_policy=CRYPTO_EXECUTION_POLICY,initial_limit=price,
-                        price_ceiling=round(price*(1+CRYPTO_MAX_PRICE_DRIFT),2) if side == 'buy' else None,
-                        price_floor=round(price*(1-CRYPTO_MAX_PRICE_DRIFT),2) if side == 'sell' else None,
-                        last_reprice_at=iso(datetime.now(UTC)),reprice_count=0,
-                        execution_deadline=slot['expires'])
-                    if legacy_zero_fill:
-                        order['upgrades_order'] = legacy_zero_fill[-1]['id']
+                order.update(execution_policy=MONITORED_LIMIT_POLICY,initial_limit=price,
+                    price_ceiling=round(price*(1+MAX_PRICE_DRIFT),2) if side == 'buy' else None,
+                    price_floor=round(price*(1-MAX_PRICE_DRIFT),2) if side == 'sell' else None,
+                    last_reprice_at=iso(datetime.now(UTC)),reprice_count=0,
+                    execution_deadline=slot['expires'])
+                if legacy_zero_fill:
+                    order['upgrades_order'] = legacy_zero_fill[-1]['id']
                 self.broker.preflight(order)
                 self.before_submit()
                 # Reject if lengthy preflight crossed the eligible execution window or quote TTL.
@@ -290,7 +288,7 @@ class Engine:
 
     def manage_open_order(self, order, quotes, now):
         self.state['execution_state'] = 'Waiting for final broker order status; no new submission'
-        if self.strategy != 'crypto' or order.get('execution_policy') != CRYPTO_EXECUTION_POLICY:
+        if order.get('execution_policy') != MONITORED_LIMIT_POLICY:
             return
         if now >= dt(order['execution_deadline']):
             self.before_submit()
@@ -300,7 +298,7 @@ class Engine:
             self.broker.cancel(order)
             self.state['execution_state'] = 'Execution window expired; cancellation awaiting broker confirmation'
             return
-        if (now-dt(order['last_reprice_at'])).total_seconds() < CRYPTO_REPRICE_SECONDS:
+        if (now-dt(order['last_reprice_at'])).total_seconds() < REPRICE_SECONDS:
             return
         quote = quotes[order['symbol']]
         validate_quote(quote,datetime.now(UTC))

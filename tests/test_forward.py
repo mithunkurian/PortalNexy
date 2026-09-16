@@ -182,6 +182,18 @@ class ForwardTests(unittest.TestCase):
         self.start();self.next_day();Clock.current+=timedelta(seconds=61);self.broker.ask=100.5
         again=Engine(self.store,'crypto',self.broker,1000,'test-v1');again.step(Clock.current)
         self.assertEqual(len(self.broker.submissions),1);self.assertEqual(len(self.broker.replacements),1)
+    def test_etf_open_limit_uses_same_monitored_reprice_policy(self):
+        engine=Engine(self.store,'etf',self.broker,1000,'test-v1')
+        order=dict(id='etf-order',strategy='etf',symbol='SPY',side='buy',quantity=1,limit=100,
+            status='submitted',execution_policy='marketable-limit-reprice-1.0.0',initial_limit=100,
+            price_ceiling=101,price_floor=None,last_reprice_at=iso(Clock.current),reprice_count=0,
+            execution_deadline=iso(Clock.current+timedelta(hours=1)))
+        self.broker.orders[order['id']]={**order,'filled':0}
+        self.store.record('orders','etf',order)
+        Clock.current+=timedelta(seconds=61);self.broker.ask=100.5
+        engine.manage_open_order(order,{'SPY':self.broker.quote('SPY')},Clock.current)
+        self.assertEqual(self.broker.replacements,[('etf-order',100.55)])
+        self.assertEqual(self.store.records('orders','etf')[0]['execution_policy'],'marketable-limit-reprice-1.0.0')
     def test_cancelled_legacy_ioc_gets_one_safe_policy_upgrade(self):
         self.start();self.next_day();old=self.broker.submissions[0]
         self.broker.orders[old['id']]['status']='cancelled'

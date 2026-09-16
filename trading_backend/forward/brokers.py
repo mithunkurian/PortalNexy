@@ -121,7 +121,8 @@ class IBPaper:
             status = t.orderStatus.status
             mapped = {'Filled':'filled','Cancelled':'cancelled','ApiCancelled':'cancelled','Inactive':'rejected'}.get(status, 'open')
             item = dict(id=ref, broker_id=str(t.order.permId or t.order.orderId), status=mapped,
-                        filled=number(t.orderStatus.filled), symbol=t.contract.symbol)
+                        filled=number(t.orderStatus.filled), symbol=t.contract.symbol,
+                        limit=number(t.order.lmtPrice) if t.order.lmtPrice else None)
             if ref in known:
                 orders[ref] = item
             elif mapped == 'open':
@@ -159,6 +160,27 @@ class IBPaper:
             account=self.account, orderRef=order['id'], tif='DAY', outsideRth=False))
         self.ib.sleep(1)
         return str(trade.order.orderId)
+
+    def open_trade(self, order):
+        self.check_account()
+        self.ib.reqOpenOrders()
+        matches = [trade for trade in self.ib.trades() if trade.order.account == self.account and
+                   trade.order.orderRef == order['id'] and not trade.isDone()]
+        if len(matches) != 1:
+            raise Blocked('IBKR open order unavailable or ambiguous; automatic modification disabled')
+        return matches[0]
+
+    def replace(self, order, limit):
+        trade = self.open_trade(order)
+        trade.order.lmtPrice = limit
+        updated = self.ib.placeOrder(trade.contract, trade.order)
+        self.ib.sleep(1)
+        return str(updated.order.orderId)
+
+    def cancel(self, order):
+        trade = self.open_trade(order)
+        self.ib.cancelOrder(trade.order)
+        self.ib.sleep(1)
 
     def crypto_capability(self):
         """Read-only discovery plus what-if; never submits or silently maps to an ETF."""

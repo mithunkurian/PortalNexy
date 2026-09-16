@@ -56,6 +56,16 @@ class AdapterTests(unittest.TestCase):
         b.ib.whatIfOrder.return_value=NS(warningText='Trading permission unavailable',initMarginChange='0')
         with self.assertRaises(Blocked):b.preflight(dict(symbol='SPY',side='buy',quantity=1,limit=100))
         b.ib.placeOrder.assert_not_called()
+    def test_ib_etf_supports_modify_and_cancel_of_exact_open_order(self):
+        b=self.ib();contract=NS(symbol='SPY');broker_order=NS(account='DU_TEST',orderRef='ref',lmtPrice=100,orderId=17)
+        trade=NS(order=broker_order,contract=contract,isDone=Mock(return_value=False))
+        b.ib.trades.return_value=[trade]
+        b.ib.placeOrder.return_value=trade
+        order=dict(id='ref',symbol='SPY',broker_id='17')
+        self.assertEqual(b.replace(order,100.5),'17')
+        self.assertEqual(broker_order.lmtPrice,100.5)
+        b.ib.placeOrder.assert_called_once_with(contract,broker_order)
+        b.cancel(order);b.ib.cancelOrder.assert_called_once_with(broker_order)
     def test_alpaca_wrong_account_blocks(self):
         b=self.alpaca();b.request=Mock(return_value={'id':'live-uuid'})
         with self.assertRaises(Blocked):b.check_account()

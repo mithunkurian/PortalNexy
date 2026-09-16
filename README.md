@@ -32,7 +32,7 @@ These are new forward paper rules, not a reproduction or validation of an earlie
 | Select | Top two qualifying assets, equal target dollar weights | Strongest qualifying asset |
 | Evaluate | First NYSE session close of month + 5 minutes | 00:05 UTC using the completed prior UTC day |
 | Execute | Following NYSE session, open + 1 minute until close − 5 minutes | After evaluation, before next 00:05 UTC evaluation |
-| Orders | Whole-share DAY limits; regular hours only | Fractional IOC limits |
+| Orders | Whole-share monitored DAY limits; regular hours only | Fractional monitored GTC limits |
 
 Both hold cash if nothing qualifies. Ties use symbol order. Current attributed equity funds new targets, reinvesting profits, with a 98% exposure cap and 2% cash/fee reserve. No leverage, shorts, fixed return requirement or drawdown rejection threshold. Quote age must be at most 60 seconds and spread at most 1%; delayed, missing or future-dated quotes block orders. Deltas below $5 are left as cash/dust. ETF quantities round down to whole shares; crypto to eight decimals, also subject to broker minimum/precision checks. Limits use current ask for buys and bid for sells, rounded to cents. Target quantities persist for the cycle. Sells precede buys, with confirmed fills/cash reconciled between orders. Partial terminal fills are not topped up in the same cycle.
 
@@ -50,7 +50,7 @@ SQLite uses WAL and FULL durability. Each intention commits **before** broker su
 
 Pause stops **new submissions only**. Holdings stay invested; outstanding orders stay active and may fill. Reconciliation continues while paused. Resume reconciles first; skipped evaluations wait for the next schedule. A pause cannot recall an order already accepted by the broker. A final pre-submit check checks the latest pause command and lease. Missed windows are logged; past-price fills are never invented. Browser and ChatGPT sessions do not run the engine.
 
-Crypto execution policy `marketable-limit-reprice-1.0.0` uses a GTC limit order. The service reconciles it continuously and, while an unfilled remainder is open, may replace its limit no more than once per minute using a fresh broker quote. Buy limits cannot rise more than 1% above the initial limit; sell limits cannot fall more than 1% below it. Position sizing reserves this execution buffer in addition to the strategy's 2% cash reserve. The service cancels any remainder when the daily execution window expires. Every replacement intent and broker ID is durable, so restart recovery reconciles the full replacement chain before another action.
+Execution policy `marketable-limit-reprice-1.0.0` applies to both strategies. Crypto uses a GTC limit and ETFs use a regular-hours DAY limit. The service reconciles continuously and, while an unfilled remainder is open, may replace its limit no more than once per minute using a fresh broker quote. Buy limits cannot rise more than 1% above the initial limit; sell limits cannot fall more than 1% below it. Position sizing reserves this execution buffer in addition to the strategy's 2% cash reserve. The service cancels any remainder when its execution window expires: the daily crypto deadline or five minutes before the ETF session close. Every replacement intent and broker ID is durable, so restart recovery reconciles the full replacement chain before another action.
 
 ## Windows setup: first forward test
 
