@@ -21,13 +21,13 @@ class Broker:
     name='test-paper';account='DU_TEST'
     def __init__(self):
         self.allowed={'DU_TEST'};self.submissions=[];self.positions={};self.orders={};self.fills=[]
-        self.cash=10000.;self.delayed=False;self.old=False;self.external=[];self.failing=False
+        self.cash=10000.;self.delayed=False;self.old=False;self.external=[];self.failing=False;self.ask=100.;self.replacements=[];self.cancellations=[]
     def connect(self):enforce_account(self.account,self.allowed)
     def snapshot(self,known,inception):
         return dict(account=self.account,cash=self.cash,positions=self.positions,orders=copy.deepcopy(self.orders),
                     fills=copy.deepcopy(self.fills),external_orders=self.external,fees=[],timestamp=iso(Clock.current))
     def quote(self,s):
-        return dict(bid=99.99,ask=100.,timestamp=iso(Clock.current-timedelta(seconds=120) if self.old else Clock.current),
+        return dict(bid=self.ask-.01,ask=self.ask,timestamp=iso(Clock.current-timedelta(seconds=120) if self.old else Clock.current),
                     delayed=self.delayed,market_open=True)
     def history(self,s,end):
         return {day:100+i for i,day in enumerate(warmup_dates('crypto' if '/' in s else 'etf',end))}
@@ -37,6 +37,11 @@ class Broker:
         if self.failing:raise TimeoutError('secret-bearing transport text must never escape')
         self.orders[o['id']]={**o,'status':'open','filled':0}
         return 'broker-'+o['id']
+    def replace(self,o,limit):
+        self.replacements.append((o['id'],limit));self.orders[o['id']].update(limit=limit,status='open')
+        return 'replacement-'+str(len(self.replacements))
+    def cancel(self,o):
+        self.cancellations.append(o['id']);self.orders[o['id']]['status']='cancelled'
     def fill(self,o,qty,price=100,fee=1,terminal=False):
         self.fills.append(dict(id='execution-'+str(len(self.fills)),order_id=o['id'],symbol=o['symbol'],
             quantity=qty,price=price,side=o['side'],time=iso(Clock.current),fee=fee))
@@ -165,6 +170,30 @@ class ForwardTests(unittest.TestCase):
         self.start();self.next_day();self.broker.allowed=set();self.engine.step(Clock.current)
         self.broker.allowed={'DU_TEST'};self.engine.step(Clock.current)
         self.assertEqual(len(self.broker.submissions),1)
+    def test_crypto_open_limit_reprices_once_per_minute_with_cap(self):
+        self.start();self.next_day();order=self.broker.submissions[0]
+        self.assertEqual(order['execution_policy'],'marketable-limit-reprice-1.0.0')
+        Clock.current+=timedelta(seconds=61);self.broker.ask=100.5;self.engine.step(Clock.current)
+        self.assertEqual(len(self.broker.replacements),1);self.assertEqual(self.broker.replacements[0][1],100.55)
+        self.engine.step(Clock.current);self.assertEqual(len(self.broker.replacements),1)
+        Clock.current+=timedelta(seconds=61);self.broker.ask=120;self.engine.step(Clock.current)
+        self.assertEqual(self.broker.replacements[-1][1],101.0)
+    def test_crypto_reprice_survives_restart_without_duplicate_submit(self):
+        self.start();self.next_day();Clock.current+=timedelta(seconds=61);self.broker.ask=100.5
+        again=Engine(self.store,'crypto',self.broker,1000,'test-v1');again.step(Clock.current)
+        self.assertEqual(len(self.broker.submissions),1);self.assertEqual(len(self.broker.replacements),1)
+    def test_cancelled_legacy_ioc_gets_one_safe_policy_upgrade(self):
+        self.start();self.next_day();old=self.broker.submissions[0]
+        self.broker.orders[old['id']]['status']='cancelled'
+        stored=self.store.records('orders','crypto')[0];stored['status']='cancelled';stored['filled']=0
+        for key in ('execution_policy','execution_deadline','last_reprice_at'):
+            stored.pop(key,None);self.broker.orders[old['id']].pop(key,None)
+        self.store.record('orders','crypto',stored)
+        self.engine.step(Clock.current)
+        self.assertEqual(len(self.broker.submissions),2)
+        self.assertTrue(self.broker.submissions[1]['id'].endswith('-r1'))
+        self.assertEqual(self.broker.submissions[1]['upgrades_order'],old['id'])
+        self.engine.step(Clock.current);self.assertEqual(len(self.broker.submissions),2)
     def test_cash_adjustments_block_instead_of_inventing_profit(self):
         self.start();self.broker.cash+=20;self.next_day()
         self.assertIn('Broker cash differs',self.engine.state['error']);self.assertFalse(self.broker.submissions)

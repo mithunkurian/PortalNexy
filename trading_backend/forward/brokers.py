@@ -192,10 +192,10 @@ class AlpacaPaper:
         self.key = os.getenv('FORWARD_ALPACA_KEY', '')
         self.secret = os.getenv('FORWARD_ALPACA_SECRET', '')
 
-    def request(self, path, params=None, data=None, market=False, missing=False):
+    def request(self, path, params=None, data=None, market=False, missing=False, method=None):
         base = 'https://data.alpaca.markets' if market else self.endpoint
         url = base + path + ('?'+urlencode(params) if params else '')
-        request = Request(url, data=json.dumps(data).encode() if data is not None else None,
+        request = Request(url, data=json.dumps(data).encode() if data is not None else None, method=method,
             headers={'APCA-API-KEY-ID':self.key, 'APCA-API-SECRET-KEY':self.secret, 'Content-Type':'application/json'})
         try:
             with urlopen(request, timeout=20) as response:
@@ -274,8 +274,10 @@ class AlpacaPaper:
                 continue
             status = o['status']
             mapped = {'filled':'filled', 'canceled':'cancelled', 'expired':'cancelled', 'rejected':'rejected'}.get(status, 'open')
-            orders[ref] = dict(id=ref, broker_id=o['id'], status=mapped, filled=number(o['filled_qty']), symbol=normal(o['symbol']))
-            by_broker[o['id']] = ref
+            orders[ref] = dict(id=ref, broker_id=o['id'], status=mapped, filled=number(o['filled_qty']),
+                               symbol=normal(o['symbol']), limit=number(o['limit_price']) if o.get('limit_price') else None)
+            for broker_id in set(known[ref].get('broker_ids',[])+[o['id']]):
+                by_broker[broker_id] = ref
         fills = []
         for f in self.activities('FILL', inception):
             if f.get('order_id') not in by_broker:
@@ -306,9 +308,19 @@ class AlpacaPaper:
     def submit(self, order):
         self.check_account()
         response = self.request('/v2/orders', data=dict(symbol=order['symbol'], qty=str(order['quantity']),
-            side=order['side'], type='limit', limit_price=str(order['limit']), time_in_force='ioc',
+            side=order['side'], type='limit', limit_price=str(order['limit']), time_in_force='gtc',
             client_order_id=order['id']))
         return response['id']
+
+    def replace(self, order, limit):
+        self.check_account()
+        response = self.request('/v2/orders/'+quote(order['broker_id'],safe=''),
+                                data=dict(limit_price=str(limit)),method='PATCH')
+        return response['id']
+
+    def cancel(self, order):
+        self.check_account()
+        self.request('/v2/orders/'+quote(order['broker_id'],safe=''),method='DELETE')
 
     def wait(self, seconds):
         import time

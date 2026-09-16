@@ -5,6 +5,9 @@ from datetime import datetime, timedelta
 from .rules import RULES, Blocked, UTC, iso, dt, signal, slots, warmup_dates, validate_quote
 
 TERMINAL = {'filled', 'cancelled', 'rejected'}
+CRYPTO_EXECUTION_POLICY = 'marketable-limit-reprice-1.0.0'
+CRYPTO_REPRICE_SECONDS = 60
+CRYPTO_MAX_PRICE_DRIFT = .01
 
 
 class Engine:
@@ -20,6 +23,8 @@ class Engine:
         if not self.state['inception']:
             self.state.update(experiment=experiment,version=self.rule.version,rule=asdict(self.rule),
                               capital=capital,account=broker.account,broker=broker.name)
+        if strategy == 'crypto':
+            self.state['execution_policy'] = CRYPTO_EXECUTION_POLICY
         configured = dict(rule=asdict(self.rule), capital=capital, account=broker.account,
                           broker=broker.name, experiment=experiment)
         self.fingerprint = hashlib.sha256(__import__('json').dumps(configured, sort_keys=True).encode()).hexdigest()
@@ -203,27 +208,37 @@ class Engine:
             self.state['next_execution'] = slot['execute']
             if now < dt(slot['execute']):
                 continue
-            if any(o['status'] not in TERMINAL for o in self.store.records('orders', self.strategy)):
-                self.state['execution_state'] = 'Waiting for final broker order status; no new submission'
+            open_orders = [o for o in self.store.records('orders', self.strategy) if o['status'] not in TERMINAL]
+            if open_orders:
+                self.manage_open_order(open_orders[0],quotes,now)
                 return
             if 'targets' not in cycle:
                 budget = portfolio['equity']*self.rule.exposure
                 target = {}
                 for symbol in self.rule.symbols:
                     weight = 1/len(cycle['selected']) if symbol in cycle['selected'] else 0
-                    raw = budget*weight/quotes[symbol]['ask']
+                    execution_buffer = 1+CRYPTO_MAX_PRICE_DRIFT if self.strategy == 'crypto' else 1
+                    raw = budget*weight/(quotes[symbol]['ask']*execution_buffer)
                     target[symbol] = math.floor(raw) if self.strategy == 'etf' else math.floor(raw*1e8)/1e8
                 cycle['targets'] = target
                 self.store.put(key,cycle)
             holdings = {p['symbol']:p['quantity'] for p in portfolio['positions']}
-            existing = {o['id'] for o in self.store.records('orders',self.strategy)}
+            all_orders = self.store.records('orders',self.strategy)
+            existing = {o['id'] for o in all_orders}
             # Sell first; one order at a time, reconcile actual proceeds before buying.
             differences = [(s, cycle['targets'][s]-holdings.get(s,0)) for s in self.rule.symbols]
             differences.sort(key=lambda item: (item[1] > 0, item[0]))
             for symbol, diff in differences:
                 side = 'buy' if diff > 0 else 'sell'
-                ref = 'pnx-'+hashlib.sha256(f'{self.experiment}:{self.strategy}:{slot["key"]}:{symbol}:{side}'.encode()).hexdigest()[:28]
-                if ref in existing or abs(diff)*quotes[symbol]['ask'] < 5:
+                base_ref = 'pnx-'+hashlib.sha256(f'{self.experiment}:{self.strategy}:{slot["key"]}:{symbol}:{side}'.encode()).hexdigest()[:28]
+                ref = base_ref
+                related = [o for o in all_orders if o.get('cycle') == slot['key'] and
+                           o.get('symbol') == symbol and o.get('side') == side]
+                legacy_zero_fill = [o for o in related if o.get('status') == 'cancelled' and
+                                    not o.get('filled') and o.get('execution_policy') != CRYPTO_EXECUTION_POLICY]
+                if self.strategy == 'crypto' and legacy_zero_fill:
+                    ref = base_ref+'-r1'
+                if ref in existing or (related and not legacy_zero_fill) or abs(diff)*quotes[symbol]['ask'] < 5:
                     continue
                 validate_quote(quotes[symbol], datetime.now(UTC))
                 quantity = abs(diff)
@@ -241,6 +256,14 @@ class Engine:
                     raise Blocked('Sell exceeds confirmed attributed holdings')
                 order = dict(id=ref,strategy=self.strategy,symbol=symbol,side=side,quantity=quantity,
                     limit=price,status='uncertain',created_at=iso(datetime.now(UTC)),cycle=slot['key'])
+                if self.strategy == 'crypto':
+                    order.update(execution_policy=CRYPTO_EXECUTION_POLICY,initial_limit=price,
+                        price_ceiling=round(price*(1+CRYPTO_MAX_PRICE_DRIFT),2) if side == 'buy' else None,
+                        price_floor=round(price*(1-CRYPTO_MAX_PRICE_DRIFT),2) if side == 'sell' else None,
+                        last_reprice_at=iso(datetime.now(UTC)),reprice_count=0,
+                        execution_deadline=slot['expires'])
+                    if legacy_zero_fill:
+                        order['upgrades_order'] = legacy_zero_fill[-1]['id']
                 self.broker.preflight(order)
                 self.before_submit()
                 # Reject if lengthy preflight crossed the eligible execution window or quote TTL.
@@ -251,7 +274,7 @@ class Engine:
                     raise Blocked('Duplicate order intention prevented')
                 self.store.event(self.strategy,'submitted_intent',order)
                 broker_id = self.broker.submit(order)
-                order.update(broker_id=broker_id,status='submitted')
+                order.update(broker_id=broker_id,broker_ids=[broker_id],status='submitted')
                 self.store.record('orders',self.strategy,order)
                 self.store.event(self.strategy,'submitted',order)
                 self.state['execution_state'] = 'Order submitted; awaiting broker confirmation'
@@ -264,3 +287,42 @@ class Engine:
             self.store.event(self.strategy,'cycle_complete',dict(key=slot['key'],
                 explanation='Confirmed fills only. Unfilled/rejected remainders wait for next scheduled evaluation.'))
         self.state['last_checked'] = iso(now)
+
+    def manage_open_order(self, order, quotes, now):
+        self.state['execution_state'] = 'Waiting for final broker order status; no new submission'
+        if self.strategy != 'crypto' or order.get('execution_policy') != CRYPTO_EXECUTION_POLICY:
+            return
+        if now >= dt(order['execution_deadline']):
+            self.before_submit()
+            order.update(status='cancel_uncertain',cancel_requested_at=iso(now))
+            self.store.record('orders',self.strategy,order)
+            self.store.event(self.strategy,'cancel_requested',dict(id=order['id'],reason='Execution window expired'))
+            self.broker.cancel(order)
+            self.state['execution_state'] = 'Execution window expired; cancellation awaiting broker confirmation'
+            return
+        if (now-dt(order['last_reprice_at'])).total_seconds() < CRYPTO_REPRICE_SECONDS:
+            return
+        quote = quotes[order['symbol']]
+        validate_quote(quote,datetime.now(UTC))
+        if order['side'] == 'buy':
+            desired = min(round(quote['ask']*1.0005,2),order['price_ceiling'])
+        else:
+            desired = max(round(quote['bid']*.9995,2),order['price_floor'])
+        order['last_reprice_at'] = iso(now)
+        if desired == order['limit']:
+            self.store.record('orders',self.strategy,order)
+            self.state['execution_state'] = 'Open limit order monitored; price cap reached or quote unchanged'
+            return
+        self.before_submit()
+        previous = order['limit']
+        order.update(status='replace_uncertain',pending_limit=desired)
+        self.store.record('orders',self.strategy,order)
+        self.store.event(self.strategy,'replace_intent',dict(id=order['id'],previous_limit=previous,new_limit=desired,
+            filled=order.get('filled',0),explanation='Unfilled remainder repriced after one minute; bounded by 1% drift cap'))
+        broker_id = self.broker.replace(order,desired)
+        order.update(broker_id=broker_id,broker_ids=list(dict.fromkeys(order.get('broker_ids',[])+[broker_id])),
+                     limit=desired,status='submitted',reprice_count=order.get('reprice_count',0)+1)
+        order.pop('pending_limit',None)
+        self.store.record('orders',self.strategy,order)
+        self.store.event(self.strategy,'replaced',dict(id=order['id'],limit=desired,reprice_count=order['reprice_count']))
+        self.state['execution_state'] = 'Open limit order repriced; awaiting broker confirmation'

@@ -50,6 +50,8 @@ SQLite uses WAL and FULL durability. Each intention commits **before** broker su
 
 Pause stops **new submissions only**. Holdings stay invested; outstanding orders stay active and may fill. Reconciliation continues while paused. Resume reconciles first; skipped evaluations wait for the next schedule. A pause cannot recall an order already accepted by the broker. A final pre-submit check checks the latest pause command and lease. Missed windows are logged; past-price fills are never invented. Browser and ChatGPT sessions do not run the engine.
 
+Crypto execution policy `marketable-limit-reprice-1.0.0` uses a GTC limit order. The service reconciles it continuously and, while an unfilled remainder is open, may replace its limit no more than once per minute using a fresh broker quote. Buy limits cannot rise more than 1% above the initial limit; sell limits cannot fall more than 1% below it. Position sizing reserves this execution buffer in addition to the strategy's 2% cash reserve. The service cancels any remainder when the daily execution window expires. Every replacement intent and broker ID is durable, so restart recovery reconciles the full replacement chain before another action.
+
 ## Windows setup: first forward test
 
 1. Stop any old **PortalNexy backend service/task** before starting this branch. Leave Gateway, holdings and broker orders alone. Do not run an older checkout concurrently. No matching PortalNexy Python process was found during the implementation's local process check.

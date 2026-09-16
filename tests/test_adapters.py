@@ -72,6 +72,14 @@ class AdapterTests(unittest.TestCase):
         b=self.alpaca();b.request=Mock(side_effect=[[{'id':str(i)} for i in range(100)],[{'id':'last'}]])
         self.assertEqual(len(b.activities('FILL','2026-09-01')),101)
         self.assertEqual(b.request.call_args.args[1]['page_token'],'99')
+    def test_alpaca_crypto_uses_gtc_and_supports_replace_cancel(self):
+        b=self.alpaca();b.check_account=Mock();b.request=Mock(side_effect=[{'id':'first'},{'id':'second'},{}])
+        order=dict(id='ref',symbol='ETH/USD',quantity=.1,side='buy',limit=2000,broker_id='first')
+        self.assertEqual(b.submit(order),'first')
+        self.assertEqual(b.request.call_args_list[0].kwargs['data']['time_in_force'],'gtc')
+        self.assertEqual(b.replace(order,2001),'second')
+        self.assertEqual(b.request.call_args_list[1].kwargs['method'],'PATCH')
+        b.cancel(order);self.assertEqual(b.request.call_args_list[2].kwargs['method'],'DELETE')
     def test_lease_expiry_blocks_submission(self):
         p=Publisher.__new__(Publisher);p.owner='owner';p.lease=Mock()
         p.lease.get.return_value.to_dict.return_value=dict(owner='owner',expires=datetime.now(UTC)-timedelta(seconds=1))
