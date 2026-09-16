@@ -3,7 +3,7 @@ from pathlib import Path
 import shutil
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSETS = ('index.html', 'forward.css', 'forward.js', 'dashboard.js', 'portal-management.js', 'portal-auth.js')
+ASSETS = ('index.html', 'forward.css', 'forward.js', 'dashboard.js', 'homepage-wip.js', 'portal-management.js', 'portal-auth.js')
 
 def main():
     destination = ROOT/'public'
@@ -14,7 +14,7 @@ def main():
         raise SystemExit('Unexpected files in public/; inspect them before building: '+', '.join(sorted(unexpected)))
     for asset in ASSETS:
         shutil.copyfile(ROOT/asset, destination/asset)
-    print('Built six public assets. Backend, credentials and historical content excluded.')
+    print('Built seven public assets. Backend, credentials and historical content excluded.')
 
 if __name__ == '__main__':
     main()

@@ -193,6 +193,9 @@ tailwind.config = {
     <a class="nav-link flex items-center gap-3 px-4 py-2.5 cursor-pointer text-[13px] font-medium text-on-surface-variant" onclick="navigate('dashboard',this)">
       <span class="material-symbols-outlined text-[20px]">dashboard</span><span>Dashboard</span>
     </a>
+    <a class="nav-link flex items-center gap-3 px-4 py-2.5 cursor-pointer text-[13px] font-medium text-on-surface-variant" onclick="navigate('homewip',this)">
+      <span class="material-symbols-outlined text-[20px]">home</span><span>Homepage WIP</span>
+    </a>
 
     <a class="nav-link flex items-center gap-3 px-4 py-2.5 cursor-pointer text-[13px] font-medium text-on-surface-variant" onclick="navigate('paper',this)">
       <span class="material-symbols-outlined text-[20px]">science</span><span>Paper Trading</span>
@@ -285,6 +288,7 @@ tailwind.config = {
     <!-- ══ PAGE: COMMAND ══ -->
     <div id="page-command" class="page active forward-page"><h1>Command Centre</h1><p class="forward-intro">Forward paper experiment. Broker confirmation is required before results appear.</p><div id="forward-command"></div></div>
 <div id="page-dashboard" class="page  forward-page"><h1>Dashboard</h1><p class="forward-intro">Combined and per-strategy forward observations in USD.</p><div id="forward-dashboard"></div></div>
+<div id="page-homewip" class="page forward-page"><h1>Homepage WIP</h1><div id="forward-homewip"></div></div>
 <div id="page-paper" class="page  forward-page"><h1>Paper Trading</h1><p class="forward-intro">Two independent strategies. Actual broker paper orders and fills, from inception.</p><div id="forward-paper"></div></div>
 <div id="page-risk" class="page  forward-page"><h1>Operational Safeguards</h1><p class="forward-intro">Long-only allocations, fresh data and broker reconciliation before every submission.</p><div id="forward-risk"></div></div>
 <div id="page-logs" class="page  forward-page"><h1>Decision Log</h1><p class="forward-intro">Persistent signals, rejected trades, order intentions and confirmed fills.</p><div id="forward-logs"></div></div>
@@ -514,6 +518,7 @@ tailwind.config = {
 <script src="portal-management.js"></script>
 <script src="forward.js"></script>
 <script src="dashboard.js"></script>
+<script src="homepage-wip.js"></script>
 <script src="portal-auth.js"></script>
 </body>
 </html>

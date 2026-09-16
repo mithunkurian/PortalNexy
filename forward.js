@@ -1,5 +1,5 @@
 'use strict';
-const PAGE_TITLES={command:'Command Centre',dashboard:'Dashboard',paper:'Paper Trading',risk:'Risk Monitor',logs:'Decision Log',finance:'Finance',boardroom:'Boardroom',roadmap:'Roadmap',todo:'Action Plan',design:'Design Document'};
+const PAGE_TITLES={command:'Command Centre',dashboard:'Dashboard',homewip:'Homepage WIP',paper:'Paper Trading',risk:'Risk Monitor',logs:'Decision Log',finance:'Finance',boardroom:'Boardroom',roadmap:'Roadmap',todo:'Action Plan',design:'Design Document'};
 const forwardState={experiment:null,etf:null,crypto:null,summary:null,dashboard:null,error:null};
 let listeners=[],strategyListeners=[],charts=[],activePage='command';
 const pendingCommands={};
@@ -75,11 +75,11 @@ function combinedHistory(a,b){
 function table(headers,rows,empty){return `<div class="fp-table-wrap"><table class="fp-table"><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(r=>`<tr>${r.map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${headers.length}" class="fp-muted">${esc(empty)}</td></tr>`}</tbody></table></div>`;}
 function strategyCard(id){
   const s=forwardState[id],title=id==='etf'?'ETF rotation':'BTC / ETH momentum';
-  const version=s?.version||(id==='etf'?'etf-rotation-1.0.0':'crypto-momentum-1.0.0');
+  const version=s?.version||(id==='etf'?'etf-rotation-weekly-validation-1.0.0':'crypto-momentum-1.0.0');
   const pending=pendingCommands[id];
   if(pending&&Date.now()-pending.time>120000){delete pendingCommands[id];forwardState.error='Command acknowledgement timed out. Check service status before retrying.';}
   const controls=!!s&&fresh(s)&&!pendingCommands[id];
-  const rule=id==='etf'?'SPY · EFA · EEM · TLT · GLD. Positive 126-session momentum and above the 200-session average. Top two, equally weighted. Evaluate after the first NYSE session of each month; execute in the following session.':'BTC/USD · ETH/USD. Positive 90-day momentum and above the 200-day average. Strongest qualifying asset. Evaluate at 00:05 UTC using the completed prior UTC day.';
+  const rule=id==='etf'?'SPY · EFA · EEM · TLT · GLD. Positive 126-session momentum and above the 200-session average. Top two, equally weighted. During workflow validation, evaluate after the first NYSE session of each week; execute in the following session.':'BTC/USD · ETH/USD. Positive 90-day momentum and above the 200-day average. Strongest qualifying asset. Evaluate at 00:05 UTC using the completed prior UTC day.';
   const p=s?.portfolio;
   return `<section class="fp-card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:start"><h2>${title}</h2><span class="fp-tag">${esc(s?.mode?.replace('_',' ')||'Not started')}</span></div><span class="fp-tag">${esc(version)} · frozen at inception</span><p class="fp-rules" style="margin-top:12px">${rule} Otherwise cash. Long-only, no leverage, 98% exposure cap with 2% cash reserve; profits reinvested.</p>
     ${!fresh(s)?'<div class="fp-error">Awaiting service connection. No current broker status is available.</div>':''}
@@ -111,6 +111,7 @@ function renderForward(){
   const combinedCard=`<section class="fp-card"><h2>Combined experiment</h2><p class="fp-muted">Sum of strategy allocations, not separate broker accounts. Unallocated account cash and historical positions are excluded. Both strategies need fresh, reconciled valuations.</p>${portfolioMetrics(aggregate)}${table(['Strategy','Symbol','Quantity','Market value'],(aggregate.portfolio?.positions||[]).map(p=>[p.strategy,p.symbol,p.quantity,money(p.market_value)]),'No combined reconciled positions available')}<div class="fp-chart"><canvas id="chart-combined" aria-label="Combined forward equity and reference"></canvas></div><p class="fp-muted">Chart shows up to 500 recent matched observations. Combined drawdown uses all matched observations since both strategies started. Full records remain in the service ledger and Firestore history.</p></section>`;
   let html='';
   if(activePage==='dashboard')html=Dashboard.render();
+  else if(activePage==='homewip')html=HomepageWIP.render();
   else if(['paper','finance','command'].includes(activePage)){
     html=banner+error+combinedCard;
     if(activePage==='paper')html+=`<div class="fp-grid">${strategyCard('etf')}${strategyCard('crypto')}</div><section class="fp-card"><h2>Decision journal</h2>${logs()}</section>`;
@@ -118,7 +119,7 @@ function renderForward(){
   } else if(activePage==='logs')html=error+`<section class="fp-card">${logs()}</section>`;
   else if(activePage==='risk')html=error+`<section class="fp-card"><h2>Execution gates</h2><p class="fp-rules">Exact paper-account allowlists · server-side credentials · verified contract, currency and exchange · trading permission preflight · fresh bid/ask · eligible session · cash and fee reserve · long-only sizing · durable duplicate prevention · broker reconciliation · service ownership lease.</p><p class="fp-muted">No fixed annual-return target or portfolio drawdown rejection threshold. Any reconciliation discrepancy or uncertain submission blocks new orders; it does not liquidate holdings or cancel broker orders.</p>${table(['Strategy','Reconciliation','Last checked','Error'],['etf','crypto'].map(id=>[id,forwardState[id]?.reconciliation||'Unverified',stamp(forwardState[id]?.last_reconciled),forwardState[id]?.error||'—']),'')}</section>`;
   const container=document.getElementById('forward-'+activePage);if(container)container.innerHTML=html;
-  if(container){if(activePage==='dashboard')draw('chart-dashboard',window.dashboardHistory||[]);draw('chart-combined',aggregate.history);if(activePage==='paper')for(const id of ['etf','crypto'])draw('chart-'+id,forwardState[id]?.history||[]);}
+  if(container){if(activePage==='dashboard')draw('chart-dashboard',window.dashboardHistory||[]);if(activePage==='homewip')draw('chart-home-wip',window.homeWipHistory||[]);draw('chart-combined',aggregate.history);if(activePage==='paper')for(const id of ['etf','crypto'])draw('chart-'+id,forwardState[id]?.history||[]);}
   const strip=document.getElementById('system-status-strip');if(strip)strip.innerHTML=['etf','crypto'].map(id=>`<div class="fp-muted">${id==='etf'?'IBKR ETF':'Alpaca crypto'}: ${esc(fresh(forwardState[id])?forwardState[id]?.connection||'Unverified':'Awaiting service')}</div>`).join('');
   const badge=document.getElementById('active-runtime-badge');if(badge)badge.textContent='Forward paper · '+(fresh(forwardState.etf)||fresh(forwardState.crypto)?'Service reporting':'Awaiting service');
 }
