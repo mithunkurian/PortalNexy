@@ -77,10 +77,17 @@ class ForwardTests(unittest.TestCase):
     def test_crypto_completed_day_timing(self):
         days=list(slots('crypto',dt('2026-09-11T00:00:00Z'),dt('2026-09-11T23:00:00Z')))
         self.assertEqual(days[0]['signal_date'],'2026-09-10');self.assertEqual(dt(days[0]['evaluate']).minute,5)
-    def test_etf_holiday_and_following_session(self):
+    def test_etf_weekly_holiday_and_following_session(self):
         result=list(slots('etf',dt('2026-01-01T00:00:00Z'),dt('2026-01-06T00:00:00Z')))[0]
-        self.assertEqual(result['signal_date'],'2026-01-02');self.assertEqual(dt(result['execute']).date().isoformat(),'2026-01-05')
+        self.assertEqual(result['key'],'2025-W52')
+        holiday_week=[s for s in slots('etf',dt('2026-01-18T00:00:00Z'),dt('2026-01-22T00:00:00Z')) if s['key']=='2026-W04'][0]
+        self.assertEqual(holiday_week['signal_date'],'2026-01-20');self.assertEqual(dt(holiday_week['execute']).date().isoformat(),'2026-01-21')
         self.assertGreater(dt(result['execute']),dt(result['evaluate']))
+    def test_etf_has_one_cycle_per_week(self):
+        result=list(slots('etf',dt('2026-09-01T00:00:00Z'),dt('2026-09-30T00:00:00Z')))
+        keys=[s['key'] for s in result]
+        self.assertEqual(len(keys),len(set(keys)))
+        self.assertIn('2026-W37',keys);self.assertIn('2026-W38',keys)
     def test_etf_dst_schedule(self):
         jan=list(slots('etf',dt('2026-01-01T00:00:00Z'),dt('2026-01-02T00:00:00Z')))[0]
         jul=list(slots('etf',dt('2026-07-01T00:00:00Z'),dt('2026-07-02T00:00:00Z')))[0]

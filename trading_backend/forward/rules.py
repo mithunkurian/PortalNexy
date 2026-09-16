@@ -20,7 +20,7 @@ class Rule:
 
 
 RULES = {
-    'etf': Rule('etf-rotation-1.0.0', ('SPY', 'EFA', 'EEM', 'TLT', 'GLD'), 126, 2),
+    'etf': Rule('etf-rotation-weekly-validation-1.0.0', ('SPY', 'EFA', 'EEM', 'TLT', 'GLD'), 126, 2),
     'crypto': Rule('crypto-momentum-1.0.0', ('BTC/USD', 'ETH/USD'), 90, 1),
 }
 
@@ -74,17 +74,18 @@ def slots(strategy, start, end):
     else:
         import pandas_market_calendars as mcal
         calendar = mcal.get_calendar('NYSE')
-        schedule = calendar.schedule(start_date=start.date().replace(day=1),
-                                     end_date=end.date()+timedelta(days=65))
+        schedule = calendar.schedule(start_date=start.date()-timedelta(days=10),
+                                     end_date=end.date()+timedelta(days=21))
         seen = set()
         rows = list(schedule.iterrows())
         for i, (day, row) in enumerate(rows[:-1]):
-            month = day.strftime('%Y-%m')
-            if month in seen:
+            year, week, _ = day.isocalendar()
+            period = f'{year}-W{week:02d}'
+            if period in seen:
                 continue
-            seen.add(month)
+            seen.add(period)
             following = rows[i+1][1]
-            yield dict(key=month, evaluate=iso(row.market_close.to_pydatetime()+timedelta(minutes=5)),
+            yield dict(key=period, evaluate=iso(row.market_close.to_pydatetime()+timedelta(minutes=5)),
                        execute=iso(following.market_open.to_pydatetime()+timedelta(minutes=1)),
                        expires=iso(following.market_close.to_pydatetime()-timedelta(minutes=5)),
                        signal_date=day.date().isoformat())

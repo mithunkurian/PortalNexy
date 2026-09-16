@@ -26,15 +26,17 @@ These are new forward paper rules, not a reproduction or validation of an earlie
 
 | | ETF rotation | Crypto momentum |
 |---|---|---|
-| Version | `etf-rotation-1.0.0` | `crypto-momentum-1.0.0` |
+| Version | `etf-rotation-weekly-validation-1.0.0` | `crypto-momentum-1.0.0` |
 | Universe | SPY, EFA, EEM, TLT, GLD, subject to verification | BTC/USD, ETH/USD, direct assets |
 | Qualify | Positive 126-session momentum; close above 200-session SMA | Positive 90-day momentum; close above 200-day SMA |
 | Select | Top two qualifying assets, equal target dollar weights | Strongest qualifying asset |
-| Evaluate | First NYSE session close of month + 5 minutes | 00:05 UTC using the completed prior UTC day |
+| Evaluate | First NYSE session close of each week + 5 minutes, temporary workflow-validation cadence | 00:05 UTC using the completed prior UTC day |
 | Execute | Following NYSE session, open + 1 minute until close − 5 minutes | After evaluation, before next 00:05 UTC evaluation |
 | Orders | Whole-share monitored DAY limits; regular hours only | Fractional monitored GTC limits |
 
 Both hold cash if nothing qualifies. Ties use symbol order. Current attributed equity funds new targets, reinvesting profits, with a 98% exposure cap and 2% cash/fee reserve. No leverage, shorts, fixed return requirement or drawdown rejection threshold. Quote age must be at most 60 seconds and spread at most 1%; delayed, missing or future-dated quotes block orders. Deltas below $5 are left as cash/dust. ETF quantities round down to whole shares; crypto to eight decimals, also subject to broker minimum/precision checks. Limits use current ask for buys and bid for sells, rounded to cents. Target quantities persist for the cycle. Sells precede buys, with confirmed fills/cash reconciled between orders. Partial terminal fills are not topped up in the same cycle.
+
+The weekly ETF cadence is explicitly a temporary forward workflow test. After enough complete cycles validate scheduling, signals, orders, fills and reconciliation, return to monthly evaluation under a new frozen rule version; do not relabel weekly results as monthly-strategy results.
 
 All candidates need complete 200-session/day warm-up and verified contracts. An unavailable ETF blocks the experiment with a reason; the service does not silently shrink the universe or substitute another asset. NYSE holidays/DST and IBKR contract liquid hours gate ETF execution. Inception requires fresh quotes. Start after an evaluation waits until the next scheduled evaluation. Historical prices are used only for indicators, never to backfill profits or fills.
 
