@@ -70,6 +70,9 @@ async function run(){
   assert.equal(await page.locator('nav').getByText('Homepage WIP',{exact:true}).count(),0);
   await page.setViewportSize({width:1440,height:1000});
   const home=page.locator('#forward-command');
+  assert.match(await page.evaluate(()=>nexAnswer('What are the current active orders?')),/2 active orders/);
+  assert.match(await page.evaluate(()=>nexAnswer('Summarize PNL this week')),/Combined across 2 reporting strategies/);
+  assert.match(await page.evaluate(()=>nexAnswer('Is anything blocked or stale?')),/System health/);
   assert.match(await home.innerText(),/Portfolio health at a glance/);
   assert.equal(await home.getByLabel('Strategy').count(),1);
   assert.equal(await home.getByLabel('Time frame').count(),1);

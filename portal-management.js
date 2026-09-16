@@ -209,7 +209,12 @@ function renderChatMessages(msgs, agent) {
           <span class="material-symbols-outlined text-[28px] text-primary">${agent.icon}</span>
         </div>
         <p class="text-[14px] font-bold text-on-surface mb-2">Chat with ${agent.name}</p>
-        <p class="text-[12px] text-on-surface-variant leading-relaxed">Ask anything about the trading system, strategy, or portfolio.</p>
+        <p class="text-[12px] text-on-surface-variant leading-relaxed">Ask about current orders, positions, P&amp;L, strategy status or the next scheduled action.</p>
+        <div class="nex-prompts">
+          <button onclick="askNEX('What are the current active orders?')">Current active orders</button>
+          <button onclick="askNEX('Summarize PNL this week')">This week’s P&amp;L</button>
+          <button onclick="askNEX('Is anything blocked or stale?')">System health</button>
+        </div>
       </div>`;
     return;
   }
@@ -230,6 +235,58 @@ function renderChatMessages(msgs, agent) {
   c.scrollTop = c.scrollHeight;
 }
 
+function nexAsOf(states) {
+  const values=states.map(s=>s?.updated_at).filter(Boolean).sort();
+  return values.length?stamp(values[0]):'no verified update';
+}
+
+function nexAnswer(question) {
+  const text=question.toLowerCase();
+  const states=['etf','crypto'].map(id=>({id,s:forwardState[id]}));
+  const names={etf:'ETF rotation',crypto:'BTC/ETH momentum'};
+  const asOf=nexAsOf(states.map(x=>x.s));
+  if(/order|waiting|pending|open/.test(text)) {
+    const orders=states.flatMap(({id,s})=>(s?.orders||[]).filter(Dashboard.waiting).map(o=>({...o,strategy:id})));
+    const stale=states.filter(({s})=>!fresh(s)).map(({id})=>names[id]);
+    if(!orders.length)return stale.length?`I cannot confirm that there are no active orders because ${stale.join(' and ')} ${stale.length===1?'is':'are'} stale. Last common update: ${asOf}.`:`As of ${asOf}, there are no broker-reported active strategy orders.`;
+    return `As of ${asOf}, there ${orders.length===1?'is':'are'} ${orders.length} active ${orders.length===1?'order':'orders'}:\n`+
+      orders.map(o=>`• ${names[o.strategy]}: ${String(o.side||'').toUpperCase()} ${o.quantity} ${o.symbol} · ${o.filled||0} filled · ${o.status}${o.limit?` · limit ${money(o.limit)}`:''}${fresh(forwardState[o.strategy])?'':' · STALE SNAPSHOT'}`).join('\n');
+  }
+  if(/pnl|p&l|profit|loss|performance|return/.test(text)) {
+    const key=/today/.test(text)?'today':/month/.test(text)?'month':/all/.test(text)?'all':'week';
+    const label={today:'today',week:'this week',month:'this month',all:'since inception'}[key];
+    const lower=Dashboard.start(key);
+    const lines=[];let total=0,covered=0;
+    for(const {id,s} of states){
+      if(!s?.inception||!fresh(s)||s.valuation_stale||!s.portfolio){lines.push(`• ${names[id]}: unavailable — ${s?.error||'awaiting a fresh reconciled valuation'}`);continue;}
+      const history=(s.history||[]).filter(p=>!lower||new Date(p.time)>=lower);
+      const baseline=history[0]?.equity;
+      if(baseline==null){lines.push(`• ${names[id]}: no opening observation for ${label}`);continue;}
+      const change=s.portfolio.equity-baseline;total+=change;covered++;
+      lines.push(`• ${names[id]}: ${money(change)} (${money(baseline)} → ${money(s.portfolio.equity)})`);
+    }
+    return `P&L ${label}, marked from the first available period observation, as of ${asOf}:\n${lines.join('\n')}\n${covered?`Combined across ${covered} reporting ${covered===1?'strategy':'strategies'}: ${money(total)}.`:'No reconciled period P&L is currently available.'}`;
+  }
+  if(/position|holding|active trade/.test(text)) {
+    const positions=states.flatMap(({id,s})=>(s?.portfolio?.positions||[]).map(p=>({...p,strategy:id,valid:fresh(s)&&!s.valuation_stale})));
+    if(!positions.length)return `As of ${asOf}, no attributed strategy positions are available.`;
+    return `Attributed positions as of ${asOf}:\n`+positions.map(p=>`• ${names[p.strategy]}: ${p.quantity} ${p.symbol} · ${money(p.market_value)}${p.valid?'':' · STALE'}`).join('\n');
+  }
+  if(/next|schedule|evaluation|cycle/.test(text)) {
+    return `Scheduled strategy actions as of ${asOf}:\n`+states.map(({id,s})=>`• ${names[id]}: next evaluation ${stamp(s?.next_evaluation)}; next execution ${stamp(s?.next_execution)}`).join('\n');
+  }
+  if(/blocked|stale|health|status|connected|connection|error/.test(text)) {
+    return `System health as of ${asOf}:\n`+states.map(({id,s})=>`• ${names[id]}: ${!fresh(s)?'STALE':s?.error?'ATTENTION — '+s.error:(s?.connection||'unverified')+'; '+(s?.reconciliation||'not reconciled')}`).join('\n');
+  }
+  return `I can answer from PortalNexy’s verified state. Try “current active orders”, “summarize P&L this week”, “current positions”, “system health”, or “next scheduled evaluation”. Data timestamp: ${asOf}.`;
+}
+
+async function askNEX(question) {
+  if(activeChatAgentId!=='nex')openNEXChat();
+  const input=document.getElementById('chat-input');input.value=question;
+  await sendChatMessage();
+}
+
 async function sendChatMessage() {
   const input = document.getElementById('chat-input');
   const text  = input.value.trim();
@@ -237,12 +294,17 @@ async function sendChatMessage() {
   input.value = '';
   input.style.height = 'auto';
   try {
-    await db.collection('chats').doc(activeChatAgentId)
-      .collection('messages').add({
+    const messages=db.collection('chats').doc(activeChatAgentId).collection('messages');
+    await messages
+      .add({
         role:      'user',
         content:   text,
         answered:  false,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       });
+    if(activeChatAgentId==='nex')await messages.add({
+      role:'assistant',content:nexAnswer(text),answered:true,
+      source:'broker-reconciled PortalNexy state',timestamp:firebase.firestore.FieldValue.serverTimestamp(),
+    });
   } catch (e) { console.error('Chat send failed:', e); }
 }
