@@ -17,7 +17,7 @@ The browser test uses Playwright and Microsoft Edge with mocked authentication. 
 ## Deployment
 
 ```powershell
-firebase deploy --only hosting,firestore:rules --project portalnexy
+firebase deploy --only "hosting,firestore:rules" --project portalnexy
 ```
 
 Firestore rules deny all client data access. Historical server records, browser drafts and local account ledgers are not erased. Google authentication remains restricted to the existing founder account. Broker source, launch/install/reset tools, strategies, trading documentation and cached Python modules have been removed. The retired Windows trading tasks were unregistered during conversion; no matching local trading worker was running.
