@@ -26,8 +26,10 @@ async function main(){
   page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>requests.push(r.url()));
   await page.goto('http://127.0.0.1:8766/',{waitUntil:'networkidle'});
   await page.locator('#portal-app').waitFor({state:'visible'});
-  assert.equal(await page.locator('main h1').innerText(),'NexyDAO');
+  assert.equal(await page.locator('main h1').innerText(),'PortalNEXY');
   assert.equal(await page.locator('nav a').count(),1);
+  assert.equal(await page.locator('#sidebar .brand-mark').count(),0);
+  assert.equal(await page.locator('#sidebar .brand').innerText(),'PortalNEXY');
   assert.equal(await page.locator('#user-name').innerText(),'Founder');
   assert.equal(await page.evaluate(()=>localStorage.getItem('portalnexy-strategy-draft:offline')),'preserved draft');
   assert.equal(requests.some(url=>/firestore|alpaca|ibkr|forward|option-lab/i.test(url)),false);
@@ -59,7 +61,7 @@ async function main(){
   assert.equal(await page.locator('#portal-app').isVisible(),false);
   assert.match(await page.locator('#login-error-msg').innerText(),/Access denied/);
   assert.deepEqual(errors,[]);
-  console.log('NexyDAO shell PASS: desktop/mobile, founder access, sign-out, login errors, no trading or data requests.');
+  console.log('PortalNEXY shell PASS: desktop/mobile, founder access, sign-out, login errors, no trading or data requests.');
  }finally{if(browser)await browser.close();await new Promise(r=>server.close(r));}
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

@@ -1,20 +1,20 @@
 <!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="The private NexyDAO workspace."><title>Portal Nexy · NexyDAO</title>
+<meta name="description" content="The private PortalNEXY workspace."><title>PortalNEXY</title>
 <link rel="stylesheet" href="portal-shell.css">
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script defer src="portal-shell.js"></script><script defer src="portal-auth.js"></script>
 </head><body>
 <section id="login-screen" class="login-screen" aria-label="Sign in"><div class="login-card">
-<div class="brand-mark" aria-hidden="true">N</div><p class="eyebrow">PORTAL NEXY</p><h1>NexyDAO</h1><p class="muted">Your private workspace.</p>
+<div class="brand-mark" aria-hidden="true">N</div><p class="eyebrow">PRIVATE WORKSPACE</p><h1>PortalNEXY</h1><p class="muted">Your private workspace.</p>
 <button id="google-signin-btn" class="primary-button" onclick="signInWithGoogle()">Sign in with Google</button>
 <p id="login-loading" class="muted" role="status">Checking session…</p><div id="login-error" class="error hidden" role="alert"><span id="login-error-msg"></span></div>
 </div></section>
 <div id="portal-app" class="app hidden">
-<aside id="sidebar" class="sidebar" aria-label="Workspace navigation"><a href="/" class="brand"><span class="brand-mark" aria-hidden="true">N</span><span>NexyDAO<small>PORTAL NEXY</small></span></a><div class="sidebar-caption">WORKSPACE</div><nav><a href="/" class="nav-item" aria-current="page">Overview</a></nav><div class="sidebar-footer">NexyDAO workspace</div></aside>
+<aside id="sidebar" class="sidebar" aria-label="Workspace navigation"><a href="/" class="brand"><span>PortalNEXY</span></a><div class="sidebar-caption">WORKSPACE</div><nav><a href="/" class="nav-item" aria-current="page">Overview</a></nav><div class="sidebar-footer">PortalNEXY workspace</div></aside>
 <div id="sidebar-backdrop" class="sidebar-backdrop hidden" onclick="toggleSidebar(false)"></div>
-<div class="main-shell"><header class="topbar"><div class="topbar-title"><button id="menu-button" class="menu-button" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar" onclick="toggleSidebar()">☰</button><span>Portal Nexy <span class="separator">/</span> <strong>NexyDAO</strong></span></div><div class="profile"><span id="user-avatar" class="avatar" aria-hidden="true">N</span><span id="user-name" class="user-name"></span><button class="text-button" onclick="signOutUser()">Sign out</button></div></header>
-<main id="workspace"><p class="eyebrow">WORKSPACE</p><h1>NexyDAO</h1><p class="muted">A fresh start for your DAO.</p><section class="empty-workspace" aria-label="Empty workspace"><div class="empty-symbol" aria-hidden="true">◇</div><h2>Your workspace is ready</h2><p>Pages and tools will appear here as NexyDAO takes shape.</p></section></main><footer>Portal Nexy · NexyDAO</footer></div>
+<div class="main-shell"><header class="topbar"><div class="topbar-title"><button id="menu-button" class="menu-button" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar" onclick="toggleSidebar()">☰</button><strong>PortalNEXY</strong></div><div class="profile"><span id="user-avatar" class="avatar" aria-hidden="true">N</span><span id="user-name" class="user-name"></span><button class="text-button" onclick="signOutUser()">Sign out</button></div></header>
+<main id="workspace"><p class="eyebrow">WORKSPACE</p><h1>PortalNEXY</h1><p class="muted">A fresh start for your workspace.</p><section class="empty-workspace" aria-label="Empty workspace"><div class="empty-symbol" aria-hidden="true">◇</div><h2>Your workspace is ready</h2><p>Pages and tools will appear here as PortalNEXY takes shape.</p></section></main><footer>PortalNEXY</footer></div>
 </div></body></html>

@@ -1,6 +1,6 @@
-# Portal Nexy · NexyDAO
+# PortalNEXY
 
-A private, empty workspace shell for NexyDAO. Only Google sign-in, the workspace frame and sign-out remain. No application pages, broker connections, order controls or trading workers.
+A private, empty workspace shell for PortalNEXY. Only Google sign-in, the workspace frame and sign-out remain. No application pages, broker connections, order controls or trading workers.
 
 ## Build and validate
 
