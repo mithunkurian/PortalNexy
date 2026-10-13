@@ -11,7 +11,6 @@ __pycache__/
 
 # Environment files and credentials
 .env*
-!trading_backend/.env.example
 *.env
 serviceAccount*.json
 *service-account*.json
@@ -44,5 +43,5 @@ coverage/
 *.sqlite3
 *.sqlite3-*
 *.sqlite3.lock
-trading_backend/research/strategy_loops.md
-trading_backend/research/strategy_loops.jsonl
+# Retired private account environments and historical ledgers stay local.
+trading_backend/
