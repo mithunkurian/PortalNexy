@@ -12,7 +12,7 @@ spec.loader.exec_module(build)
 
 class ShellTests(unittest.TestCase):
     def test_only_shell_assets_are_published(self):
-        self.assertEqual(set(build.ASSETS), {'index.html', 'portal-shell.css', 'portal-shell.js', 'portal-auth.js'})
+        self.assertEqual(set(build.ASSETS), {'index.html', 'portal-shell.css', 'portal-shell.js', 'portal-auth.js', 'nexy-journal.js'})
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             for asset in build.ASSETS:
@@ -33,7 +33,7 @@ class ShellTests(unittest.TestCase):
     def test_broker_source_and_launch_tools_are_removed(self):
         self.assertFalse(list((ROOT / 'trading_backend').rglob('*.py')))
         self.assertFalse(list((ROOT / 'trading_backend').rglob('*.pyc')))
-        self.assertEqual({p.name for p in (ROOT / 'tools').glob('*.py')}, {'build_ui.py'})
+        self.assertEqual({p.name for p in (ROOT / 'tools').glob('*.py')}, {'build_ui.py', 'sync_journal.py'})
         self.assertFalse(list((ROOT / 'tools').glob('install-*-service.ps1')))
         html = (ROOT / 'index.html').read_text(encoding='utf-8')
         self.assertNotIn('firebase-firestore', html)

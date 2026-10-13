@@ -3,7 +3,7 @@ from pathlib import Path
 import shutil
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSETS = ('index.html', 'portal-shell.css', 'portal-shell.js', 'portal-auth.js')
+ASSETS = ('index.html', 'portal-shell.css', 'portal-shell.js', 'portal-auth.js', 'nexy-journal.js')
 
 def main():
     destination = ROOT/'public'

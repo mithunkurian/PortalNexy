@@ -1,20 +1,27 @@
 <!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="The private PortalNEXY workspace."><title>PortalNEXY</title>
+<meta name="description" content="Nexy autonomous trading unit — development workspace and evidence journal."><title>Nexy · Development Journal</title>
 <link rel="stylesheet" href="portal-shell.css">
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script defer src="portal-shell.js"></script><script defer src="portal-auth.js"></script>
+<script defer src="nexy-journal.js"></script><script defer src="portal-shell.js"></script><script defer src="portal-auth.js"></script>
 </head><body>
 <section id="login-screen" class="login-screen" aria-label="Sign in"><div class="login-card">
-<div class="brand-mark" aria-hidden="true">N</div><p class="eyebrow">PRIVATE WORKSPACE</p><h1>PortalNEXY</h1><p class="muted">Your private workspace.</p>
+<div class="brand-mark" aria-hidden="true">N</div><p class="eyebrow">PORTALNEXY / PRIVATE WORKSPACE</p><h1>Nexy</h1><p class="muted">The autonomous trading unit.<br>A clear view of the work behind the intelligence.</p>
 <button id="google-signin-btn" class="primary-button" onclick="signInWithGoogle()">Sign in with Google</button>
 <p id="login-loading" class="muted" role="status">Checking session…</p><div id="login-error" class="error hidden" role="alert"><span id="login-error-msg"></span></div>
 </div></section>
 <div id="portal-app" class="app hidden">
-<aside id="sidebar" class="sidebar" aria-label="Workspace navigation"><a href="/" class="brand"><span>PortalNEXY</span></a><div class="sidebar-caption">WORKSPACE</div><nav><a href="/" class="nav-item" aria-current="page">Overview</a></nav><div class="sidebar-footer">PortalNEXY workspace</div></aside>
+<aside id="sidebar" class="sidebar" aria-label="Workspace navigation">
+<a href="#overview" class="brand">nexy<span class="brand-dot">●</span></a><p class="brand-caption">AUTONOMOUS TRADING UNIT</p>
+<div class="sidebar-caption">WORKSPACE</div><nav>
+<a href="#overview" class="nav-item"><span aria-hidden="true">◫</span> Overview</a>
+<a href="#development-journal" class="nav-item"><span aria-hidden="true">◷</span> Development Journal</a>
+</nav>
+<div class="sidebar-note"><span class="status-dot"></span> PAPER DEVELOPMENT<p>Building autonomy,<br>one verified gate at a time.</p></div>
+<div class="sidebar-footer"><span>PORTALNEXY</span><small>Founder workspace</small></div></aside>
 <div id="sidebar-backdrop" class="sidebar-backdrop hidden" onclick="toggleSidebar(false)"></div>
-<div class="main-shell"><header class="topbar"><div class="topbar-title"><button id="menu-button" class="menu-button" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar" onclick="toggleSidebar()">☰</button><strong>PortalNEXY</strong></div><div class="profile"><span id="user-avatar" class="avatar" aria-hidden="true">N</span><span id="user-name" class="user-name"></span><button class="text-button" onclick="signOutUser()">Sign out</button></div></header>
-<main id="workspace"><p class="eyebrow">WORKSPACE</p><h1>PortalNEXY</h1><p class="muted">A fresh start for your workspace.</p><section class="empty-workspace" aria-label="Empty workspace"><div class="empty-symbol" aria-hidden="true">◇</div><h2>Your workspace is ready</h2><p>Pages and tools will appear here as PortalNEXY takes shape.</p></section></main><footer>PortalNEXY</footer></div>
+<div class="main-shell"><header class="topbar"><div class="topbar-title"><button id="menu-button" class="menu-button" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar" onclick="toggleSidebar()">☰</button><span class="breadcrumb">Nexy <span>/</span> <strong id="current-view">Development Journal</strong></span></div><div class="profile"><span class="mode-pill">Execution disabled</span><span id="user-avatar" class="avatar" aria-hidden="true">N</span><span id="user-name" class="user-name"></span><button class="text-button" onclick="signOutUser()">Sign out</button></div></header>
+<main id="workspace"></main><footer><span>NEXY / DEVELOPMENT INTELLIGENCE</span><span>Evidence first. Autonomy earned.</span></footer></div>
 </div></body></html>
