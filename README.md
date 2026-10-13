@@ -1,25 +1,32 @@
-# PortalNEXY
+# PortalNEXY · Nexy workspace
 
-A private, empty workspace shell for PortalNEXY. Only Google sign-in, the workspace frame and sign-out remain. No application pages, broker connections, order controls or trading workers.
+Founder workspace for Nexy, the autonomous trading unit. Overview and Development Journal present the NexyDAO tracker as a milestone map, searchable evidence timeline and expandable acceptance queue. Google sign-in remains restricted to the founder. Execution is disabled; the portal is informational.
 
-## Build and validate
+## Refresh the journal
 
 ```powershell
+python tools/sync_journal.py --repo C:\Users\Mithu\NexyDAO
 python tools/build_ui.py
+```
+
+The documentation-only exporter reads `docs/development-tracker.md` from the selected NexyDAO checkout and records its revision and branch in `nexy-journal.js`. Confirm the checkout is clean and current before refreshing. The snapshot may include development branch work beyond main; it is not a live monitor. The exporter does not read runtime databases, account receipts or credentials. Hosting assets are publicly retrievable even though the interface requires sign-in; keep sensitive data out of the tracker/export.
+
+## Validate
+
+```powershell
 python -m unittest discover -s tests -v
 node --check portal-auth.js
 node --check portal-shell.js
+node --check nexy-journal.js
 node tests/ui.cjs
 ```
 
-The browser test uses Playwright and Microsoft Edge with mocked authentication. Only four explicitly allowlisted assets enter the public bundle. Never serve the repository root.
+Browser tests require Playwright and Microsoft Edge, and mock authentication. Only five allowlisted assets enter the public bundle. Never serve the repository root.
 
-## Deployment
+## Deploy
 
 ```powershell
 firebase deploy --only "hosting,firestore:rules" --project portalnexy
 ```
 
-Firestore rules deny all client data access. Historical server records, browser drafts and local account ledgers are not erased. Google authentication remains restricted to the existing founder account. Broker source, launch/install/reset tools, strategies, trading documentation and cached Python modules have been removed. The retired Windows trading tasks were unregistered during conversion; no matching local trading worker was running.
-
-The `agents/` directory contains dormant general business assistants. None are launched or connected by this shell. A pre-conversion source backup stays local in ignored `.firebase/retirement-backup/` and is never published or pushed.
+Firestore rules deny all client data access. Historical records and browser drafts are preserved. Broker source, trading workers and order controls remain retired. Dormant business assistants in `agents/` are not connected. An ignored pre-conversion backup stays local in `.firebase/retirement-backup/`.
