@@ -1,6 +1,6 @@
 "use strict";
 window.ATLAS_TRACKER = {
-  "revision": "7dfec33e53b8f8e7d8ffb1853ef6d98629786637",
+  "revision": "fd6a9542e8f6cd96c74f444a806e91034c198e73",
   "branch": "main",
   "progress": {
     "updated": "2026-11-11",
@@ -99,8 +99,8 @@ window.ATLAS_TRACKER = {
         "name": "Risk management",
         "budget": 2,
         "status": "In progress",
-        "evidence": "Independent risk core and durable daily-loss stop implemented. Direct VM core/latch suite: 287 passed in 13.64s; disabled policy review passed. User-selected starting paper allocation is now configurable. Optional realized-profit reinvestment is off and requires an explicit ceiling/verified allocation baseline; allocation changes preserve holds and other limits. Windows follow-up: 295 passed in 13.59s. Updated VM/config validation pending. Risk preferences/approval and verified operational adapters remain unset; no broker balance change, armed operational ledger or orders.",
-        "next": "Verify configurable allocation/reinvestment changes on VM. Remaining trade/day/position and fee/slippage choices plus operator approval are still required. Continue verified broker-state/session/reconciliation integration without placing orders; no implicit FX or reinvestment.",
+        "evidence": "Independent sizing/reservations and persistent loss stop implemented. User selected daily loss cap of 5% of verified capital in open positions; explicitly approved proposed first-position capital as the initial basis with verified flat state, no pending risk and no loss. Windows 366 tests passed in 14.50s; direct VM 366 passed in 15.22s and pip check passed. Other independent limits/approval and trusted M5 adapters remain pending. No actual portfolio promotion or orders.",
+        "next": "Dynamic policy VM validation passed; obtain remaining per-trade/position limits and approval. Verified M5 portfolio/session/rules and outcome reconciliation remain required.",
         "features": [
           {
             "id": "M4.1",
@@ -156,14 +156,16 @@ window.ATLAS_TRACKER = {
         "id": "M6",
         "name": "Automation and monitoring",
         "budget": 2,
-        "status": "Not started",
-        "evidence": "No scheduler, reports or automated monitoring implemented.",
-        "next": "Schedule 10:15 America/New_York scans on US trading days.",
+        "status": "In progress",
+        "evidence": "Contract-specific regular-session diagnostic implemented using verified liquidHours and explicit market timezone aliases. Windows 348 tests passed in 14.46s; direct VM 348 passed in 14.67s and pip check passed. Actual VM at 14:10 UTC verified current date covered, session closed and next reported opening 14:30 UTC. No scheduler, reports, monitoring or orders enabled.",
+        "next": "Implement persisted 10:15 market-local scheduling and stop/run deduplication before operational acceptance; calendar diagnostic acceptance passed.",
         "features": [
           {
             "id": "M6.1",
             "name": "Trading-day scheduling",
-            "status": "Not started"
+            "status": "In progress",
+            "implementationStatus": "Read-only session calendar foundation implemented",
+            "acceptanceGate": "Actual VM calendar diagnostic passed; scheduler/duplicate/stop integration and operational acceptance remain pending."
           },
           {
             "id": "M6.2",
@@ -182,7 +184,7 @@ window.ATLAS_TRACKER = {
         "name": "Testing and commissioning",
         "budget": 3,
         "status": "Not started",
-        "evidence": "193 offline tests passed on Windows and directly on VM. Real read-only market-context pipeline executed and rejected stale quote/news; prior premarket screening and included historical body access verified. End-to-end trading and paper commissioning remain pending; M7 is not completed.",
+        "evidence": "366 offline tests passed on Windows and directly on VM. Real read-only included news, context, broker observation and regular-session diagnostics executed. End-to-end order lifecycle and paper commissioning remain pending; foundation tests do not complete M7.",
         "next": "Run integration tests and paper-trading commissioning.",
         "features": [
           {
@@ -304,7 +306,13 @@ window.ATLAS_TRACKER = {
       "Direct VM 2026-11-11 13:38 UTC: included BRFUPDN article publication time 12:26:23 UTC verified via live millisecond epoch; text body accessible, zero issues, normalized usable-news count 1. M2.3 acceptance passed. Combined context exited 1 solely with stale AAPL quote; quote/regular-hours gates remain closed. No 10197 in this sample; earlier cause unconfirmed. No article text or actual inference/order.",
       "Direct VM after e54d853: 287 tests passed in 13.64s and review-risk confirmed disabled policy. User subsequently supplied initial paper allocation; implemented editable base allocation and optional capped reinvestment from verified realized-net-profit baseline. Monetary allocation does not approve risk, alter broker cash or raise independent risk limits. Windows 295 tests passed in 13.59s; new VM validation pending.",
       "2026-11-11 M5 Windows: 312 tests passed in 17.65s; pip check passed. Synthetic read-only observations and real temporary SQLite tests cover scope/timeouts, non-binding requests, execution corrections, idempotency, unknown fees, late commission, transaction rollback and missing-order retention. Direct VM risk review confirms configurable USD 20,000 allocation, reinvestment off, remaining limits unset and execution disabled.",
-      "2026-11-11 direct VM after 8658723: 312 tests passed in 13.57s; pip check passed. Actual check-broker-state at 14:01 UTC returned one paper-prefix candidate, zero positions/open orders/returned executions and informational codes 2104/2106/2158. No private database requested, account identifier printed, risk-state promotion or order action. Empty returned history does not establish complete execution history or verified paper mode."
+      "2026-11-11 direct VM after 8658723: 312 tests passed in 13.57s; pip check passed. Actual check-broker-state at 14:01 UTC returned one paper-prefix candidate, zero positions/open orders/returned executions and informational codes 2104/2106/2158. No private database requested, account identifier printed, risk-state promotion or order action. Empty returned history does not establish complete execution history or verified paper mode.",
+      "2026-11-11 PortalNexy 95abb9b pushed and Firebase Hosting deployed. Bundled ATLAS 7dfec33 shows M2.3 and M3.3 accepted, M2 1/3 (33%) accepted and current M5.3. Eight portal tests, JavaScript syntax and desktop/mobile browser QA passed (mocked auth/GitHub); all 10 actual hosted assets matched local SHA-256 bytes. This hosting audit does not change feature acceptance or complete M8.",
+      "2026-11-11 Windows session calendar: 348 tests passed in 14.46s. Added read-only check-session client 96 with NASDAQ contract identity, liquidHours-only parsing, enabled-profile timezone aliases, DST-safe UTC conversion, explicit closed/unknown dates, half-days/gaps, inclusive opening/exclusive close, 60-second metadata receipt age and bounded failure handling. No fixed Stockholm offset, holiday inference, scheduler or order authorization. Actual VM validation pending.",
+      "2026-11-11 direct VM after f295c10: 348 tests passed in 14.67s and pip check passed. Actual check-session at 14:10 UTC verified AAPL contract identity, America/New_York timezone, fresh received metadata/current-date coverage, regular session closed and next reported open 14:30 UTC. No fallback calendar, scheduler, risk-state promotion or orders. User specified maximum loss 5% of total invested; scope (portfolio/trade/day) and denominator require clarification before configuration.",
+      "2026-11-11 user clarified 5% means total daily loss relative to capital in open positions. Implemented explicit fraction policy, mutually exclusive fixed cap, verified distinct invested-capital input, dynamic sizing capacity and durable monitor stop. Unknown/zero basis fails closed, zero P&L does not spuriously stop, negative P&L at zero basis latches. Allocation/cash/marked exposure cannot substitute. Windows 358 tests passed in 14.94s; direct VM validation pending. No per-trade limit or initial-entry exception inferred.",
+      "Final Windows daily-policy suite: 366 passed in 14.50s. User approved proposed first-position capital for the initial 5% daily-loss basis. Implemented explicit flag/default false, configured true in unapproved draft. Initial entry needs verified zero invested capital/flat state, no pending exposure/reservations and no loss; downside plus fees/slippage must fit 5% of proposed entry notional and every other cap. Atomic hold prevents a second bootstrap; restart/negative-P&L controls remain intact. New direct VM validation pending.",
+      "Direct VM after 6596be7: 366 tests passed in 15.22s and pip check passed. Actual risk review reports editable USD 20,000 allocation, daily_loss_basis open_position_capital, fraction 0.05, approved initial-position basis flag true, reinvestment false and aggregate policy/order authorization false. Other independent limits remain unset; no operational ledger armed or portfolio promoted."
     ],
     "blockers": [
       "M2.1 awaits a fresh accepted VM sample during 09:30\u201316:00 America/New_York. Latest historical user-reported real-time samples were stale after hours. Direct SSH access is now established.",
@@ -312,9 +320,10 @@ window.ATLAS_TRACKER = {
       "Strategy and risk limits not agreed",
       "Historical engineering time is unknown; total remaining hours cannot be calculated.",
       "M3 actual analysis disabled: strategy decisions/approval remain unset and fresh verified context is unavailable. M4 deterministic controls exist; verified broker integration and order authorization remain disabled.",
-      "M4 operational use disabled: risk.draft.json has configurable base allocation but remaining limits/approval are unset; M5 verified portfolio/paper/contract rules, M6 session proof and broker outcome reconciliation are not implemented. A local reservation is not order permission."
+      "M4 operational use disabled: risk.draft.json has configurable base allocation but remaining limits/approval are unset; M5 verified portfolio/paper/contract rules, M6 session proof and broker outcome reconciliation are not implemented. A local reservation is not order permission.",
+      "Daily-loss scope/denominator confirmed: 5% of capital in open positions. User approved proposed first-position basis with verified flat state/no pending commitments/no daily loss. Unknown capital or ineligible zero basis blocks entries. Independent per-trade/position limits and aggregate approval remain unset."
     ],
-    "currentFeature": "M5.3",
+    "currentFeature": "M4.1",
     "phases": [
       {
         "id": "P1",
