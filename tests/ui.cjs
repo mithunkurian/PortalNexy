@@ -221,7 +221,7 @@ async function main(){
   assert.equal(await page.locator('.atlas-feature-stop.validated').count(),await page.evaluate(()=>window.ATLAS_TRACKER.progress.milestones.flatMap(m=>m.features).filter(f=>f.status==='Complete').length));
   assert.equal(await page.locator('.atlas-feature-stop.current').count(),1);
   assert.equal(await page.locator('.atlas-current-feature').getAttribute('aria-current'),'step');
-  assert.equal(await page.locator('.atlas-station-node.validated').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(35, 146, 94)');
+  assert.ok(await page.locator('.atlas-station-node.validated').evaluateAll(els=>els.length>0 && els.every(el=>getComputedStyle(el).backgroundColor==='rgb(35, 146, 94)')));
   await page.emulateMedia({reducedMotion:'no-preference'});
   assert.equal(await page.locator('.atlas-feature-stop.current').evaluate(el=>getComputedStyle(el).animationName),'atlas-beacon');
   await page.emulateMedia({reducedMotion:'reduce'});
@@ -244,7 +244,7 @@ async function main(){
   assert.match(await page.locator('.atlas-summary').innerText(),/unknown/);
   assert.ok((await page.locator('.atlas-milestone[open]').textContent()).includes(await page.evaluate(()=>window.ATLAS_TRACKER.progress.milestones.find(m=>m.id==='M2').evidence)));
   await page.locator('#atlas-status').selectOption('Complete');
-  assert.equal(await page.locator('.atlas-milestone').count(),1);
+  assert.equal(await page.locator('.atlas-milestone').count(),await page.evaluate(()=>window.ATLAS_TRACKER.progress.milestones.filter(m=>m.status==='Complete').length));
   await page.locator('#atlas-status').selectOption('all');
   await page.locator('#atlas-search').fill('NASDAQ stock screening');
   assert.equal(await page.locator('.atlas-milestone').count(),1);

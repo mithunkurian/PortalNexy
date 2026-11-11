@@ -1,6 +1,6 @@
 "use strict";
 window.ATLAS_TRACKER = {
-  "revision": "1ecb3c706f3802ebc7748cec1c703569bda05932",
+  "revision": "9d49ce610672313409e27d9c43321286c6db99f5",
   "branch": "main",
   "progress": {
     "updated": "2026-11-11",
@@ -36,9 +36,9 @@ window.ATLAS_TRACKER = {
         "id": "M2",
         "name": "Market intelligence",
         "budget": 2,
-        "status": "In progress",
-        "evidence": "M2.1 and M2.3 accepted (2/3 features). Direct VM regular-session check passed at 14:30 UTC; MSFT/NVDA fresh real-time rows accepted. Ranked NASDAQ discovery verified four common stocks and screening accepted two fresh candidates. At 14:31:24 UTC integrated AAPL context passed with source quote 14:31:23 UTC and one verified included BRFUPDN article. Earlier cancelled AAPL row in the three-symbol batch aged past 15 seconds and correctly failed. No freshness relaxation, extra subscriptions, inference request or orders.",
-        "next": "M2.2 regular-hours discovery/screening validation passed. Operator strategy-specific price/spread/filter decisions remain open; do not turn diagnostic TOP_PERC_GAIN into an approved strategy. Each subsequent use requires newly fresh complete context.",
+        "status": "Complete",
+        "evidence": "All three M2 data-layer features accepted. Broker-verified regular-session real-time quotes and complete AAPL/news context passed at 14:30-14:31 UTC. User delegated screening research; selected minimum bid USD 10, no extra price ceiling and 10 bps spread. Direct VM at 14:57:57 accepted filtered AAPL quote, source 14:57:56, spread 2.83 bps. Broker-filtered ranked scan verified 3 common stocks and correctly rejected all on stale/past-limit or spread gates; zero candidates is a valid diagnostic outcome, not a trade signal. No freshness relaxation, additional subscriptions, inference or orders.",
+        "next": "M2 data layer complete. Every later use must reacquire fresh complete context. Continue unapproved strategy design, cost calibration and trusted broker/risk commissioning; scanner ranking and selected filters are not an entry signal.",
         "features": [
           {
             "id": "M2.1",
@@ -50,9 +50,9 @@ window.ATLAS_TRACKER = {
           {
             "id": "M2.2",
             "name": "NASDAQ stock screening",
-            "status": "In progress",
-            "implementationStatus": "Implemented; regular-hours diagnostic validation passed",
-            "acceptanceGate": "Operator: strategy-specific screening filter decisions remain open. Agent regular-hours discovery/screening validation passed."
+            "status": "Complete",
+            "implementationStatus": "Implemented; researched settings and VM validation passed",
+            "acceptanceGate": "Complete: delegated filter choices applied and live VM acceptance/rejection verified. Data screening does not approve a trading strategy or orders."
           },
           {
             "id": "M2.3",
@@ -99,8 +99,8 @@ window.ATLAS_TRACKER = {
         "name": "Risk management",
         "budget": 2,
         "status": "In progress",
-        "evidence": "Independent sizing/reservations and persistent loss stop implemented. User selected daily loss cap of 5% of verified capital in open positions; explicitly approved proposed first-position capital as the initial basis with verified flat state, no pending risk and no loss. Windows 366 tests passed in 14.50s; direct VM 366 passed in 15.22s and pip check passed. Other independent limits/approval and trusted M5 adapters remain pending. No actual portfolio promotion or orders.",
-        "next": "Dynamic policy VM validation passed; obtain remaining per-trade/position limits and approval. Verified M5 portfolio/session/rules and outcome reconciliation remain required.",
+        "evidence": "User delegated research/selection of configurable paper parameters and reassessment of 5% daily loss. Selected initial USD 50 trade risk, USD 200 fixed daily cap, USD 2,000 per position, 3 positions, 200 shares and 10 bps spread/entry-distance bounds against USD 20,000 allocation. Fixed daily cap replaces the changing open-position fraction/first-position exception in active draft. Windows 389 tests passed in 14.47s; direct VM 389 passed in 15.44s and pip check passed. Costs, operational approval and trusted broker adapters remain uncommissioned; no orders.",
+        "next": "Research profile selected and VM-validated. Calibrate actual fee/slippage assumptions and commission trusted broker/risk/strategy adapters before operational use. User requested a review stop after tracker publication.",
         "features": [
           {
             "id": "M4.1",
@@ -157,15 +157,15 @@ window.ATLAS_TRACKER = {
         "name": "Automation and monitoring",
         "budget": 2,
         "status": "In progress",
-        "evidence": "Contract-specific regular-session diagnostic implemented using verified liquidHours and explicit market timezone aliases. Windows 348 tests passed in 14.46s; direct VM 348 passed in 14.67s and pip check passed. Actual VM at 14:10 UTC verified current date covered, session closed and next reported opening 14:30 UTC. No scheduler, reports, monitoring or orders enabled.",
-        "next": "Implement persisted 10:15 market-local scheduling and stop/run deduplication before operational acceptance; calendar diagnostic acceptance passed.",
+        "evidence": "Broker-backed session calendar plus disabled-by-default 10:15 market-local single-invocation read-only scan implemented. SQLite daily claims/pause survive restart; failed/crashed jobs do not automatically repeat. Windows 385 tests passed in 17.79s; direct VM 385 passed in 15.23s, pip check and actual disabled schedule review/run passed. No installed daemon/timer, analysis request, trading-pipeline integration or orders.",
+        "next": "Unattended activation and actual scheduled-run/trading-pipeline acceptance remain pending; schedule remains disabled and no timer/service is installed.",
         "features": [
           {
             "id": "M6.1",
             "name": "Trading-day scheduling",
             "status": "In progress",
-            "implementationStatus": "Read-only session calendar foundation implemented",
-            "acceptanceGate": "Actual VM calendar diagnostic passed; scheduler/duplicate/stop integration and operational acceptance remain pending."
+            "implementationStatus": "Session calendar and disabled read-only daily-job component implemented",
+            "acceptanceGate": "Actual calendar and disabled job VM diagnostics passed. Unattended activation and scheduled/trading-pipeline operational acceptance remain pending."
           },
           {
             "id": "M6.2",
@@ -314,15 +314,18 @@ window.ATLAS_TRACKER = {
       "Final Windows daily-policy suite: 366 passed in 14.50s. User approved proposed first-position capital for the initial 5% daily-loss basis. Implemented explicit flag/default false, configured true in unapproved draft. Initial entry needs verified zero invested capital/flat state, no pending exposure/reservations and no loss; downside plus fees/slippage must fit 5% of proposed entry notional and every other cap. Atomic hold prevents a second bootstrap; restart/negative-P&L controls remain intact. New direct VM validation pending.",
       "Direct VM after 6596be7: 366 tests passed in 15.22s and pip check passed. Actual risk review reports editable USD 20,000 allocation, daily_loss_basis open_position_capital, fraction 0.05, approved initial-position basis flag true, reinvestment false and aggregate policy/order authorization false. Other independent limits remain unset; no operational ledger armed or portfolio promoted.",
       "2026-11-11 PortalNexy 19f63e2 pushed and Firebase Hosting deployed with ATLAS fd6a954. Eight portal tests and desktop/mobile browser QA passed. All ten actual hosted assets matched local SHA-256 bytes. Published 366-test VM evidence, broker/session diagnostics and confirmed 5% daily open-position-capital/first-position settings. M2 remains 1/3 accepted; order authorization remains false.",
-      "2026-11-11 direct VM regular-hours batch: 14:30:06 UTC contract liquidHours confirmed open session. Three-symbol check accepted MSFT (source 14:30:24) and NVDA (14:30:34); earlier cancelled AAPL row correctly rejected as stale at final evaluation, so batch exit 1 was preserved. Discovery verified 4/5 common-stock candidates; screening accepted 2 fresh candidates and rejected stale earlier input, exit 0. At 14:31:24 UTC AAPL context exit 0, complete_intelligence_input true, source quote 14:31:23, normalized included news count 1. M2.1 acceptance complete; M2.2 market-validation passed but filter choices remain open. No 10197 in this batch, actual inference, relaxed freshness or orders."
+      "2026-11-11 direct VM regular-hours batch: 14:30:06 UTC contract liquidHours confirmed open session. Three-symbol check accepted MSFT (source 14:30:24) and NVDA (14:30:34); earlier cancelled AAPL row correctly rejected as stale at final evaluation, so batch exit 1 was preserved. Discovery verified 4/5 common-stock candidates; screening accepted 2 fresh candidates and rejected stale earlier input, exit 0. At 14:31:24 UTC AAPL context exit 0, complete_intelligence_input true, source quote 14:31:23, normalized included news count 1. M2.1 acceptance complete; M2.2 market-validation passed but filter choices remain open. No 10197 in this batch, actual inference, relaxed freshness or orders.",
+      "2026-11-11 PortalNexy c9b367d pushed and Firebase Hosting deployed with accepted ATLAS 1ecb3c7 snapshot. Eight portal tests passed; desktop/mobile browser QA passed after replacing an obsolete stale-status assertion with the actual milestone evidence check. All ten actual hosted assets matched local SHA-256 bytes. M2 displays 2/3 (67%) accepted, with M2.1 and M2.3 complete and M2.2 filter decision pending. VM pulled 1ecb3c7; no new code or order authorization in this audit.",
+      "2026-11-11 Windows scheduler foundation: 385 tests passed in 17.79s. Explicit opt-in single-invocation read-only scanner, 10:15 market-local 60-second start window, fresh regular-session metadata, SQLite atomic daily claim, persistent pause, no catch-up/retry/claim expiry. Eight-way concurrency, restart/crash/failure retention, DST, closures, missed window, stale metadata, corrupt storage and disabled CLI tested. Actual Windows disabled CLI returned disabled without broker or journal; no daemon/timer or orders installed.",
+      "Direct VM after 2ef40d9: 385 tests passed in 15.23s; pip check passed. Actual review-schedule reports disabled, 10:15 America/New_York, no retries/service/orders. Actual run-scheduled-scan returned disabled without settings/journal arguments, before broker/journal creation.",
+      "2026-11-11 researched profile Windows: 389 tests passed in 14.47s. User delegated choices/adjustment; researched primary CME/Schwab/FINRA/SEC/IBKR sources and documented conservative starting assumptions, not optimized values. Added explicit selected-null-filter semantics without strategy approval, broker-side price bounds before scanner rank limit, independent quote rechecks, and visible configured risk limits. Fee/slippage remain unset rather than guessed. New VM profile/filter validation pending.",
+      "Direct VM after 16f5d59: 389 tests passed in 15.44s; pip check passed. Actual reviews show fixed USD 200 daily cap, USD 50 trade risk/USD 2,000 position/3 positions, selected USD 10 floor/no ceiling/10 bps spread, and risk/strategy/orders disabled. At 14:57:57 filtered AAPL accepted with broker source 14:57:56 and 2.83 bps spread. At 14:58:30 ranked scanner applied abovePrice 10 before limit, verified 3 common stocks and correctly rejected stale/past-limit CCG and wide-spread TANH/MTRI; zero eligible candidates kept CLI exit 1. SSH completed; gcloud troubleshooting footer reflected the diagnostic exit, not a connectivity failure. M2.2 data-layer acceptance complete; all M2 features now complete. No article text/inference/orders or extra subscription."
     ],
     "blockers": [
-      "M2.2 regular-hours discovery/screening validation passed. Strategy-specific screening filter choices remain pending; diagnostic settings are unapproved.",
-      "Strategy and risk limits not agreed",
+      "Trading strategy entry/exit/end-of-day rules remain unapproved; researched risk limits are selected, with cost calibration/commissioning pending.",
       "Historical engineering time is unknown; total remaining hours cannot be calculated.",
       "M3 actual analysis disabled: strategy decisions/approval remain unset; fresh complete context passed on VM but must be reacquired for each request. M4 deterministic controls exist; verified broker integration and order authorization remain disabled.",
-      "M4 operational use disabled: risk.draft.json has configurable base allocation but remaining limits/approval are unset; M5 verified portfolio/paper/contract rules, M6 session proof and broker outcome reconciliation are not implemented. A local reservation is not order permission.",
-      "Daily-loss scope/denominator confirmed: 5% of capital in open positions. User approved proposed first-position basis with verified flat state/no pending commitments/no daily loss. Unknown capital or ineligible zero basis blocks entries. Independent per-trade/position limits and aggregate approval remain unset."
+      "M4 operational use disabled: risk.draft.json has researched allocation/trade/day/position limits but cost assumptions and operational approval remain uncommissioned; M5 verified portfolio/paper/contract rules, M6 session diagnostic exists but trusted execution integration and broker outcome reconciliation remain pending. A local reservation is not order permission."
     ],
     "currentFeature": "M4.1",
     "phases": [
