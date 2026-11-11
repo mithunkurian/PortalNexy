@@ -1,6 +1,6 @@
 "use strict";
 window.ATLAS_TRACKER = {
-  "revision": "2d9f3e31fe4f9cc8b0893cf523953a028d2e601c",
+  "revision": "f35bd61e84850b12f36dfa3d4fbfbea355c6af89",
   "branch": "main",
   "progress": {
     "updated": "2026-11-11",
@@ -37,23 +37,29 @@ window.ATLAS_TRACKER = {
         "name": "Market intelligence",
         "budget": 2,
         "status": "In progress",
-        "evidence": "Read-only NASDAQ discovery, bounded screening and included-news probes implemented and deployed. Windows: 164 tests passed in 13.96s; direct VM: 164 passed in 12.22s, pip check previously passed with unchanged dependencies. Actual VM discovery verified three of five results and rejected two; combined premarket screening accepted two fresh quotes and rejected one stale quote. Included BRFG/BRFUPDN historical text bodies accessible, but historical headline zones unverified. Live millisecond epochs decoded correctly; latest sample contained stale headlines and safely returned unavailable. No orders; strategy news disabled. M2.1 regular-hours acceptance remains pending.",
-        "next": "Obtain a fresh accepted read-only VM quote and screening sample during regular hours; retain existing freshness gates. Await an actually fresh included-provider headline and finish timestamped news-feed integration. Agree strategy filters and independent risk limits before decisions/orders. Direct VM SSH now works; no user terminal commands required.",
+        "evidence": "Current off-market implementation is integrated and deployed: NASDAQ discovery/screening, typed normalized news, consumption-time freshness and same-symbol/broker-contract context binding, plus offline diagnostic settings review. Windows: 193 tests passed in 12.17s; directly executed VM: 193 passed in 12.46s and pip check passed. Actual VM context at 09:59 UTC correctly rejected stale AAPL quote and stale headlines (exit 1), with no text leakage/orders. Earlier premarket screening accepted two fresh quotes and rejected one stale quote; included historical text access was verified. Only NASDAQ_US is enabled; later authorized subscriptions/Swedish/Nordic expansion boundaries are documented. Regular-hours/fresh-news acceptance and strategy decisions remain open.",
+        "next": "Coding for this increment is complete. Agent: obtain regular-hours fresh quote/screening acceptance and an actually fresh included-provider article/context when available (news may arrive outside market hours). Reviewable screening draft is in config/screening.draft.json; strategy thresholds and independent risk limits remain undecided for subsequent strategy/risk work. No additional market/subscription is enabled.",
         "features": [
           {
             "id": "M2.1",
             "name": "Market-data API integration",
-            "status": "In progress"
+            "status": "In progress",
+            "implementationStatus": "Implemented; acceptance pending",
+            "acceptanceGate": "Agent: fresh regular-hours quote acceptance."
           },
           {
             "id": "M2.2",
             "name": "NASDAQ stock screening",
-            "status": "In progress"
+            "status": "In progress",
+            "implementationStatus": "Implemented; acceptance pending",
+            "acceptanceGate": "Agent: regular-hours screening acceptance; strategy filter decisions remain open."
           },
           {
             "id": "M2.3",
             "name": "News and catalysts",
-            "status": "In progress"
+            "status": "In progress",
+            "implementationStatus": "Implemented; acceptance pending",
+            "acceptanceGate": "Agent: actual fresh timestamped news/context acceptance; no market-open requirement for news."
           }
         ]
       },
@@ -162,7 +168,7 @@ window.ATLAS_TRACKER = {
         "name": "Testing and commissioning",
         "budget": 3,
         "status": "Not started",
-        "evidence": "164 offline tests passed on Windows and directly on VM; actual read-only premarket discovery/screening and included text-body access exercised. Stale news rejected. End-to-end trading and paper commissioning remain pending; these checks do not complete M7.",
+        "evidence": "193 offline tests passed on Windows and directly on VM. Real read-only market-context pipeline executed and rejected stale quote/news; prior premarket screening and included historical body access verified. End-to-end trading and paper commissioning remain pending; M7 is not completed.",
         "next": "Run integration tests and paper-trading commissioning.",
         "features": [
           {
@@ -268,12 +274,17 @@ window.ATLAS_TRACKER = {
       "Windows millisecond correction: full 163 tests passed in 13.78s, including real SDK decoder live-news capture; tracker retains pending corrected VM acceptance.",
       "Direct VM after 8e4e6cd: 163 tests passed in 12.78s. Corrected live-news epochs parsed successfully, but sampled initial cached headlines were stale and correctly rejected (exit 1); no bodies requested for stale stories. Follow-up bounded live buffer now selects newest valid stories from at most 50 distinct callbacks, retaining at most three body requests and the unchanged 24-hour diagnostic age limit.",
       "Windows newest-valid headline selection: 164 tests passed in 13.96s, including real SDK decoder stale-cache regression; pending VM confirmation.",
-      "Final direct VM after deployment of 12a9ff1: full suite 164 passed in 12.22s. Actual eight-second live-news sample decoded millisecond publication epochs; only stale headlines were available, so no text bodies were requested for them and probe exited 1. No retries, age-limit relaxation, orders or paid additions. Historical text-body access evidence is separate; fresh strategy news remains unavailable."
+      "Final direct VM after deployment of 12a9ff1: full suite 164 passed in 12.22s. Actual eight-second live-news sample decoded millisecond publication epochs; only stale headlines were available, so no text bodies were requested for them and probe exited 1. No retries, age-limit relaxation, orders or paid additions. Historical text-body access evidence is separate; fresh strategy news remains unavailable.",
+      "2026-11-11 PortalNexy DT review release: PortalNexy 86c6b9e published through Firebase Hosting; ten allowlisted assets. Bundled ATLAS snapshot 2d9f3e3 includes current M2.3 and 164-test/direct-VM evidence. Milestone percentages explicitly count fully accepted features: M2 0/3 (0% accepted), all three remain In progress; no estimated implementation percentage or milestone progress invented. Eight Python tests and desktop/mobile Edge browser QA passed with mocked auth/GitHub; actual hosted tracker/script bytes match tested build. Public GitHub tracker endpoint returned HTTP 404, so the deployed bundled snapshot supplies the review data. No broker or trading changes; M8 remains Not started.",
+      "2026-11-11 continued implementation: 191 Windows tests passed in 13.25s and pip check passed. Normalized feed, untrusted content separation, script stripping, consumption-time expiry, broker-error rejection, quote/news contract binding, settings/schema/override validation and disabled-market boundaries tested. Offline review command passed; no strategy values invented. Future authorized subscriptions and Swedish/Nordic expansion requirement saved in AGENTS/handover/settings documentation; only NASDAQ_US enabled. New actual VM validation pending.",
+      "Final Windows integration suite: 193 tests passed, including broker-symbol mismatch rejection before quote/news requests; settings review and unchanged dependency checks passed. Context summaries omit the quote-only news placeholder and retain redacted authoritative news metadata.",
+      "Direct VM after 931c21c deployment: full 193 tests passed in 12.46s; pip check passed. Actual context-ibkr --settings draft completed at 2026-11-11 09:59 UTC: stale AAPL quote and stale included-provider headlines rejected; zero usable news, incomplete intelligence input, exit 1. Typed feed/context integration is now implemented and VM-tested. No AI calls, raw news text output, orders, subscription purchases or Nordic-market activation. Remaining data acceptance is distinct from completed implementation.",
+      "Measured continuous implementation checkpoint: 13.3 minutes, 2026-11-11 09:46:33\u201309:59:48 UTC, covering implementation, tests and VM deployment/validation. Historical engineering totals and remaining budget remain unknown."
     ],
     "blockers": [
       "M2.1 awaits a fresh accepted VM sample during 09:30\u201316:00 America/New_York. Latest historical user-reported real-time samples were stale after hours. Direct SSH access is now established.",
-      "M2.2 agreed strategy filters and actual regular-hours VM screening acceptance remain pending; scanner discovery is a ranked subset, not a complete exchange directory.",
-      "Included BRFG/BRFUPDN historical text-body access verified directly on VM; historical zones unverified. Latest live millisecond-epoch headlines were stale and rejected. Fresh headline acceptance and news-feed integration remain pending; strategy news disabled.",
+      "M2.2 implementation and diagnostic settings review are available; regular-hours screening acceptance and agreement on strategy-specific filters remain pending.",
+      "Typed normalized news feed/context implementation is integrated and VM-tested. Actual fresh timestamped article/context acceptance remains pending; latest real quote/headline inputs were stale and rejected. News can arrive outside regular market hours.",
       "Strategy and risk limits not agreed",
       "Historical engineering time is unknown; total remaining hours cannot be calculated."
     ],

@@ -44,6 +44,8 @@ Founder sign-in and execution-disabled behavior remain in place.
 Each milestone shows an acceptance percentage: completed feature stops divided
 by total feature stops. In-progress work receives no estimated percentage;
 implementation evidence and pending validation remain visible below each stop.
+Feature rows also show implementation status and the named acceptance gate/owner
+when provided by the ATLAS snapshot.
 
 The page reads the latest public ATLAS `main/dashboard/progress.json` on entry
 and has a **Refresh latest status** button. Requests have an 8-second deadline,
