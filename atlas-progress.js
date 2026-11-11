@@ -1,6 +1,6 @@
 "use strict";
 window.ATLAS_TRACKER = {
-  "revision": "9d49ce610672313409e27d9c43321286c6db99f5",
+  "revision": "69bbdce4b95be33a2ccdf1b442f71ab8acce5b7c",
   "branch": "main",
   "progress": {
     "updated": "2026-11-11",
@@ -13,7 +13,7 @@ window.ATLAS_TRACKER = {
         "budget": 1,
         "status": "Complete",
         "evidence": "Cloud installation, 18 offline tests and real OpenAI probe passed. User reported VM constrained installation, pip check, 18 tests and real OpenAI probe passed. No orders submitted.",
-        "next": "M2: validate IBKR quote/API entitlements within existing subscriptions.",
+        "next": "Environment ready; current work uses the existing VM/Gateway and dependencies.",
         "features": [
           {
             "id": "M1.1",
@@ -67,30 +67,30 @@ window.ATLAS_TRACKER = {
         "id": "M3",
         "name": "AI trading engine",
         "budget": 2,
-        "status": "In progress",
-        "evidence": "Strategy draft/review, bounded structured analysis and Pydantic proposal validation implemented. Windows: 233 tests passed in 13.86s; direct VM: 233 passed in 15.25s. VM strategy review shows analysis disabled; draft analyze CLI rejected before broker/key/API access. M3.3 deterministic validation acceptance complete. M3.1 strategy decisions/approval and M3.2 actual structured API acceptance remain pending. No real inference request, risk approval or order.",
-        "next": "Continue independent deterministic risk controls with unapproved/unset monetary limits. Strategy approval and fresh context precede actual M3.2 inference; M3.3 validation does not authorize risk or orders.",
+        "status": "Complete",
+        "evidence": "All three M3 features accepted: configured paper-only news-catalyst policy, guarded structured Responses analysis and deterministic plan validation. Final Windows 428 passed/2 Linux-only skipped in 34.34s; final direct VM 430 passed in 17.56s, pip check passed. Actual paper-policy review has no pending decisions. Real fresh-context gpt-4.1-mini requests accepted validated NO_TRADE at 18:32 and 18:37 UTC. Long proposals additionally expire at the earliest quote, entry-window, cited-news or session-metadata deadline. No key/raw news/rationale logged, financial risk activation or orders.",
+        "next": "M3 complete; no user review gate. Continue M4/M5 operational cost calibration, trusted portfolio/tick rules, broker reconciliation and independent execution controls. Strategy performance and end-to-end paper commissioning remain M7; every new analysis requires fresh complete inputs.",
         "features": [
           {
             "id": "M3.1",
             "name": "Configurable strategy and prompts",
-            "status": "In progress",
-            "implementationStatus": "Implemented; acceptance pending",
-            "acceptanceGate": "Operator strategy decisions/approval remain open; no values assumed."
+            "status": "Complete",
+            "implementationStatus": "Implemented; configured paper policy and VM validation passed",
+            "acceptanceGate": "Complete: typed parameters/prompts, deterministic gates, actual VM tests and paper-analysis-only review passed. Operational trading remains separate."
           },
           {
             "id": "M3.2",
             "name": "OpenAI analysis",
-            "status": "In progress",
-            "implementationStatus": "Implemented; acceptance pending",
-            "acceptanceGate": "Agent: real structured-output API acceptance with approved strategy and fresh verified context."
+            "status": "Complete",
+            "implementationStatus": "Implemented; actual structured analysis and final VM regressions passed",
+            "acceptanceGate": "Complete: real authenticated fresh-context NO_TRADE accepted; final lease-boundary/SDK/CLI regression passed on VM. No order permission."
           },
           {
             "id": "M3.3",
             "name": "Pydantic trading-plan validation",
             "status": "Complete",
             "implementationStatus": "Implemented and deterministic validation passed",
-            "acceptanceGate": "Complete: local/VM schema, context-binding and fail-closed SDK/CLI tests; financial risk remains M4."
+            "acceptanceGate": "Complete: local/VM schema, context, policy and fail-closed SDK/CLI tests; real parsed output accepted. Independent financial risk remains M4."
           }
         ]
       },
@@ -100,14 +100,14 @@ window.ATLAS_TRACKER = {
         "budget": 2,
         "status": "In progress",
         "evidence": "User delegated research/selection of configurable paper parameters and reassessment of 5% daily loss. Selected initial USD 50 trade risk, USD 200 fixed daily cap, USD 2,000 per position, 3 positions, 200 shares and 10 bps spread/entry-distance bounds against USD 20,000 allocation. Fixed daily cap replaces the changing open-position fraction/first-position exception in active draft. Windows 389 tests passed in 14.47s; direct VM 389 passed in 15.44s and pip check passed. Costs, operational approval and trusted broker adapters remain uncommissioned; no orders.",
-        "next": "Research profile selected and VM-validated. Calibrate actual fee/slippage assumptions and commission trusted broker/risk/strategy adapters before operational use. User requested a review stop after tracker publication.",
+        "next": "Calibrate actual fee/slippage assumptions and commission trusted broker/risk adapters before operational use. M3 paper-analysis acceptance complete; no additional strategy review gate is pending.",
         "features": [
           {
             "id": "M4.1",
             "name": "Position sizing and capital limits",
             "status": "In progress",
             "implementationStatus": "Core implemented; operational acceptance pending",
-            "acceptanceGate": "Agent: VM sizing tests; approved limits and verified broker portfolio data before use."
+            "acceptanceGate": "Agent: fee/slippage calibration, trusted portfolio/tick-rule integration and operational commissioning. Researched risk limits selected."
           },
           {
             "id": "M4.2",
@@ -184,7 +184,7 @@ window.ATLAS_TRACKER = {
         "name": "Testing and commissioning",
         "budget": 3,
         "status": "Not started",
-        "evidence": "366 offline tests passed on Windows and directly on VM. Real read-only included news, context, broker observation and regular-session diagnostics executed. End-to-end order lifecycle and paper commissioning remain pending; foundation tests do not complete M7.",
+        "evidence": "Final M3 suite: Windows 425 passed/2 Linux-only skipped; direct VM 427 passed. Actual fresh-context structured analysis accepted NO_TRADE. End-to-end order lifecycle, economic strategy performance and paper commissioning remain pending; M7 is not complete.",
         "next": "Run integration tests and paper-trading commissioning.",
         "features": [
           {
@@ -319,12 +319,17 @@ window.ATLAS_TRACKER = {
       "2026-11-11 Windows scheduler foundation: 385 tests passed in 17.79s. Explicit opt-in single-invocation read-only scanner, 10:15 market-local 60-second start window, fresh regular-session metadata, SQLite atomic daily claim, persistent pause, no catch-up/retry/claim expiry. Eight-way concurrency, restart/crash/failure retention, DST, closures, missed window, stale metadata, corrupt storage and disabled CLI tested. Actual Windows disabled CLI returned disabled without broker or journal; no daemon/timer or orders installed.",
       "Direct VM after 2ef40d9: 385 tests passed in 15.23s; pip check passed. Actual review-schedule reports disabled, 10:15 America/New_York, no retries/service/orders. Actual run-scheduled-scan returned disabled without settings/journal arguments, before broker/journal creation.",
       "2026-11-11 researched profile Windows: 389 tests passed in 14.47s. User delegated choices/adjustment; researched primary CME/Schwab/FINRA/SEC/IBKR sources and documented conservative starting assumptions, not optimized values. Added explicit selected-null-filter semantics without strategy approval, broker-side price bounds before scanner rank limit, independent quote rechecks, and visible configured risk limits. Fee/slippage remain unset rather than guessed. New VM profile/filter validation pending.",
-      "Direct VM after 16f5d59: 389 tests passed in 15.44s; pip check passed. Actual reviews show fixed USD 200 daily cap, USD 50 trade risk/USD 2,000 position/3 positions, selected USD 10 floor/no ceiling/10 bps spread, and risk/strategy/orders disabled. At 14:57:57 filtered AAPL accepted with broker source 14:57:56 and 2.83 bps spread. At 14:58:30 ranked scanner applied abovePrice 10 before limit, verified 3 common stocks and correctly rejected stale/past-limit CCG and wide-spread TANH/MTRI; zero eligible candidates kept CLI exit 1. SSH completed; gcloud troubleshooting footer reflected the diagnostic exit, not a connectivity failure. M2.2 data-layer acceptance complete; all M2 features now complete. No article text/inference/orders or extra subscription."
+      "Direct VM after 16f5d59: 389 tests passed in 15.44s; pip check passed. Actual reviews show fixed USD 200 daily cap, USD 50 trade risk/USD 2,000 position/3 positions, selected USD 10 floor/no ceiling/10 bps spread, and risk/strategy/orders disabled. At 14:57:57 filtered AAPL accepted with broker source 14:57:56 and 2.83 bps spread. At 14:58:30 ranked scanner applied abovePrice 10 before limit, verified 3 common stocks and correctly rejected stale/past-limit CCG and wide-spread TANH/MTRI; zero eligible candidates kept CLI exit 1. SSH completed; gcloud troubleshooting footer reflected the diagnostic exit, not a connectivity failure. M2.2 data-layer acceptance complete; all M2 features now complete. No article text/inference/orders or extra subscription.",
+      "Final review release 2026-11-11: PortalNexy 66b995a pushed and Firebase Hosting deployed with ATLAS 9d49ce6. Eight portal tests and desktop/mobile browser QA passed with mocked auth/GitHub; all ten actual hosted assets matched local SHA-256 bytes. M2 displays Complete, 3/3 (100%); selected configurable risk/filter profile and remaining commissioning gates visible. Development stopped at user request for review. No background timer, analysis request or order activation. This audit does not change feature acceptance or complete M8.",
+      "2026-11-11 resumed M3: Windows 424 tests passed and 2 Linux permission/FIFO checks skipped in 15.15s. Added typed paper policy, session identity/age, DST/short-session entry/flatten intent, 60-minute same-day entry evidence, app-generated rounded proposal geometry, model override rejection, unsent-reference rejection, explicit private credential file validation and optional ceiling fix. User physically updated the prepared private VM key file. No key/body/model rationale in logs or dashboard; no actual analysis/order yet.",
+      "Direct VM 4d0a077: 426 tests passed in 17.21s and pip check passed. Actual paper strategy review had no pending decisions and order_authorized false. Real analyze-ibkr with explicit private key file completed at 18:32:19.263815 UTC: validated NO_TRADE, AAPL/USD/matching contract, expiry 18:32:28 UTC, risk_status not_evaluated, order_authorized false. Successful return proves post-response data/policy gates passed; no raw news/rationale/key logged. Added sanitized rejection of extreme finite quote precision before API; final Windows 425 passed/2 Linux-only skipped in 36.34s. Final VM regression pending.",
+      "Final M3 VM after 596497d: 427 tests passed in 15.91s; pip check passed. Real analyze-ibkr with gpt-4.1-mini explicitly selected and owner-only private credential completed at 18:37:16.144014 UTC (19:37 Stockholm): NO_TRADE, AAPL/USD/matching contract, expiry 18:37:26 UTC, risk_status not_evaluated, order_authorized false. This is actual authenticated SDK/Responses acceptance, separate from mock long/rejection tests. M3.1/M3.2/M3.3 and milestone M3 are Complete; profitability, actual order lifecycle and independent risk activation are not inferred.",
+      "M3 final release hardening: long proposal expiry now also binds cited catalyst age, entry cutoff and session metadata age, so downstream risk cannot retain a still-fresh quote after another strategy gate expires. Three synthetic real-SDK long cases verify one-second remaining leases and exclusive expiry. Windows 428 passed/2 Linux-only skipped in 34.34s. Final VM regression pending; existing real NO_TRADE API acceptance at 18:32/18:37 is unchanged. No extra API request or order for this boundary test.",
+      "Final M3 lease regression on direct VM after 6eea87c: 430 tests passed in 17.56s; pip check passed. Windows corresponding suite 428 passed/2 Linux-only skipped in 34.34s. All three shorter long-lease deadlines passed actual SDK parser tests with synthetic HTTP; this long-only hardening does not change the already verified real NO_TRADE transport path. M3.2 and milestone M3 are Complete again after final release regression. Real gpt-4.1-mini acceptances remain at 18:32/18:37 UTC, separate from mocked branch tests. No order/risk activation or further user review required."
     ],
     "blockers": [
-      "Trading strategy entry/exit/end-of-day rules remain unapproved; researched risk limits are selected, with cost calibration/commissioning pending.",
+      "M3 paper-analysis policy and real-request acceptance are complete. Independent risk fee/slippage calibration, trusted broker adapters and operational commissioning remain pending.",
       "Historical engineering time is unknown; total remaining hours cannot be calculated.",
-      "M3 actual analysis disabled: strategy decisions/approval remain unset; fresh complete context passed on VM but must be reacquired for each request. M4 deterministic controls exist; verified broker integration and order authorization remain disabled.",
       "M4 operational use disabled: risk.draft.json has researched allocation/trade/day/position limits but cost assumptions and operational approval remain uncommissioned; M5 verified portfolio/paper/contract rules, M6 session diagnostic exists but trusted execution integration and broker outcome reconciliation remain pending. A local reservation is not order permission."
     ],
     "currentFeature": "M4.1",
