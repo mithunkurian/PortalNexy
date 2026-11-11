@@ -1,6 +1,6 @@
 "use strict";
 window.ATLAS_TRACKER = {
-  "revision": "c20244f3fe009999d0623d83695204b254f408d5",
+  "revision": "22defb4374ab9f98e35ac969e143c2504140958c",
   "branch": "main",
   "progress": {
     "updated": "2026-11-11",
@@ -253,14 +253,14 @@ window.ATLAS_TRACKER = {
       "User-reported VM 2026-11-10 22:02 UTC: actual broker connection/time and real-time AAPL callback succeeded; stale broker-supplied BidAsk timestamp rejected. After regular hours (17:02 New York). News providers advertised; no articles requested. Exit 1. Earlier connection timeout cause remains unconfirmed.",
       "User-reported VM 2026-11-10 22:03 UTC: broker_time 22:03:43Z, AAPL real-time BidAsk source_time 22:03:28Z, received_at 22:03:45.329926Z (17.3 seconds old at receipt). stale_bid_ask rejected; exit 1. After regular NASDAQ hours; no orders or news articles requested.",
       "2026-11-11: PortalNexy Development Tracker page prepared for ATLAS with eight milestones/29 features, readable expandable evidence, search/status filters and latest public GitHub tracker refresh plus labelled bundled fallback. Portal checks: eight Python tests and desktop/mobile browser QA passed (mocked auth/GitHub responses); actual public tracker endpoint HTTP 200. Firebase deployment pending authentication; this does not complete M8.",
-      "2026-11-11: PortalNexy saved local branch integrated with ATLAS Development Tracker, preserving Agentic Architecture, Communication Room, Agent Activity Monitor and Ledger previews, cache-control settings and founder access. Combined build: 10 allowlisted assets; eight Python tests and desktop/mobile browser QA passed across all seven pages with mocked auth. Firebase publishing remains pending; use firebase.cmd on Windows."
+      "2026-11-11: PortalNexy saved local branch integrated with ATLAS Development Tracker, preserving Agentic Architecture, Communication Room, Agent Activity Monitor and Ledger previews, cache-control settings and founder access. Combined build: 10 allowlisted assets; eight Python tests and desktop/mobile browser QA passed across all seven pages with mocked auth. Firebase publishing remains pending; use firebase.cmd on Windows.",
+      "2026-11-11: User reported successful Firebase deployment of the combined PortalNexy pages. Requested metro-line visualization restored in source: four phase routes, eight collapsible milestone stations, 29 feature stops, green completions and a blinking amber current stop (steady with reduced motion). Eight portal Python tests and all-page desktop/mobile browser QA passed, including keyboard collapse/expand and animation checks. Metro revision still needs hosting deployment; M2.1/M8 unchanged."
     ],
     "blockers": [
       "M2.1 awaits a fresh accepted VM sample during 09:30\u201316:00 America/New_York. Latest real-time samples were stale after regular hours. Direct Codex-to-VM access remains unconfigured.",
       "Included news articles remain unavailable/unverified; advertised provider metadata alone does not establish entitlement.",
       "Strategy and risk limits not agreed",
-      "Historical engineering time is unknown; total remaining hours cannot be calculated.",
-      "PortalNexy hosting release pending: Firebase deployment authentication is unavailable in the cloud workspace. Local PortalNexy checkout can build and deploy hosting-only after pulling."
+      "Historical engineering time is unknown; total remaining hours cannot be calculated."
     ],
     "currentFeature": "M2.1",
     "phases": [

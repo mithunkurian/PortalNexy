@@ -4,6 +4,7 @@ let atlasLatest = null;
 let atlasRefreshAttempted = false;
 let atlasRefreshPending = false;
 let atlasRefreshMessage = '';
+const atlasMilestoneExpanded = new Map();
 function validAtlasProgress(data) {
   const text = value => typeof value === 'string';
   const statuses = ['Complete', 'In progress', 'Not started'];
@@ -56,9 +57,10 @@ function atlasTrackerView() {
       <article class="panel"><span>Engineering budget</span><strong>${escapeHTML(data.budgetHours)} <small>hours agreed</small></strong><p>Historical hours used and total remaining: unknown.</p></article>
     </div>
     <section class="panel atlas-next" aria-labelledby="atlas-next-title"><p class="eyebrow">NEXT ACCEPTANCE GATE</p><h2 id="atlas-next-title">${escapeHTML(data.currentFeature)} · ${escapeHTML(current ? current.name : 'Current work')}</h2><p>${escapeHTML(data.milestones.find(m => m.features.some(f => f.id === data.currentFeature))?.next || '')}</p><span class="atlas-badge progress">Paper development · no live-money authorization</span></section>
-    <div class="atlas-layout"><section aria-labelledby="atlas-milestones-title"><div class="section-heading"><h2 id="atlas-milestones-title">Milestones & features</h2><span id="atlas-result-count" role="status"></span></div>
+    <div class="atlas-layout"><section aria-labelledby="atlas-milestones-title"><div class="section-heading"><h2 id="atlas-milestones-title">Milestone metro map</h2><span id="atlas-result-count" role="status"></span></div>
       <div class="atlas-toolbar"><label for="atlas-search">Search milestones<input id="atlas-search" type="search" placeholder="Search features or evidence…"></label><label for="atlas-status">Status<select id="atlas-status"><option value="all">All statuses</option><option>In progress</option><option>Complete</option><option>Not started</option></select></label></div>
-      <div id="atlas-milestones"></div>
+      <div class="atlas-map-tools"><div class="atlas-legend" aria-label="Map legend"><span><i class="atlas-legend-stop validated" aria-hidden="true"></i> Complete</span><span><i class="atlas-legend-stop current" aria-hidden="true"></i> Current work</span><span><i class="atlas-legend-stop" aria-hidden="true"></i> Upcoming</span></div><div><button type="button" id="atlas-expand-all">Expand all</button><button type="button" id="atlas-collapse-all">Collapse all</button></div></div>
+      <div id="atlas-milestones" aria-label="Milestone metro map"></div>
     </section><aside class="atlas-aside"><section class="panel"><h2>Open gates</h2><ul>${data.blockers.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul></section>
       <section class="panel"><h2>Evidence log</h2><p class="muted">Cloud checks and user-reported VM results are identified separately.</p><details class="atlas-checks"><summary>${data.checks.length} recorded checks</summary><ol>${data.checks.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ol></details></section>
       <section class="panel"><h2>Scope stays bounded</h2><p>NASDAQ common stocks. Existing IBKR subscriptions only. No Level 2 dependency or extra paid news. Independent risk controls before orders.</p><p>Strategy and risk limits still need decisions. The planned M8 trading dashboard remains separate.</p></section>
@@ -78,11 +80,40 @@ function bindAtlasTracker() {
     const milestones = data.milestones.filter(m => (status === 'all' || m.status === status) &&
       `${m.id} ${m.name} ${m.evidence} ${m.next} ${m.features.map(f => `${f.id} ${f.name}`).join(' ')}`.toLowerCase().includes(query));
     document.getElementById('atlas-result-count').textContent = `${milestones.length} of ${data.milestones.length} milestones`;
-    document.getElementById('atlas-milestones').innerHTML = milestones.length ? milestones.map(m => {
+    const station = m => {
       const isCurrent = m.features.some(f => f.id === data.currentFeature);
-      return `<details class="atlas-milestone" ${isCurrent || query ? 'open' : ''}><summary><span class="atlas-milestone-id">${escapeHTML(m.id)}</span><span class="atlas-milestone-name">${escapeHTML(m.name)}${isCurrent ? '<small>Current milestone</small>' : ''}</span><span class="atlas-badge ${atlasStatusClass(m.status)}">${escapeHTML(m.status)}</span></summary><div class="atlas-milestone-body"><h3>Evidence</h3><p>${escapeHTML(m.evidence)}</p><h3>Next step</h3><p>${escapeHTML(m.next)}</p><ul class="atlas-features">${m.features.map(f => `<li ${f.id === data.currentFeature ? 'class="atlas-current-feature" aria-current="step"' : ''}><span><b>${escapeHTML(f.id)}</b> ${escapeHTML(f.name)}</span><span class="atlas-badge ${atlasStatusClass(f.status)}">${escapeHTML(f.status)}${f.id === data.currentFeature ? ' · Current' : ''}</span></li>`).join('')}</ul><p class="atlas-budget">Agreed milestone budget: ${escapeHTML(m.budget)}h · Historical used and total remaining time unknown.</p></div></details>`;
+      const expanded = atlasMilestoneExpanded.has(m.id) ? atlasMilestoneExpanded.get(m.id) : isCurrent || Boolean(query);
+      const finished = m.features.filter(f => f.status === 'Complete').length;
+      return `<details class="atlas-milestone ${atlasStatusClass(m.status)} ${isCurrent ? 'atlas-current-station' : ''}" data-milestone="${escapeHTML(m.id)}" ${expanded ? 'open' : ''}><summary><span class="atlas-station-node ${atlasStatusClass(m.status)} ${isCurrent ? 'current' : ''}" aria-hidden="true">${m.status === 'Complete' ? '✓' : ''}</span><span class="atlas-milestone-id">${escapeHTML(m.id)}</span><span class="atlas-milestone-name">${escapeHTML(m.name)}<small>${isCurrent ? 'Current milestone · ' : ''}${finished} / ${m.features.length} feature stops complete</small></span><span class="atlas-badge ${atlasStatusClass(m.status)}">${escapeHTML(m.status)}</span></summary><div class="atlas-milestone-body"><h3>Feature stops</h3><ul class="atlas-features">${m.features.map(f => `<li class="atlas-feature ${atlasStatusClass(f.status)} ${f.id === data.currentFeature ? 'atlas-current-feature' : ''}" ${f.id === data.currentFeature ? 'aria-current="step"' : ''}><span class="atlas-feature-stop ${atlasStatusClass(f.status)} ${f.id === data.currentFeature ? 'current' : ''}" aria-hidden="true">${f.status === 'Complete' ? '✓' : ''}</span><span><b>${escapeHTML(f.id)}</b> ${escapeHTML(f.name)}</span><span class="atlas-badge ${atlasStatusClass(f.status)}">${escapeHTML(f.status)}${f.id === data.currentFeature ? ' · Current' : ''}</span></li>`).join('')}</ul><h3>Evidence</h3><p>${escapeHTML(m.evidence)}</p><h3>Next step</h3><p>${escapeHTML(m.next)}</p><p class="atlas-budget">Agreed milestone budget: ${escapeHTML(m.budget)}h · Historical used and total remaining time unknown.</p></div></details>`;
+    };
+    const assigned = new Set();
+    const phases = (Array.isArray(data.phases) ? data.phases : []).filter(p => p && typeof p.name === 'string' && Array.isArray(p.milestones)).map(p => {
+      const members = data.milestones.filter(m => p.milestones.includes(m.id) && !assigned.has(m.id));
+      members.forEach(m => assigned.add(m.id));
+      return {name:p.name, members};
+    });
+    const remaining = data.milestones.filter(m => !assigned.has(m.id));
+    if (remaining.length) phases.push({name:'MVP route', members:remaining});
+    const visible = new Set(milestones.map(m => m.id));
+    document.getElementById('atlas-milestones').innerHTML = milestones.length ? phases.map(phase => {
+      const members = phase.members.filter(m => visible.has(m.id));
+      if (!members.length) return '';
+      const features = phase.members.flatMap(m => m.features);
+      const complete = features.filter(f => f.status === 'Complete').length;
+      return `<section class="atlas-phase ${complete === features.length ? 'validated' : ''}"><h3 class="atlas-phase-title">${escapeHTML(phase.name)}<span>${complete} / ${features.length} feature stops complete</span></h3><div class="atlas-route">${members.map(station).join('')}</div></section>`;
     }).join('') : '<p class="empty-results" role="status">No milestones match. Try another search or status.</p>';
+    document.querySelectorAll('.atlas-milestone').forEach(details => details.addEventListener('toggle', () => {
+      if (details.isConnected) atlasMilestoneExpanded.set(details.dataset.milestone, details.open);
+    }));
   }
+  document.getElementById('atlas-expand-all').addEventListener('click', () => {
+    data.milestones.forEach(m => atlasMilestoneExpanded.set(m.id, true));
+    render();
+  });
+  document.getElementById('atlas-collapse-all').addEventListener('click', () => {
+    data.milestones.forEach(m => atlasMilestoneExpanded.set(m.id, false));
+    render();
+  });
   document.getElementById('atlas-search').addEventListener('input', render);
   document.getElementById('atlas-status').addEventListener('change', render);
   render();

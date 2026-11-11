@@ -35,8 +35,10 @@ Firestore rules deny all client data access. Historical records and browser draf
 ## ATLAS Development Tracker
 
 The **Development Tracker** navigation page (`#development-tracker`) presents the
-separate ATLAS paper-trading MVP: eight milestones, 29 features, current work,
-search/status filters, evidence and next gates. Overview and Development Journal
+separate ATLAS paper-trading MVP: a metro-line map with eight collapsible milestone stations and 29 feature stops.
+Completed stops are green; the current stop blinks amber. Reduced-motion users
+get a steady current marker. Four phase groups, expand/collapse-all, saved
+expansion state, search/status filters, evidence and next gates remain available. Overview and Development Journal
 continue to describe NexyDAO; their strategy assumptions do not apply to ATLAS.
 Founder sign-in and execution-disabled behavior remain in place.
 
