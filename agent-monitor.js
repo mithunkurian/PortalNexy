@@ -1,0 +1,73 @@
+"use strict";
+const monitorSnapshot = '2026-10-13T13:30:00Z';
+const monitorRuns = [
+ {id:'r01',agent:'research',task:'Typed filing review',start:'2026-10-13T12:00:00Z',end:'2026-10-13T12:07:00Z',status:'Completed',outcome:'Numeric claims bound to supplied observations.',next:'Send evidence and limitations to CEO.',inputs:'Signed SEC observations; bounded prior records',cost:0.0012},
+ {id:'r02',agent:'countercase',task:'Countercase review',start:'2026-10-13T12:08:00Z',end:'2026-10-13T12:15:00Z',status:'Completed',outcome:'Forecast assumptions flagged as unverified.',next:'Provide independent counterarguments.',inputs:'Same typed facts; separate research context',cost:0.0011},
+ {id:'r03',agent:'portfolio',task:'Allocation preflight',start:'2026-10-13T12:16:00Z',end:'2026-10-13T12:21:00Z',status:'Blocked',outcome:'No allocation proposed; verified funding unavailable.',next:'Await settlement and funding evidence.',inputs:'Simulation state; supplied quote references',cost:0.0009},
+ {id:'r04',agent:'ceo',task:'Proposal review',start:'2026-10-13T12:23:00Z',end:'2026-10-13T12:28:00Z',status:'Completed',outcome:'Request further evidence; no investment proposal.',next:'Coordinate settlement evidence review.',inputs:'Research reports; advisory portfolio plan',cost:0.0013},
+ {id:'r05',agent:'risk-capital',task:'Capital review',start:'2026-10-13T12:29:00Z',end:'2026-10-13T12:33:00Z',status:'Completed',outcome:'Funding limitations recorded.',next:'Retain funding denial until evidence is available.',inputs:'CEO proposal; reconciled simulation state',cost:0.0007},
+ {id:'r06',agent:'risk-evidence',task:'Evidence review',start:'2026-10-13T12:34:00Z',end:'2026-10-13T12:36:00Z',status:'Failed',outcome:'Incomplete model output; cycle stopped.',next:'Operator reviews the failed run; no automatic retry.',inputs:'CEO proposal; source references',cost:null},
+ {id:'r07',agent:'research',task:'Additional source review',start:'2026-10-13T13:14:00Z',end:null,status:'Running',outcome:'No final outcome recorded.',next:'Await a completed review event.',inputs:'Bounded filing observations',cost:null},
+ {id:'r08',agent:'ceo',task:'Queued evidence briefing',start:null,queued:'2026-10-13T13:20:00Z',end:null,status:'Waiting',outcome:'Task queued in sample data; not started.',next:'Wait for the research review to finish.',inputs:'Pending research report',cost:null},
+ ...['ceo','risk-capital','risk-evidence','investment','fiduciary','audit'].map((agent,index)=>({id:'previous-'+index,agent,task:'Prior review cycle',start:`2026-10-12T12:${String(index*6).padStart(2,'0')}:00Z`,end:`2026-10-12T12:${String(index*6+4).padStart(2,'0')}:00Z`,status:'Completed',outcome:'Advisory review recorded; execution denied.',next:'Retain record for subsequent review.',inputs:'Sample proposal and review context',cost:0.0006}))
+];
+let monitorSelected='r07';
+function monitorDate(iso){return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Stockholm',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(iso));}
+function monitorTime(run){return run.start||run.queued;}
+function monitorDuration(run){if(!run.start)return 'Not started';const seconds=Math.round((new Date(run.end||monitorSnapshot)-new Date(run.start))/1000);return `${Math.floor(seconds/60)}m ${seconds%60}s${run.end?'':' elapsed at snapshot'}`;}
+function monitorDialog(id,label,content,kind='') {
+ return `<dialog id="${id}" class="monitor-dialog ${kind}" aria-label="${label}"><div class="monitor-dialog-toolbar"><span>${label}</span><button type="button" data-monitor-close aria-label="Close ${label}">Close <span aria-hidden="true">×</span></button></div>${content}</dialog>`;
+}
+function monitorView(){
+ return `<div class="page-heading"><div><p class="eyebrow">NEXY / RECORDED OPERATIONS</p><h1>Agent Activity Monitor</h1><p class="subtitle">Recorded agent runs, current activity and execution history.</p></div><span class="monitor-readonly">Read-only board</span></div>
+ <div class="room-preview"><span class="room-preview-label">DESIGN PREVIEW</span><span>Sample activity · no agents connected. Running and waiting states are frozen examples.</span></div>
+ <div class="monitor-freshness"><span class="monitor-disconnected">Disconnected</span><span>Sample snapshot: ${roomStamp(monitorSnapshot)} · Stockholm</span></div>
+ <section class="panel monitor-controls"><div class="room-tabs" role="group" aria-label="Activity period"><button data-monitor-period="today" aria-pressed="true">Today</button><button data-monitor-period="week" aria-pressed="false">7 days</button><button data-monitor-period="custom" aria-pressed="false">Custom dates</button></div><div id="monitor-custom" class="hidden"><label>From<input type="date" id="monitor-from" value="2026-10-12"></label><label>To<input type="date" id="monitor-to" value="2026-10-13"></label></div><label class="monitor-agent-filter">Agent<select id="monitor-agent"><option value="all">All agents</option>${roomAgents.filter(a=>a.id!=='owner').map(a=>`<option value="${a.id}">${a.name}</option>`).join('')}</select></label><div class="monitor-board-actions"><button data-monitor-open="monitor-status-dialog">Agent status</button><button data-monitor-open="monitor-totals-dialog">Activity totals</button><button data-monitor-open="monitor-history-dialog">Run history</button></div></section>
+ <div id="monitor-range-note" class="monitor-range-note" role="status"></div>
+ <section class="panel monitor-timeline-panel"><div class="section-heading"><div><p class="eyebrow">GRAPHICAL RUN HISTORY</p><h2>Activity timeline</h2></div><span class="section-note">Select a bar to inspect its run</span></div><div class="monitor-legend">${['Completed','Running','Blocked','Failed','Waiting'].map(s=>`<span><i class="monitor-color ${s.toLowerCase()}"></i>${s}</span>`).join('')}</div><div id="monitor-timeline" class="monitor-timeline"></div><p class="monitor-graph-note">Solid bars show recorded run intervals. Dashed bars show elapsed time at the sample snapshot. Queued tasks are shown separately; gaps contain no recorded runs.</p></section>
+ ${monitorDialog('monitor-status-dialog','Agent status board',`<section class="panel monitor-agents-panel"><div class="section-heading"><div><p class="eyebrow">LATEST RECORDED STATE</p><h2>Agent status board</h2></div><span class="section-note">For the selected period</span></div><div id="monitor-cards" class="monitor-cards"></div></section>`)}
+ ${monitorDialog('monitor-totals-dialog','Activity totals','<section id="monitor-metrics" class="room-overview monitor-metrics" aria-label="Activity totals"></section>')}
+ ${monitorDialog('monitor-history-dialog','Run history',`<section class="panel monitor-history-panel"><div class="section-heading"><div><p class="eyebrow">RUNS & QUEUED TASKS</p><h2>Run history</h2></div><span id="monitor-history-count" class="section-note"></span></div><div class="monitor-table-wrap"><table class="monitor-table"><thead><tr><th>Time</th><th>Agent / task</th><th>Status</th><th>Outcome</th></tr></thead><tbody id="monitor-history"></tbody></table></div></section>`)}
+ ${monitorDialog('monitor-detail-dialog','Run details','<section class="panel monitor-detail-panel" id="monitor-detail" aria-label="Selected run details"></section>','monitor-dialog-detail')}`;
+}
+function openMonitorDialog(id) {
+ document.querySelectorAll('.monitor-dialog[open]').forEach(dialog=>dialog.close());
+ document.getElementById(id).showModal();
+}
+let monitorPeriod='today';
+function monitorRange(){if(monitorPeriod==='custom')return [document.getElementById('monitor-from').value,document.getElementById('monitor-to').value];return monitorPeriod==='week'?['2026-10-07','2026-10-13']:['2026-10-13','2026-10-13'];}
+function renderMonitor(){
+ const [from,to]=monitorRange(),agentFilter=document.getElementById('monitor-agent').value;
+ const valid=Boolean(from&&to&&from<=to);
+ const agents=roomAgents.filter(a=>a.id!=='owner'&&(agentFilter==='all'||a.id===agentFilter));
+ const runs=valid?monitorRuns.filter(r=>{const day=monitorDate(monitorTime(r));return day>=from&&day<=to&&(agentFilter==='all'||r.agent===agentFilter);}):[];
+ document.getElementById('monitor-range-note').textContent=valid?`${from} to ${to} · sample records · Europe/Stockholm`:'Choose a start date on or before the end date.';
+ const started=runs.filter(r=>r.start),cost=runs.reduce((sum,r)=>sum+(r.cost||0),0),unknown=started.filter(r=>r.cost===null).length;
+ document.getElementById('monitor-metrics').innerHTML=[['Runs started',started.length,'Queued tasks excluded'],['Runs completed',runs.filter(r=>r.status==='Completed').length,'Completion is separate from outcome'],['Failed runs',runs.filter(r=>r.status==='Failed').length,'Recorded failures'],['API cost estimate','$'+cost.toFixed(4),unknown?`${unknown} run estimates unavailable`:'Sample local estimates']].map(([label,value,note])=>`<div><span class="room-stat-label">${label}</span><strong>${value}</strong><small>${note}</small></div>`).join('');
+ document.getElementById('monitor-cards').innerHTML=agents.map(a=>{const latest=runs.filter(r=>r.agent===a.id).sort((x,y)=>new Date(monitorTime(y))-new Date(monitorTime(x)))[0];return `<article class="monitor-agent-card"><div class="monitor-agent-head"><span class="room-avatar ${a.id==='ceo'?'ceo':''}">${a.initials}</span><div><h3>${a.name}</h3><code>@${a.id}</code></div></div><span class="monitor-status ${latest?latest.status.toLowerCase():'none'}">${latest?latest.status:'No recorded activity'}</span><p>${latest?escapeHTML(latest.task):'No task recorded in the selected period.'}</p><div class="monitor-card-outcome">${latest?escapeHTML(latest.outcome):'No outcome recorded.'}</div><small>${latest?roomStamp(monitorTime(latest)):'—'}</small>${latest?`<button class="room-thread-link" data-monitor-select="${latest.id}">View run details →</button>`:''}</article>`;}).join('');
+ // Single-day plot uses a readable operating window; multi-day plots use dated ticks.
+ const oneDay=from===to,begin=oneDay?Date.parse(from+'T11:00:00Z'):Date.parse(from+'T00:00:00+02:00'),finish=oneDay?Date.parse(to+'T14:00:00Z'):Date.parse(to+'T23:59:59+02:00');
+ const plotRuns=runs.filter(r=>r.start),ticks=oneDay?['13:00','14:00','15:00','16:00']:[from,'',to];
+ document.getElementById('monitor-timeline').innerHTML=valid?`<div class="monitor-axis"><span>Agent / sample activity</span><div>${ticks.map(t=>`<span>${t}</span>`).join('')}</div></div>${agents.map(a=>{const own=plotRuns.filter(r=>r.agent===a.id);return `<div class="monitor-lane"><div><strong>${a.name}</strong><small>@${a.id}</small></div><div class="monitor-track">${own.map(r=>{const left=Math.max(0,(Date.parse(r.start)-begin)/(finish-begin)*100),width=Math.min(100-left,Math.max(.8,(Date.parse(r.end||monitorSnapshot)-Date.parse(r.start))/(finish-begin)*100));return `<button class="monitor-bar ${r.status.toLowerCase()}" style="left:${left}%;width:${width}%" data-monitor-select="${r.id}" title="${escapeHTML(a.name+' · '+r.task+' · '+r.status+' · '+roomStamp(r.start))}" aria-label="${escapeHTML(a.name+' '+r.task+' '+r.status)}"></button>`;}).join('')}${!own.length?'<span class="monitor-no-runs">No recorded runs</span>':''}</div></div>`;}).join('')}`:'<p class="empty-results">Invalid date range.</p>';
+ const history=[...runs].sort((a,b)=>new Date(monitorTime(b))-new Date(monitorTime(a)));
+ document.getElementById('monitor-history-count').textContent=`${runs.length} sample records`;
+ document.getElementById('monitor-history').innerHTML=history.map(r=>`<tr><td>${roomTime(monitorTime(r))}</td><td><button data-monitor-select="${r.id}">${roomAgent(r.agent).name}</button><small>${escapeHTML(r.task)}</small></td><td><span class="monitor-status ${r.status.toLowerCase()}">${r.status}</span></td><td>${escapeHTML(r.outcome)}</td></tr>`).join('')||'<tr><td colspan="4">No sample records in this period.</td></tr>';
+ if(!runs.some(r=>r.id===monitorSelected))monitorSelected=history[0]?.id||null;
+ renderMonitorDetails();
+ document.querySelectorAll('[data-monitor-select]').forEach(button=>button.addEventListener('click',()=>{monitorSelected=button.dataset.monitorSelect;renderMonitorDetails();openMonitorDialog('monitor-detail-dialog');}));
+}
+function renderMonitorDetails(){
+ const run=monitorRuns.find(r=>r.id===monitorSelected),panel=document.getElementById('monitor-detail');
+ if(!run){panel.innerHTML='<p class="eyebrow">RUN DETAILS</p><h2>No run selected</h2><p class="small-note">Choose a period with recorded sample activity.</p>';return;}
+ panel.innerHTML=`<p class="eyebrow">SELECTED RUN / SAMPLE</p><h2>${escapeHTML(run.task)}</h2><div class="monitor-detail-agent">${roomAgent(run.agent).name} <code>@${run.agent}</code></div><span class="monitor-status ${run.status.toLowerCase()}">${run.status}</span><dl class="monitor-detail-list"><dt>Started</dt><dd>${run.start?roomStamp(run.start):'Not started'}</dd><dt>Finished</dt><dd>${run.end?roomStamp(run.end):'Not recorded'}</dd><dt>Duration</dt><dd>${monitorDuration(run)}</dd><dt>Inputs reviewed</dt><dd>${escapeHTML(run.inputs)}</dd><dt>Outcome</dt><dd>${escapeHTML(run.outcome)}</dd><dt>Next action</dt><dd>${escapeHTML(run.next)}</dd><dt>API estimate</dt><dd>${run.cost===null?'Unavailable':'$'+run.cost.toFixed(4)}</dd><dt>Record ID</dt><dd>${run.id}</dd></dl><p class="monitor-detail-note">Sample run only. No verified evidence or backend record is attached. Completing a review does not authorize execution.</p><a class="inline-link" href="#communication-room">Open Communication Room →</a>`;
+}
+function initializeMonitor(){
+ monitorPeriod='today';renderMonitor();
+ document.querySelectorAll('[data-monitor-open]').forEach(button=>button.addEventListener('click',()=>openMonitorDialog(button.dataset.monitorOpen)));
+ document.querySelectorAll('.monitor-dialog').forEach(dialog=>{
+   dialog.querySelector('[data-monitor-close]').addEventListener('click',()=>dialog.close());
+   dialog.addEventListener('click',event=>{if(event.target===dialog){const bounds=dialog.getBoundingClientRect();if(event.clientX<bounds.left||event.clientX>bounds.right||event.clientY<bounds.top||event.clientY>bounds.bottom)dialog.close();}});
+ });
+ document.querySelectorAll('[data-monitor-period]').forEach(button=>button.addEventListener('click',()=>{monitorPeriod=button.dataset.monitorPeriod;document.querySelectorAll('[data-monitor-period]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));document.getElementById('monitor-custom').classList.toggle('hidden',monitorPeriod!=='custom');renderMonitor();}));
+ ['monitor-agent','monitor-from','monitor-to'].forEach(id=>document.getElementById(id).addEventListener('input',renderMonitor));
+}

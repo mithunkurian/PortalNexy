@@ -52,15 +52,17 @@ function renderTimeline() {
   }).join('') : '<p class="empty-results" role="status">No entries match your search.</p>';
 }
 function renderWorkspace() {
-  const view = location.hash === '#overview' ? 'overview' : location.hash === '#development-tracker' ? 'development-tracker' : 'development-journal';
+  const view = ['#overview','#development-tracker','#agentic-architecture','#communication-room','#agent-activity-monitor','#ledger'].includes(location.hash) ? location.hash.slice(1) : 'development-journal';
   document.querySelectorAll('nav a').forEach(link => {
     if (link.hash === '#' + view) link.setAttribute('aria-current','page');
     else link.removeAttribute('aria-current');
   });
-  const title = view === 'overview' ? 'Overview' : view === 'development-tracker' ? 'Development Tracker' : 'Development Journal';
+  const title = view === 'overview' ? 'Overview' : view === 'development-tracker' ? 'Development Tracker' : view === 'agentic-architecture' ? 'Agentic Architecture' : view === 'communication-room' ? 'Communication Room' : view === 'agent-activity-monitor' ? 'Agent Activity Monitor' : view === 'ledger' ? 'Ledger' : 'Development Journal';
   document.title = `Nexy · ${title}`;
   document.getElementById('current-view').textContent = title;
-  document.getElementById('workspace').innerHTML = view === 'overview' ? overview() : view === 'development-tracker' ? atlasTrackerView() : journalView();
+  document.getElementById('workspace').classList.toggle('monitor-screen',['agent-activity-monitor','ledger'].includes(view));
+  document.getElementById('workspace').classList.toggle('ledger-screen',view === 'ledger');
+  document.getElementById('workspace').innerHTML = view === 'overview' ? overview() : view === 'development-tracker' ? atlasTrackerView() : view === 'agentic-architecture' ? architectureView() : view === 'communication-room' ? communicationView() : view === 'agent-activity-monitor' ? monitorView() : view === 'ledger' ? ledgerView() : journalView();
   if (view === 'development-tracker') bindAtlasTracker();
   if (view === 'development-journal') {
     activeFilter = 'all';
@@ -72,8 +74,55 @@ function renderWorkspace() {
       renderTimeline();
     }));
   }
+  if (view === 'agentic-architecture') initializeArchitecture();
+  if (view === 'communication-room') initializeRoom();
+  if (view === 'agent-activity-monitor') initializeMonitor();
+  if (view === 'ledger') initializeLedger();
   toggleSidebar(false);
 }
 document.querySelectorAll('nav a').forEach(link => link.addEventListener('click', () => toggleSidebar(false)));
+const architectureRevision = '7f58bfe20546377558321c6f932feee56fa1c5e6';
+const architectureSource = `${repoURL}/blob/${architectureRevision}/docs/architecture.md`;
+function roleCard(code, title, description, detail, kind='') {
+  return `<details class="org-role ${kind}"><summary><span class="role-code">${code}</span><span><strong>${title}</strong><small>${description}</small></span><span class="role-expand" aria-hidden="true">+</span></summary><p>${detail}</p></details>`;
+}
+function architectureView() {
+  return `<div class="page-heading"><div><p class="eyebrow">NEXY / SYSTEM DOCUMENTATION</p><h1>Agentic Architecture</h1><p class="subtitle">Organization structure, agent responsibilities and the controlled decision workflow.</p></div>${external(architectureSource,'Architecture source','outline-button')}</div>
+  <div class="source-line"><span class="status-dot"></span><span>Documentation snapshot · 13 October 2026</span><span class="revision">${architectureRevision.slice(0,7)}</span></div>
+  <section class="architecture-summary"><div><p class="eyebrow">CURRENT IMPLEMENTATION</p><h2>Six core roles. Three optional advisory roles.</h2><p>AI agents propose and review decisions. Application code checks evidence, owner policy and capital limits. Broker execution is disabled.</p></div><div class="architecture-numbers"><div><strong>01</strong><span>CEO</span></div><div><strong>02</strong><span>Risk officers</span></div><div><strong>03</strong><span>Committee votes</span></div><div><strong>+03</strong><span>Optional advisors</span></div></div></section>
+  <section class="panel organization-panel" aria-labelledby="organization-title"><div class="section-heading"><div><p class="eyebrow">ORGANIZATION & AUTHORITY</p><h2 id="organization-title">Who does what</h2></div><span class="section-note">Expand a role for its authority limits</span></div>
+  <div class="org-chart"><div class="org-level owner-level"><span class="org-level-label">OWNER AUTHORITY</span>${roleCard('H','Human owner','Capital · access · binding constraints · intervention','Provides capital, grants or revokes credentials and service access, sets binding constraints above all agents, and can stop operations. Routine strategy and investment proposals belong to the CEO; routine owner approval is not required.','owner-role')}</div>
+  <div class="org-connector"><span>Binding policy applies to every role</span></div>
+  <div class="org-level ceo-level"><span class="org-level-label">BUSINESS MANAGEMENT</span>${roleCard('01','AI CEO','Mandate · strategy · budget planning · performance oversight','Proposes decisions with rationale, evidence citations, risks and invalidation conditions. Coordinates research and portfolio work within enforced limits. Cannot change capital limits, credentials, spending ceilings or execution locks.','ceo-role')}</div>
+  <div class="org-connector"><span>Advisory inputs to CEO review</span></div>
+  <div class="org-level"><span class="org-level-label">OPTIONAL ADVISORY INPUTS</span><div class="org-grid three">${roleCard('R1','Opportunity researcher','Candidate ideas from typed filing facts','Receives verified typed observations and bounded memory. Produces an opportunity report with source-bound numeric claims. Cannot retrieve arbitrary sources or use network tools; prose and forecasts remain unverified.')}${roleCard('R2','Countercase researcher','Independent challenges to candidate theses','Receives the same facts without the opportunity report. Produces risks and counterarguments in a separate call. Numeric claims are checked by application code; the report cannot authorize investments.')}${roleCard('PM','Portfolio Manager','Allocation proposals · alternatives · portfolio risks','Adds an advisory allocation plan before CEO review. Independent code checks quote bindings, funding and exposure. Has no ledger or broker mutation tools. Live quote-free abstention validated; positive allocations tested offline.')}</div></div>
+  <div class="org-connector"><span>CEO proposal → independent risk review</span></div>
+  <div class="org-level"><span class="org-level-label">INDEPENDENT RISK REVIEW</span><div class="org-grid two">${roleCard('02','Capital Risk Officer','Loss · position sizing · liquidity','Receives the proposal in a fresh call without the other officer’s response. Passes, challenges or vetoes. The CEO cannot overrule a risk veto.','review-role')}${roleCard('03','Evidence Risk Officer','Provenance · evidence quality · security','Independently examines evidence and security concerns without the capital officer’s response. Both risk officers must pass the policy gate.','review-role')}</div></div>
+  <div class="org-connector"><span>Proposal + both reviews → committee</span></div>
+  <div class="org-level"><span class="org-level-label">ADVISORY COMMITTEE</span><div class="org-grid three">${roleCard('04','Investment member','Investment review vote','Independently votes approve, revise or reject using the proposal and both risk reviews. Does not see the other committee votes.','review-role')}${roleCard('05','Fiduciary member','Fiduciary review vote','Reviews the proposal through the fiduciary role prompt and votes independently. Two of three approvals are required, together with both risk passes.','review-role')}${roleCard('06','Audit member','Audit review vote','Reviews the proposal through the audit role prompt and casts an independent vote. This agent is distinct from the persistent audit store and planned external auditor.','review-role')}</div></div></div>
+  <p class="architecture-note">The diagram shows authority and information flow. Calls are sequential. Separate prompts do not establish statistical independence; calls to the same model can share errors and biases.</p></section>
+  <section class="panel workflow-panel" aria-labelledby="workflow-title"><div class="section-heading"><div><p class="eyebrow">INPUTS → PROPOSAL → REVIEW → RECORD</p><h2 id="workflow-title">Decision-making flow</h2></div><span id="workflow-count" class="workflow-count" role="status"></span></div><div class="workflow-options" role="group" aria-label="Workflow configuration"><button data-workflow="core" aria-pressed="true">Core review</button><button data-workflow="research" aria-pressed="false">With research</button><button data-workflow="portfolio" aria-pressed="false">With portfolio</button><button data-workflow="both" aria-pressed="false">Research + portfolio</button></div><ol id="decision-flow" class="decision-flow"></ol><div class="failure-path"><span aria-hidden="true">↳</span><div><strong>Failure or incomplete output → stop and record</strong><p>Partial decisions never become authorized. No automatic resubmission loop. Future proposal revisions require new linked proposals and all reviews again. Hold or request research are valid outcomes.</p></div></div></section>
+  <div class="architecture-bottom"><section class="panel"><p class="eyebrow">INDEPENDENT APPLICATION CHECKS</p><h2>Decision gates</h2><div class="gate-equation"><span>Both risk passes</span><b>+</b><span>2 / 3 approvals</span><b>+</b><span>Policy & capital checks</span></div><div class="execution-denied"><span aria-hidden="true">⊘</span><div><strong>Execution denied</strong><p>Passing reviews does not grant broker authority. Current execution denial applies to every proposal, including unanimous approval.</p></div></div><ul class="architecture-rules"><li>Owner constraints supersede agent proposals and votes.</li><li>No shorts, leverage or borrowing; independently verified funding is required.</li><li>Future live execution requires independent legal and Swedish ISK eligibility checks.</li></ul></section>
+  <section class="panel"><p class="eyebrow">SYSTEM BOUNDARIES</p><h2>Agents receive data, not tools</h2><div class="boundary-stack"><div><span>01</span><p><strong>Read-only collectors & controller</strong>Collect bounded paper quotes and SEC facts; verify signatures, identity and freshness. Manual inputs are labelled unverified.</p></div><div><span>02</span><p><strong>Model reasoning layer</strong>Serialized inputs only. No shell, filesystem, database, credentials or broker tools. Typed numeric claims are checked; prose and forecasts are unverified.</p></div><div><span>03</span><p><strong>Policy, accounting & SQLite records</strong>Independent constraints, budget reservations, usage/cost estimates, role outputs and bounded memory. Durable local history is not tamper-proof against an OS administrator.</p></div></div></section></div>
+  <section class="panel architecture-future"><div><p class="eyebrow">PLANNED / M4–M5</p><h2>Execution and operational components</h2></div><div class="org-grid three"><article><span class="pill planned">Planned</span><h3>Isolated executor</h3><p>Separate OS identity, short-lived signed permits, kill switch, exposure reservations and replay/idempotency checks before paper orders.</p></article><article><span class="pill planned">Planned</span><h3>Independent external audit</h3><p>Tamper-evident external records and outcome review beyond the current local SQLite history.</p></article><article><span class="pill planned">Planned</span><h3>Autonomous paper operations</h3><p>Bounded scheduling, recovery, alerts, outcome learning and sustained evaluation. Current trials are manual.</p></article></div></section>
+  <div class="architecture-sources">${external(architectureSource,'Architecture & workflow')}${external(`${repoURL}/blob/${architectureRevision}/docs/owner-policy.md`,'Owner policy')}${external(`${repoURL}/blob/${architectureRevision}/docs/research.md`,'Research boundaries')}${external(`${repoURL}/blob/${architectureRevision}/docs/portfolio.md`,'Portfolio Manager')}</div>`;
+}
+function renderDecisionFlow(mode) {
+  const research = mode === 'research' || mode === 'both';
+  const portfolio = mode === 'portfolio' || mode === 'both';
+  const steps = [{title:'Verify inputs',kind:'Application',text:'Controller checks receipt identity, integrity and freshness; loads three recent completed records and internally reconciled simulation state.'}];
+  if (research) steps.push({title:'Research reports',kind:'2 AI calls',text:'Opportunity and countercase researchers receive separate contexts. Application code verifies structured numeric claim bindings before CEO review.'});
+  if (portfolio) steps.push({title:'Portfolio plan',kind:'1 AI call',text:'Portfolio Manager proposes allocations and alternatives; application code independently checks quotes, funding and aggregate exposure.'});
+  steps.push({title:'CEO proposal',kind:'1 AI call',text:'Decision, rationale, citations, risks and invalidation conditions.'},{title:'Risk reviews',kind:'2 AI calls',text:'Capital and evidence officers each pass, challenge or veto. Separate calls; neither sees the other’s response.'},{title:'Committee votes',kind:'3 AI calls',text:'Investment, fiduciary and audit members approve, revise or reject. Each sees both risk reviews, not the other votes.'},{title:'Policy gate',kind:'Application',text:'Checks both risk passes, committee quorum, owner constraints, evidence and capital. Execution remains denied.'},{title:'Persist result',kind:'Application',text:'SQLite records inputs, each role, final status, versions, model, usage and estimated cost. Incomplete runs are excluded from memory.'});
+  document.getElementById('workflow-count').textContent = `${6 + (research ? 2 : 0) + (portfolio ? 1 : 0)} sequential AI calls`;
+  document.getElementById('decision-flow').innerHTML = steps.map((step,index)=>`<li><span class="flow-number">${String(index+1).padStart(2,'0')}</span><span class="flow-kind">${step.kind}</span><h3>${step.title}</h3><p>${step.text}</p></li>`).join('');
+}
+function initializeArchitecture() {
+  renderDecisionFlow('core');
+  document.querySelectorAll('[data-workflow]').forEach(button=>button.addEventListener('click',()=>{
+    document.querySelectorAll('[data-workflow]').forEach(option=>option.setAttribute('aria-pressed',String(option===button)));
+    renderDecisionFlow(button.dataset.workflow);
+  }));
+}
 window.addEventListener('hashchange', () => { renderWorkspace(); window.scrollTo(0,0); });
 renderWorkspace();
