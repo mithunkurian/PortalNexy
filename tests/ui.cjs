@@ -238,7 +238,9 @@ async function main(){
   await page.locator('[data-milestone="M2"]>summary').click();
   assert.equal(await page.locator('.atlas-milestone[open]').count(),1);
 
-  assert.match(await page.locator('.atlas-next').innerText(),/M2.1/);
+  const expectedAtlasFeature = await page.evaluate(()=>window.ATLAS_TRACKER.progress.currentFeature);
+  assert.ok((await page.locator('.atlas-next').innerText()).includes(expectedAtlasFeature));
+  assert.ok((await page.locator('.atlas-current-feature').innerText()).includes(expectedAtlasFeature));
   assert.match(await page.locator('.atlas-summary').innerText(),/unknown/);
   assert.match(await page.locator('.atlas-milestone[open]').innerText(),/stale/i);
   await page.locator('#atlas-status').selectOption('Complete');

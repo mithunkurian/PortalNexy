@@ -41,6 +41,9 @@ get a steady current marker. Four phase groups, expand/collapse-all, saved
 expansion state, search/status filters, evidence and next gates remain available. Overview and Development Journal
 continue to describe NexyDAO; their strategy assumptions do not apply to ATLAS.
 Founder sign-in and execution-disabled behavior remain in place.
+Each milestone shows an acceptance percentage: completed feature stops divided
+by total feature stops. In-progress work receives no estimated percentage;
+implementation evidence and pending validation remain visible below each stop.
 
 The page reads the latest public ATLAS `main/dashboard/progress.json` on entry
 and has a **Refresh latest status** button. Requests have an 8-second deadline,
