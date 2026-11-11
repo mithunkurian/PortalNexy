@@ -52,15 +52,16 @@ function renderTimeline() {
   }).join('') : '<p class="empty-results" role="status">No entries match your search.</p>';
 }
 function renderWorkspace() {
-  const view = location.hash === '#overview' ? 'overview' : 'development-journal';
+  const view = location.hash === '#overview' ? 'overview' : location.hash === '#development-tracker' ? 'development-tracker' : 'development-journal';
   document.querySelectorAll('nav a').forEach(link => {
     if (link.hash === '#' + view) link.setAttribute('aria-current','page');
     else link.removeAttribute('aria-current');
   });
-  const title = view === 'overview' ? 'Overview' : 'Development Journal';
+  const title = view === 'overview' ? 'Overview' : view === 'development-tracker' ? 'Development Tracker' : 'Development Journal';
   document.title = `Nexy · ${title}`;
   document.getElementById('current-view').textContent = title;
-  document.getElementById('workspace').innerHTML = view === 'overview' ? overview() : journalView();
+  document.getElementById('workspace').innerHTML = view === 'overview' ? overview() : view === 'development-tracker' ? atlasTrackerView() : journalView();
+  if (view === 'development-tracker') bindAtlasTracker();
   if (view === 'development-journal') {
     activeFilter = 'all';
     renderTimeline();
@@ -73,5 +74,6 @@ function renderWorkspace() {
   }
   toggleSidebar(false);
 }
+document.querySelectorAll('nav a').forEach(link => link.addEventListener('click', () => toggleSidebar(false)));
 window.addEventListener('hashchange', () => { renderWorkspace(); window.scrollTo(0,0); });
 renderWorkspace();
