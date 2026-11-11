@@ -1,6 +1,6 @@
 "use strict";
 window.ATLAS_TRACKER = {
-  "revision": "f35bd61e84850b12f36dfa3d4fbfbea355c6af89",
+  "revision": "7dfec33e53b8f8e7d8ffb1853ef6d98629786637",
   "branch": "main",
   "progress": {
     "updated": "2026-11-11",
@@ -37,8 +37,8 @@ window.ATLAS_TRACKER = {
         "name": "Market intelligence",
         "budget": 2,
         "status": "In progress",
-        "evidence": "Current off-market implementation is integrated and deployed: NASDAQ discovery/screening, typed normalized news, consumption-time freshness and same-symbol/broker-contract context binding, plus offline diagnostic settings review. Windows: 193 tests passed in 12.17s; directly executed VM: 193 passed in 12.46s and pip check passed. Actual VM context at 09:59 UTC correctly rejected stale AAPL quote and stale headlines (exit 1), with no text leakage/orders. Earlier premarket screening accepted two fresh quotes and rejected one stale quote; included historical text access was verified. Only NASDAQ_US is enabled; later authorized subscriptions/Swedish/Nordic expansion boundaries are documented. Regular-hours/fresh-news acceptance and strategy decisions remain open.",
-        "next": "Coding for this increment is complete. Agent: obtain regular-hours fresh quote/screening acceptance and an actually fresh included-provider article/context when available (news may arrive outside market hours). Reviewable screening draft is in config/screening.draft.json; strategy thresholds and independent risk limits remain undecided for subsequent strategy/risk work. No additional market/subscription is enabled.",
+        "evidence": "Read-only discovery/screening and normalized news/context implemented. M2.3 accepted: direct VM at 13:38 UTC verified one fresh BRFUPDN text article, publication epoch 12:26:23 UTC, no article issues and one normalized usable news input. Combined context correctly remained incomplete because the AAPL quote was stale. Regular-hours quote/screening acceptance and strategy-filter choices remain open. No article text printed, inference request or orders.",
+        "next": "Agent: obtain accepted regular-hours quote/screening samples; retain source freshness/contract gates. News component acceptance passed; each future analysis still requires fresh complete context. Strategy filters remain undecided. Existing subscriptions only.",
         "features": [
           {
             "id": "M2.1",
@@ -57,9 +57,9 @@ window.ATLAS_TRACKER = {
           {
             "id": "M2.3",
             "name": "News and catalysts",
-            "status": "In progress",
-            "implementationStatus": "Implemented; acceptance pending",
-            "acceptanceGate": "Agent: actual fresh timestamped news/context acceptance; no market-open requirement for news."
+            "status": "Complete",
+            "implementationStatus": "Implemented; live included-news validation passed",
+            "acceptanceGate": "Complete: directly verified timestamped included-provider text and normalized usable input on VM; freshness is rechecked per use."
           }
         ]
       },
@@ -67,24 +67,30 @@ window.ATLAS_TRACKER = {
         "id": "M3",
         "name": "AI trading engine",
         "budget": 2,
-        "status": "Not started",
-        "evidence": "OpenAI connectivity probe complete under M1; strategy analysis and trading-plan validation remain unimplemented.",
-        "next": "Configure strategy and validate structured plans.",
+        "status": "In progress",
+        "evidence": "Strategy draft/review, bounded structured analysis and Pydantic proposal validation implemented. Windows: 233 tests passed in 13.86s; direct VM: 233 passed in 15.25s. VM strategy review shows analysis disabled; draft analyze CLI rejected before broker/key/API access. M3.3 deterministic validation acceptance complete. M3.1 strategy decisions/approval and M3.2 actual structured API acceptance remain pending. No real inference request, risk approval or order.",
+        "next": "Continue independent deterministic risk controls with unapproved/unset monetary limits. Strategy approval and fresh context precede actual M3.2 inference; M3.3 validation does not authorize risk or orders.",
         "features": [
           {
             "id": "M3.1",
             "name": "Configurable strategy and prompts",
-            "status": "Not started"
+            "status": "In progress",
+            "implementationStatus": "Implemented; acceptance pending",
+            "acceptanceGate": "Operator strategy decisions/approval remain open; no values assumed."
           },
           {
             "id": "M3.2",
             "name": "OpenAI analysis",
-            "status": "Not started"
+            "status": "In progress",
+            "implementationStatus": "Implemented; acceptance pending",
+            "acceptanceGate": "Agent: real structured-output API acceptance with approved strategy and fresh verified context."
           },
           {
             "id": "M3.3",
             "name": "Pydantic trading-plan validation",
-            "status": "Not started"
+            "status": "Complete",
+            "implementationStatus": "Implemented and deterministic validation passed",
+            "acceptanceGate": "Complete: local/VM schema, context-binding and fail-closed SDK/CLI tests; financial risk remains M4."
           }
         ]
       },
@@ -92,24 +98,30 @@ window.ATLAS_TRACKER = {
         "id": "M4",
         "name": "Risk management",
         "budget": 2,
-        "status": "Not started",
-        "evidence": "No deterministic risk engine implemented.",
-        "next": "Agree risk limits; implement sizing, stale-data checks and kill switch.",
+        "status": "In progress",
+        "evidence": "Independent risk core and durable daily-loss stop implemented. Direct VM core/latch suite: 287 passed in 13.64s; disabled policy review passed. User-selected starting paper allocation is now configurable. Optional realized-profit reinvestment is off and requires an explicit ceiling/verified allocation baseline; allocation changes preserve holds and other limits. Windows follow-up: 295 passed in 13.59s. Updated VM/config validation pending. Risk preferences/approval and verified operational adapters remain unset; no broker balance change, armed operational ledger or orders.",
+        "next": "Verify configurable allocation/reinvestment changes on VM. Remaining trade/day/position and fee/slippage choices plus operator approval are still required. Continue verified broker-state/session/reconciliation integration without placing orders; no implicit FX or reinvestment.",
         "features": [
           {
             "id": "M4.1",
             "name": "Position sizing and capital limits",
-            "status": "Not started"
+            "status": "In progress",
+            "implementationStatus": "Core implemented; operational acceptance pending",
+            "acceptanceGate": "Agent: VM sizing tests; approved limits and verified broker portfolio data before use."
           },
           {
             "id": "M4.2",
             "name": "Independent risk validation",
-            "status": "Not started"
+            "status": "In progress",
+            "implementationStatus": "Core implemented; operational acceptance pending",
+            "acceptanceGate": "Agent: VM rejection tests; actual paper/rule/session verification and M5/M6 integration pending."
           },
           {
             "id": "M4.3",
             "name": "Duplicate prevention and kill switch",
-            "status": "Not started"
+            "status": "In progress",
+            "implementationStatus": "Core implemented; operational acceptance pending",
+            "acceptanceGate": "Agent: VM persistence/concurrency tests; broker reconciliation and authenticated stop integration pending."
           }
         ]
       },
@@ -118,8 +130,8 @@ window.ATLAS_TRACKER = {
         "name": "IBKR integration",
         "budget": 3,
         "status": "In progress",
-        "evidence": "User-reported VM test: connected, one DU-prefixed account, broker time retrieved. No orders submitted.",
-        "next": "Implement paper-only execution and order tracking after risk controls.",
+        "evidence": "Read-only non-binding order/fill/position observation and transactional local SQLite persistence implemented. Windows 312 tests passed in 17.65s; direct VM 312 passed in 13.57s and pip check passed. Actual VM observation at 14:01 UTC succeeded: zero positions, open orders and returned executions. No broker order changes, trusted risk-state promotion, P&L inference or hold release.",
+        "next": "Continue lifecycle reconciliation and trusted portfolio/session inputs before execution. M5.2 remains disabled pending approved risk limits.",
         "features": [
           {
             "id": "M5.1",
@@ -134,7 +146,9 @@ window.ATLAS_TRACKER = {
           {
             "id": "M5.3",
             "name": "Orders, fills and positions",
-            "status": "Not started"
+            "status": "In progress",
+            "implementationStatus": "Read-only observation foundation implemented",
+            "acceptanceGate": "Actual read-only VM observation passed; complete lifecycle reconciliation and trusted portfolio acceptance remain pending."
           }
         ]
       },
@@ -279,16 +293,28 @@ window.ATLAS_TRACKER = {
       "2026-11-11 continued implementation: 191 Windows tests passed in 13.25s and pip check passed. Normalized feed, untrusted content separation, script stripping, consumption-time expiry, broker-error rejection, quote/news contract binding, settings/schema/override validation and disabled-market boundaries tested. Offline review command passed; no strategy values invented. Future authorized subscriptions and Swedish/Nordic expansion requirement saved in AGENTS/handover/settings documentation; only NASDAQ_US enabled. New actual VM validation pending.",
       "Final Windows integration suite: 193 tests passed, including broker-symbol mismatch rejection before quote/news requests; settings review and unchanged dependency checks passed. Context summaries omit the quote-only news placeholder and retain redacted authoritative news metadata.",
       "Direct VM after 931c21c deployment: full 193 tests passed in 12.46s; pip check passed. Actual context-ibkr --settings draft completed at 2026-11-11 09:59 UTC: stale AAPL quote and stale included-provider headlines rejected; zero usable news, incomplete intelligence input, exit 1. Typed feed/context integration is now implemented and VM-tested. No AI calls, raw news text output, orders, subscription purchases or Nordic-market activation. Remaining data acceptance is distinct from completed implementation.",
-      "Measured continuous implementation checkpoint: 13.3 minutes, 2026-11-11 09:46:33\u201309:59:48 UTC, covering implementation, tests and VM deployment/validation. Historical engineering totals and remaining budget remain unknown."
+      "Measured continuous implementation checkpoint: 13.3 minutes, 2026-11-11 09:46:33\u201309:59:48 UTC, covering implementation, tests and VM deployment/validation. Historical engineering totals and remaining budget remain unknown.",
+      "2026-11-11 PortalNexy d147cf8 deployed: bundled ATLAS f35bd61 snapshot shows 193-test/VM context evidence plus separate implementation status and named acceptance gate for each M2 feature. Eight portal Python tests, syntax and desktop/mobile Edge QA passed with mocked auth/GitHub. Direct HTTPS byte comparison verified hosted tracker data, UI script and CSS against the tested build. Only ten allowlisted assets published; no auth/Firestore/trading changes. Feature acceptance and recordedHours unchanged; future subscriptions/Nordic requirement retained.",
+      "Direct VM 2026-11-11 10:10 UTC: integrated context rejected stale AAPL quote and stale included headlines; news reported request error 10197. Official IBKR error table associates 10197 with competing data sessions, but user reports no other live session. Cause unconfirmed. VM paper Gateway/VNC/SSH should remain open; no logout or subscription change made.",
+      "2026-11-11 M3 Windows: full suite 233 passed in 13.86s; pip check passed. Strategy JSON/review and strict proposal schema implemented. Actual pinned Responses parser exercised with mocked HTTP: bounded request/store false/no retries, untrusted news separation, refusal/incomplete/network/HTTP rejection, symbol/market/currency/contract/evidence checks, data expiry and changed-context rejection. No real inference request or order; strategy remains unapproved.",
+      "Direct VM after 8963e48: 233 tests passed in 15.25s; review-strategy returned analysis_enabled false; analyze-ibkr with draft exited 1 with draft/incomplete rejection before broker/key/API access. M3.3 acceptance criteria in docs/strategy-and-plan-validation.md satisfied using deterministic tests and real SDK/mock HTTP. No real inference request or order; M3.1/M3.2 remain In progress.",
+      "2026-11-11 M4 Windows: 281 tests passed in 27.56s; pip check passed. New risk tests use synthetic limits/state only and real temporary SQLite databases: sizing/caps/fees/slippage, paper/session/identity/currency/ticks/evidence/age rejection, default stop/restart persistence, duplicate proposals/symbols, eight-way duplicate and shared-capacity concurrency, policy changes, corrupt storage and draft review/stop CLI. All order_authorized properties remain false; no operational ledger was armed or portfolio loaded.",
+      "Direct VM after 5da67d7: 281 tests passed in 14.14s, pip check passed, actual review-risk CLI reported risk_policy_enabled false and every monetary/approval decision missing. No operational portfolio loaded or risk ledger armed. Follow-up daily-loss latch added so verified breaches persist across recovery; invalid/stale/currency-mismatched state cannot latch. New final local/VM validation recorded when run.",
+      "Final Windows M4 latch suite: 287 tests passed in 14.54s, including durable daily-loss stop across restart/P&L recovery and monitor-only breach handling. No new dependency or operational activation; corrected follow-up VM acceptance pending deployment.",
+      "Direct VM 2026-11-11 13:38 UTC: included BRFUPDN article publication time 12:26:23 UTC verified via live millisecond epoch; text body accessible, zero issues, normalized usable-news count 1. M2.3 acceptance passed. Combined context exited 1 solely with stale AAPL quote; quote/regular-hours gates remain closed. No 10197 in this sample; earlier cause unconfirmed. No article text or actual inference/order.",
+      "Direct VM after e54d853: 287 tests passed in 13.64s and review-risk confirmed disabled policy. User subsequently supplied initial paper allocation; implemented editable base allocation and optional capped reinvestment from verified realized-net-profit baseline. Monetary allocation does not approve risk, alter broker cash or raise independent risk limits. Windows 295 tests passed in 13.59s; new VM validation pending.",
+      "2026-11-11 M5 Windows: 312 tests passed in 17.65s; pip check passed. Synthetic read-only observations and real temporary SQLite tests cover scope/timeouts, non-binding requests, execution corrections, idempotency, unknown fees, late commission, transaction rollback and missing-order retention. Direct VM risk review confirms configurable USD 20,000 allocation, reinvestment off, remaining limits unset and execution disabled.",
+      "2026-11-11 direct VM after 8658723: 312 tests passed in 13.57s; pip check passed. Actual check-broker-state at 14:01 UTC returned one paper-prefix candidate, zero positions/open orders/returned executions and informational codes 2104/2106/2158. No private database requested, account identifier printed, risk-state promotion or order action. Empty returned history does not establish complete execution history or verified paper mode."
     ],
     "blockers": [
       "M2.1 awaits a fresh accepted VM sample during 09:30\u201316:00 America/New_York. Latest historical user-reported real-time samples were stale after hours. Direct SSH access is now established.",
       "M2.2 implementation and diagnostic settings review are available; regular-hours screening acceptance and agreement on strategy-specific filters remain pending.",
-      "Typed normalized news feed/context implementation is integrated and VM-tested. Actual fresh timestamped article/context acceptance remains pending; latest real quote/headline inputs were stale and rejected. News can arrive outside regular market hours.",
       "Strategy and risk limits not agreed",
-      "Historical engineering time is unknown; total remaining hours cannot be calculated."
+      "Historical engineering time is unknown; total remaining hours cannot be calculated.",
+      "M3 actual analysis disabled: strategy decisions/approval remain unset and fresh verified context is unavailable. M4 deterministic controls exist; verified broker integration and order authorization remain disabled.",
+      "M4 operational use disabled: risk.draft.json has configurable base allocation but remaining limits/approval are unset; M5 verified portfolio/paper/contract rules, M6 session proof and broker outcome reconciliation are not implemented. A local reservation is not order permission."
     ],
-    "currentFeature": "M2.3",
+    "currentFeature": "M5.3",
     "phases": [
       {
         "id": "P1",

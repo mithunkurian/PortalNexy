@@ -218,7 +218,7 @@ async function main(){
   assert.equal(await page.locator('.atlas-phase').count(),4);
   assert.equal(await page.locator('.atlas-station-node').count(),8);
   assert.equal(await page.locator('.atlas-feature-stop').count(),29);
-  assert.equal(await page.locator('.atlas-feature-stop.validated').count(),4);
+  assert.equal(await page.locator('.atlas-feature-stop.validated').count(),await page.evaluate(()=>window.ATLAS_TRACKER.progress.milestones.flatMap(m=>m.features).filter(f=>f.status==='Complete').length));
   assert.equal(await page.locator('.atlas-feature-stop.current').count(),1);
   assert.equal(await page.locator('.atlas-current-feature').getAttribute('aria-current'),'step');
   assert.equal(await page.locator('.atlas-station-node.validated').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(35, 146, 94)');
@@ -226,7 +226,7 @@ async function main(){
   assert.equal(await page.locator('.atlas-feature-stop.current').evaluate(el=>getComputedStyle(el).animationName),'atlas-beacon');
   await page.emulateMedia({reducedMotion:'reduce'});
   assert.equal(await page.locator('.atlas-feature-stop.current').evaluate(el=>getComputedStyle(el).animationName),'none');
-  await page.locator('[data-milestone="M2"]>summary').focus();
+  await page.locator('.atlas-current-station>summary').focus();
   await page.keyboard.press('Enter');
   assert.equal(await page.locator('.atlas-milestone[open]').count(),0);
   await page.keyboard.press('Enter');
@@ -240,13 +240,13 @@ async function main(){
 
   const expectedAtlasFeature = await page.evaluate(()=>window.ATLAS_TRACKER.progress.currentFeature);
   assert.ok((await page.locator('.atlas-next').innerText()).includes(expectedAtlasFeature));
-  assert.ok((await page.locator('.atlas-current-feature').innerText()).includes(expectedAtlasFeature));
+  assert.ok((await page.locator('.atlas-current-feature').textContent()).includes(expectedAtlasFeature));
   assert.match(await page.locator('.atlas-summary').innerText(),/unknown/);
   assert.match(await page.locator('.atlas-milestone[open]').innerText(),/stale/i);
   await page.locator('#atlas-status').selectOption('Complete');
   assert.equal(await page.locator('.atlas-milestone').count(),1);
   await page.locator('#atlas-status').selectOption('all');
-  await page.locator('#atlas-search').fill('NASDAQ');
+  await page.locator('#atlas-search').fill('NASDAQ stock screening');
   assert.equal(await page.locator('.atlas-milestone').count(),1);
   await page.locator('#atlas-search').fill('no-such-atlas-feature');
   assert.match(await page.locator('#atlas-milestones').innerText(),/No milestones match/);
