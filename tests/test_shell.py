@@ -12,7 +12,7 @@ spec.loader.exec_module(build)
 
 class ShellTests(unittest.TestCase):
     def test_only_shell_assets_are_published(self):
-        self.assertEqual(set(build.ASSETS), {'index.html', 'portal-shell.css', 'portal-shell.js', 'portal-auth.js', 'nexy-journal.js'})
+        self.assertEqual(set(build.ASSETS), {'index.html', 'portal-shell.css', 'portal-shell.js', 'portal-auth.js', 'nexy-journal.js', 'communication-room.js', 'agent-monitor.js', 'ledger.js'})
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             for asset in build.ASSETS:
