@@ -1,6 +1,6 @@
 "use strict";
 window.ATLAS_TRACKER = {
-  "revision": "fd6a9542e8f6cd96c74f444a806e91034c198e73",
+  "revision": "1ecb3c706f3802ebc7748cec1c703569bda05932",
   "branch": "main",
   "progress": {
     "updated": "2026-11-11",
@@ -37,22 +37,22 @@ window.ATLAS_TRACKER = {
         "name": "Market intelligence",
         "budget": 2,
         "status": "In progress",
-        "evidence": "Read-only discovery/screening and normalized news/context implemented. M2.3 accepted: direct VM at 13:38 UTC verified one fresh BRFUPDN text article, publication epoch 12:26:23 UTC, no article issues and one normalized usable news input. Combined context correctly remained incomplete because the AAPL quote was stale. Regular-hours quote/screening acceptance and strategy-filter choices remain open. No article text printed, inference request or orders.",
-        "next": "Agent: obtain accepted regular-hours quote/screening samples; retain source freshness/contract gates. News component acceptance passed; each future analysis still requires fresh complete context. Strategy filters remain undecided. Existing subscriptions only.",
+        "evidence": "M2.1 and M2.3 accepted (2/3 features). Direct VM regular-session check passed at 14:30 UTC; MSFT/NVDA fresh real-time rows accepted. Ranked NASDAQ discovery verified four common stocks and screening accepted two fresh candidates. At 14:31:24 UTC integrated AAPL context passed with source quote 14:31:23 UTC and one verified included BRFUPDN article. Earlier cancelled AAPL row in the three-symbol batch aged past 15 seconds and correctly failed. No freshness relaxation, extra subscriptions, inference request or orders.",
+        "next": "M2.2 regular-hours discovery/screening validation passed. Operator strategy-specific price/spread/filter decisions remain open; do not turn diagnostic TOP_PERC_GAIN into an approved strategy. Each subsequent use requires newly fresh complete context.",
         "features": [
           {
             "id": "M2.1",
             "name": "Market-data API integration",
-            "status": "In progress",
-            "implementationStatus": "Implemented; acceptance pending",
-            "acceptanceGate": "Agent: fresh regular-hours quote acceptance."
+            "status": "Complete",
+            "implementationStatus": "Implemented; regular-hours VM acceptance passed",
+            "acceptanceGate": "Complete: direct VM accepted fresh real-time NASDAQ quotes and integrated AAPL source timestamp during a broker-verified open regular session."
           },
           {
             "id": "M2.2",
             "name": "NASDAQ stock screening",
             "status": "In progress",
-            "implementationStatus": "Implemented; acceptance pending",
-            "acceptanceGate": "Agent: regular-hours screening acceptance; strategy filter decisions remain open."
+            "implementationStatus": "Implemented; regular-hours diagnostic validation passed",
+            "acceptanceGate": "Operator: strategy-specific screening filter decisions remain open. Agent regular-hours discovery/screening validation passed."
           },
           {
             "id": "M2.3",
@@ -312,14 +312,15 @@ window.ATLAS_TRACKER = {
       "2026-11-11 direct VM after f295c10: 348 tests passed in 14.67s and pip check passed. Actual check-session at 14:10 UTC verified AAPL contract identity, America/New_York timezone, fresh received metadata/current-date coverage, regular session closed and next reported open 14:30 UTC. No fallback calendar, scheduler, risk-state promotion or orders. User specified maximum loss 5% of total invested; scope (portfolio/trade/day) and denominator require clarification before configuration.",
       "2026-11-11 user clarified 5% means total daily loss relative to capital in open positions. Implemented explicit fraction policy, mutually exclusive fixed cap, verified distinct invested-capital input, dynamic sizing capacity and durable monitor stop. Unknown/zero basis fails closed, zero P&L does not spuriously stop, negative P&L at zero basis latches. Allocation/cash/marked exposure cannot substitute. Windows 358 tests passed in 14.94s; direct VM validation pending. No per-trade limit or initial-entry exception inferred.",
       "Final Windows daily-policy suite: 366 passed in 14.50s. User approved proposed first-position capital for the initial 5% daily-loss basis. Implemented explicit flag/default false, configured true in unapproved draft. Initial entry needs verified zero invested capital/flat state, no pending exposure/reservations and no loss; downside plus fees/slippage must fit 5% of proposed entry notional and every other cap. Atomic hold prevents a second bootstrap; restart/negative-P&L controls remain intact. New direct VM validation pending.",
-      "Direct VM after 6596be7: 366 tests passed in 15.22s and pip check passed. Actual risk review reports editable USD 20,000 allocation, daily_loss_basis open_position_capital, fraction 0.05, approved initial-position basis flag true, reinvestment false and aggregate policy/order authorization false. Other independent limits remain unset; no operational ledger armed or portfolio promoted."
+      "Direct VM after 6596be7: 366 tests passed in 15.22s and pip check passed. Actual risk review reports editable USD 20,000 allocation, daily_loss_basis open_position_capital, fraction 0.05, approved initial-position basis flag true, reinvestment false and aggregate policy/order authorization false. Other independent limits remain unset; no operational ledger armed or portfolio promoted.",
+      "2026-11-11 PortalNexy 19f63e2 pushed and Firebase Hosting deployed with ATLAS fd6a954. Eight portal tests and desktop/mobile browser QA passed. All ten actual hosted assets matched local SHA-256 bytes. Published 366-test VM evidence, broker/session diagnostics and confirmed 5% daily open-position-capital/first-position settings. M2 remains 1/3 accepted; order authorization remains false.",
+      "2026-11-11 direct VM regular-hours batch: 14:30:06 UTC contract liquidHours confirmed open session. Three-symbol check accepted MSFT (source 14:30:24) and NVDA (14:30:34); earlier cancelled AAPL row correctly rejected as stale at final evaluation, so batch exit 1 was preserved. Discovery verified 4/5 common-stock candidates; screening accepted 2 fresh candidates and rejected stale earlier input, exit 0. At 14:31:24 UTC AAPL context exit 0, complete_intelligence_input true, source quote 14:31:23, normalized included news count 1. M2.1 acceptance complete; M2.2 market-validation passed but filter choices remain open. No 10197 in this batch, actual inference, relaxed freshness or orders."
     ],
     "blockers": [
-      "M2.1 awaits a fresh accepted VM sample during 09:30\u201316:00 America/New_York. Latest historical user-reported real-time samples were stale after hours. Direct SSH access is now established.",
-      "M2.2 implementation and diagnostic settings review are available; regular-hours screening acceptance and agreement on strategy-specific filters remain pending.",
+      "M2.2 regular-hours discovery/screening validation passed. Strategy-specific screening filter choices remain pending; diagnostic settings are unapproved.",
       "Strategy and risk limits not agreed",
       "Historical engineering time is unknown; total remaining hours cannot be calculated.",
-      "M3 actual analysis disabled: strategy decisions/approval remain unset and fresh verified context is unavailable. M4 deterministic controls exist; verified broker integration and order authorization remain disabled.",
+      "M3 actual analysis disabled: strategy decisions/approval remain unset; fresh complete context passed on VM but must be reacquired for each request. M4 deterministic controls exist; verified broker integration and order authorization remain disabled.",
       "M4 operational use disabled: risk.draft.json has configurable base allocation but remaining limits/approval are unset; M5 verified portfolio/paper/contract rules, M6 session proof and broker outcome reconciliation are not implemented. A local reservation is not order permission.",
       "Daily-loss scope/denominator confirmed: 5% of capital in open positions. User approved proposed first-position basis with verified flat state/no pending commitments/no daily loss. Unknown capital or ineligible zero basis blocks entries. Independent per-trade/position limits and aggregate approval remain unset."
     ],

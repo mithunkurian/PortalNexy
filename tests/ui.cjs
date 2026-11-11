@@ -242,7 +242,7 @@ async function main(){
   assert.ok((await page.locator('.atlas-next').innerText()).includes(expectedAtlasFeature));
   assert.ok((await page.locator('.atlas-current-feature').textContent()).includes(expectedAtlasFeature));
   assert.match(await page.locator('.atlas-summary').innerText(),/unknown/);
-  assert.match(await page.locator('.atlas-milestone[open]').innerText(),/stale/i);
+  assert.ok((await page.locator('.atlas-milestone[open]').textContent()).includes(await page.evaluate(()=>window.ATLAS_TRACKER.progress.milestones.find(m=>m.id==='M2').evidence)));
   await page.locator('#atlas-status').selectOption('Complete');
   assert.equal(await page.locator('.atlas-milestone').count(),1);
   await page.locator('#atlas-status').selectOption('all');
