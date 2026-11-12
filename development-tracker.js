@@ -5,6 +5,22 @@ let atlasRefreshAttempted = false;
 let atlasRefreshPending = false;
 let atlasRefreshMessage = '';
 const atlasMilestoneExpanded = new Map();
+function atlasCompletion(item) {
+  const value = item.completionPercent;
+  return Number.isInteger(value) && value >= 0 && value <= 100 ? value : item.status === 'Complete' ? 100 : null;
+}
+function atlasProgressText(item) {
+  const value = atlasCompletion(item);
+  return value === null ? 'Estimate pending' : `${value}% completed`;
+}
+function atlasRemainingText(item) {
+  const value = atlasCompletion(item);
+  return value === null ? 'Remaining work not estimated' : `${100-value}% work left`;
+}
+function atlasProgressBar(item) {
+  const value = atlasCompletion(item);
+  return value === null ? '' : `<progress class="atlas-progress-bar" max="100" value="${value}" aria-label="${escapeHTML(item.id)} estimated completion">${value}%</progress>`;
+}
 function validAtlasProgress(data) {
   const text = value => typeof value === 'string';
   const statuses = ['Complete', 'In progress', 'Not started'];
@@ -52,18 +68,19 @@ function atlasTrackerView() {
     <p id="atlas-refresh-status" role="status">${escapeHTML(atlasRefreshMessage || "Showing the bundled snapshot while checking ATLAS main for updates.")}</p>
     <p class="atlas-notice">Development status only. Reads ATLAS’s public tracker from GitHub, with a bundled snapshot if unavailable. It does not monitor trading or connect to IBKR. NexyDAO’s separate record stays in Development Journal.</p>
     <div class="atlas-summary">
-      <article class="panel"><span>Milestones complete</span><strong>${completed} <small>of ${data.milestones.length}</small></strong><p>Acceptance percentages count fully implemented and validated features.</p></article>
+      <article class="panel"><span>Milestones complete</span><strong>${completed} <small>of ${data.milestones.length}</small></strong><p>Percentages below estimate engineering completion. Accepted features are counted separately.</p></article>
       <article class="panel"><span>Current work</span><strong>${escapeHTML(data.currentFeature)}</strong><p>${escapeHTML(current ? current.name : 'See milestone evidence')}</p></article>
       <article class="panel"><span>Engineering budget</span><strong>${escapeHTML(data.budgetHours)} <small>hours agreed</small></strong><p>Historical hours used and total remaining: unknown.</p></article>
     </div>
     <section class="panel atlas-next" aria-labelledby="atlas-next-title"><p class="eyebrow">NEXT ACCEPTANCE GATE</p><h2 id="atlas-next-title">${escapeHTML(data.currentFeature)} · ${escapeHTML(current ? current.name : 'Current work')}</h2><p>${escapeHTML(data.milestones.find(m => m.features.some(f => f.id === data.currentFeature))?.next || '')}</p><span class="atlas-badge progress">Paper development · no live-money authorization</span></section>
+    <details class="atlas-estimate-method panel"><summary>How completion and remaining work are estimated</summary><p>${escapeHTML(data.progressMethod || "Completion estimates are separate from accepted feature counts and engineering hours.")}</p></details>
     <div class="atlas-layout"><section aria-labelledby="atlas-milestones-title"><div class="section-heading"><h2 id="atlas-milestones-title">Milestone metro map</h2><span id="atlas-result-count" role="status"></span></div>
       <div class="atlas-toolbar"><label for="atlas-search">Search milestones<input id="atlas-search" type="search" placeholder="Search features or evidence…"></label><label for="atlas-status">Status<select id="atlas-status"><option value="all">All statuses</option><option>In progress</option><option>Complete</option><option>Not started</option></select></label></div>
       <div class="atlas-map-tools"><div class="atlas-legend" aria-label="Map legend"><span><i class="atlas-legend-stop validated" aria-hidden="true"></i> Complete</span><span><i class="atlas-legend-stop current" aria-hidden="true"></i> Current work</span><span><i class="atlas-legend-stop" aria-hidden="true"></i> Upcoming</span></div><div><button type="button" id="atlas-expand-all">Expand all</button><button type="button" id="atlas-collapse-all">Collapse all</button></div></div>
       <div id="atlas-milestones" aria-label="Milestone metro map"></div>
     </section><aside class="atlas-aside"><section class="panel"><h2>Open gates</h2><ul>${data.blockers.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul></section>
       <section class="panel"><h2>Evidence log</h2><p class="muted">Cloud checks and user-reported VM results are identified separately.</p><details class="atlas-checks"><summary>${data.checks.length} recorded checks</summary><ol>${data.checks.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ol></details></section>
-      <section class="panel"><h2>Scope stays bounded</h2><p>NASDAQ common stocks. Existing IBKR subscriptions only. No Level 2 dependency or extra paid news. Independent risk controls before orders.</p><p>Strategy and risk limits still need decisions. The planned M8 trading dashboard remains separate.</p></section>
+      <section class="panel"><h2>Scope stays bounded</h2><p>NASDAQ common stocks. Existing IBKR subscriptions only. No Level 2 dependency or extra paid news. Independent risk controls before orders.</p><p>Research choices are configured. No user action is pending; independent operational commissioning remains. The private trading dashboard stays separate.</p></section>
     </aside></div>
   </section>`;
 }
@@ -84,7 +101,7 @@ function bindAtlasTracker() {
       const isCurrent = m.features.some(f => f.id === data.currentFeature);
       const expanded = atlasMilestoneExpanded.has(m.id) ? atlasMilestoneExpanded.get(m.id) : isCurrent || Boolean(query);
       const finished = m.features.filter(f => f.status === 'Complete').length;
-      return `<details class="atlas-milestone ${atlasStatusClass(m.status)} ${isCurrent ? 'atlas-current-station' : ''}" data-milestone="${escapeHTML(m.id)}" ${expanded ? 'open' : ''}><summary><span class="atlas-station-node ${atlasStatusClass(m.status)} ${isCurrent ? 'current' : ''}" aria-hidden="true">${m.status === 'Complete' ? '✓' : ''}</span><span class="atlas-milestone-id">${escapeHTML(m.id)}</span><span class="atlas-milestone-name">${escapeHTML(m.name)}<small>${isCurrent ? 'Current milestone · ' : ''}${finished} / ${m.features.length} feature stops complete · ${m.features.length ? Math.round(finished / m.features.length * 100) : 0}% accepted</small></span><span class="atlas-badge ${atlasStatusClass(m.status)}">${escapeHTML(m.status)}</span></summary><div class="atlas-milestone-body"><h3>Feature stops</h3><ul class="atlas-features">${m.features.map(f => `<li class="atlas-feature ${atlasStatusClass(f.status)} ${f.id === data.currentFeature ? 'atlas-current-feature' : ''}" ${f.id === data.currentFeature ? 'aria-current="step"' : ''}><span class="atlas-feature-stop ${atlasStatusClass(f.status)} ${f.id === data.currentFeature ? 'current' : ''}" aria-hidden="true">${f.status === 'Complete' ? '✓' : ''}</span><span><b>${escapeHTML(f.id)}</b> ${escapeHTML(f.name)}${typeof f.implementationStatus === 'string' ? `<small class="atlas-feature-detail">${escapeHTML(f.implementationStatus)}</small>` : ''}${typeof f.acceptanceGate === 'string' ? `<small class="atlas-feature-detail">${escapeHTML(f.acceptanceGate)}</small>` : ''}</span><span class="atlas-badge ${atlasStatusClass(f.status)}">${escapeHTML(f.status)}${f.id === data.currentFeature ? ' · Current' : ''}</span></li>`).join('')}</ul><h3>Evidence</h3><p>${escapeHTML(m.evidence)}</p><h3>Next step</h3><p>${escapeHTML(m.next)}</p><p class="atlas-budget">Agreed milestone budget: ${escapeHTML(m.budget)}h · Historical used and total remaining time unknown.</p></div></details>`;
+      return `<details class="atlas-milestone ${atlasStatusClass(m.status)} ${isCurrent ? 'atlas-current-station' : ''}" data-milestone="${escapeHTML(m.id)}" ${expanded ? 'open' : ''}><summary><span class="atlas-station-node ${atlasStatusClass(m.status)} ${isCurrent ? 'current' : ''}" aria-hidden="true">${m.status === 'Complete' ? '✓' : ''}</span><span class="atlas-milestone-id">${escapeHTML(m.id)}</span><span class="atlas-milestone-name">${escapeHTML(m.name)}<small>${isCurrent ? 'Current milestone · ' : ''}${atlasRemainingText(m)} - ${finished} / ${m.features.length} features accepted${atlasProgressBar(m)}</small></span><span class="atlas-badge ${atlasStatusClass(m.status)}">${atlasProgressText(m)}</span></summary><div class="atlas-milestone-body"><h3>Feature stops</h3><ul class="atlas-features">${m.features.map(f => `<li data-feature="${escapeHTML(f.id)}" class="atlas-feature ${atlasStatusClass(f.status)} ${f.id === data.currentFeature ? 'atlas-current-feature' : ''}" ${f.id === data.currentFeature ? 'aria-current="step"' : ''}><span class="atlas-feature-stop ${atlasStatusClass(f.status)} ${f.id === data.currentFeature ? 'current' : ''}" aria-hidden="true">${f.status === 'Complete' ? '✓' : ''}</span><span><b>${escapeHTML(f.id)}</b> ${escapeHTML(f.name)}<small class="atlas-feature-detail atlas-work-left">${atlasRemainingText(f)} � ${escapeHTML(f.status)}</small>${atlasProgressBar(f)}${typeof f.implementationStatus === 'string' ? `<small class="atlas-feature-detail">${escapeHTML(f.implementationStatus)}</small>` : ''}${typeof f.acceptanceGate === 'string' ? `<small class="atlas-feature-detail">${escapeHTML(f.acceptanceGate)}</small>` : ''}</span><span class="atlas-badge ${atlasStatusClass(f.status)}">${atlasProgressText(f)}${f.id === data.currentFeature ? ' · Current' : ''}</span></li>`).join('')}</ul><h3>Evidence</h3><p>${escapeHTML(m.evidence)}</p><h3>Next step</h3><p>${escapeHTML(m.next)}</p><p class="atlas-budget">Agreed milestone budget: ${escapeHTML(m.budget)}h · Historical used and total remaining time unknown.</p></div></details>`;
     };
     const assigned = new Set();
     const phases = (Array.isArray(data.phases) ? data.phases : []).filter(p => p && typeof p.name === 'string' && Array.isArray(p.milestones)).map(p => {

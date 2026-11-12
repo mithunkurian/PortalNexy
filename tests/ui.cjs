@@ -233,6 +233,22 @@ async function main(){
   assert.equal(await page.locator('.atlas-milestone[open]').count(),1);
   await page.getByRole('button',{name:'Expand all',exact:true}).click();
   assert.equal(await page.locator('.atlas-milestone[open]').count(),8);
+  const progressRows=await page.evaluate(()=>window.ATLAS_TRACKER.progress.milestones);
+  for(const milestone of progressRows){
+    const row=page.locator(`[data-milestone="${milestone.id}"]`);
+    assert.match(await row.locator('summary').innerText(),new RegExp(`${milestone.completionPercent}% completed`));
+    assert.match(await row.locator('summary').innerText(),new RegExp(`${100-milestone.completionPercent}% work left`));
+    assert.equal(Number(await row.locator('summary progress').getAttribute('value')),milestone.completionPercent);
+    assert.equal(milestone.completionPercent,Math.round(milestone.features.reduce((sum,f)=>sum+f.completionPercent,0)/milestone.features.length));
+    for(const feature of milestone.features){
+      const featureRow=row.locator(`[data-feature="${feature.id}"]`);
+      assert.match(await featureRow.innerText(),new RegExp(`${feature.completionPercent}% completed`));
+      assert.match(await featureRow.innerText(),new RegExp(`${100-feature.completionPercent}% work left`));
+      assert.equal(feature.remainingPercent,100-feature.completionPercent);
+      assert.equal(feature.status==='Complete',feature.completionPercent===100);
+    }
+  }
+
   await page.getByRole('button',{name:'Collapse all',exact:true}).click();
   assert.equal(await page.locator('.atlas-milestone[open]').count(),0);
   await page.locator('[data-milestone="M2"]>summary').click();
