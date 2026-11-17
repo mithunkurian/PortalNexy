@@ -1,6 +1,6 @@
 "use strict";
 window.ATLAS_TRACKER = {
-  "revision": "b5f6b9fc771bb4d157e68eb91eecc9a3ee07d39a",
+  "revision": "54900b3237f3424e285dffc5729395632529b455",
   "branch": "main",
   "progress": {
     "updated": "2026-11-17",
@@ -257,7 +257,7 @@ window.ATLAS_TRACKER = {
         "budget": 3,
         "status": "In progress",
         "evidence": "2026-11-17 deployment 475da33 accepted for observation/reporting: full VM suite 930 passed in 351.06s and pip check passed; Windows full 924 passed, 6 POSIX-only skipped in 109.79s. Actual no-order/no-cancel/no-reporting-PnL USD source verification passed with eight fills/four scopes and unchanged policy/owned commitments. Actual local readiness report preserved negative commissioning, unknown older predicate, resolved claims, zero active intents/holds, unknown strategy performance and separate owner-only historical active USD proof. Actual authenticated Edge/SSH accepted live financial source updates, four closed commissioning histories/known fees, private incident Activity, disabled schedule/Resume, no account identifiers and sign-out. Observe worker/dashboard active; risk remains unapproved/stopped. New native callback sequencing and durable validation-code paths are synthetic-tested/deployed, with real entry-backed acceptance still pending. No additional broker order was sent for these acceptance checks.",
-        "next": "Offline normal/post-fix callback sequencing, failure-code redaction and abrupt-process durability are validated. Next real commissioning needs a fresh later eligible day; retain unknown outcomes and never force a strategy trade or catch up a missed window.",
+        "next": "Use the consolidated operations runbook for the next eligible commissioning and supervised control acceptance. Preserve all risk/ownership/source/quota checks; strategy evaluation still needs genuine scheduled outcomes.",
         "features": [
           {
             "id": "M7.1",
@@ -286,7 +286,7 @@ window.ATLAS_TRACKER = {
             "completionPercent": 50,
             "remainingPercent": 50,
             "progressBasis": "Core readiness checklist, independent evidence distinctions and concurrent-state rejection implemented and tested; actual operational readiness remains pending",
-            "implementationStatus": "Private historical mechanical checklist and defect diagnostics implemented; configuration, risk approval, accounting and source acceptance remain separate",
+            "implementationStatus": "Private readiness checklist/defect diagnostics and consolidated operator runbook implemented; commands and maintenance boundaries verified against current implementation",
             "acceptanceGate": "Core readiness checklist and redaction/consistency tests passed on Windows and VM, with actual no-order private-book report acceptance. Final active USD bridge, supervised controls and genuine runtime evaluation remain required before readiness acceptance."
           }
         ],
@@ -552,14 +552,15 @@ window.ATLAS_TRACKER = {
       "2026-11-17 deployment 475da33 accepted for observation/reporting: full VM suite 930 passed in 351.06s and pip check passed; Windows full 924 passed, 6 POSIX-only skipped in 109.79s. Actual no-order/no-cancel/no-reporting-PnL USD source verification passed with eight fills/four scopes and unchanged policy/owned commitments. Actual local readiness report preserved negative commissioning, unknown older predicate, resolved claims, zero active intents/holds, unknown strategy performance and separate owner-only historical active USD proof. Actual authenticated Edge/SSH accepted live financial source updates, four closed commissioning histories/known fees, private incident Activity, disabled schedule/Resume, no account identifiers and sign-out. Observe worker/dashboard active; risk remains unapproved/stopped. New native callback sequencing and durable validation-code paths are synthetic-tested/deployed, with real entry-backed acceptance still pending. No additional broker order was sent for these acceptance checks.",
       "Actual broker contract calendar after deployment reported next opening 2026-11-18 14:30 UTC / 15:30 Stockholm. Both Nov17 normal/post-fix scopes are used and retained. Reacquire fresh regular-session, entitlement, clock, cash, quote and reconciliation evidence on a later eligible day; no replay, reset or third Nov17 entry. No physical action is currently pending.",
       "2026-11-17 continued offline protocol work: removed an unnecessary Filled-status dependency from the callback wait, following IBKR documented missing-status behavior. A latest validated owned one-share execution may sequence the first snapshot even without a parent open acknowledgement; both positive protective acknowledgements remain mandatory. Future or conflicting execution identity rejects even if a Filled status also exists. No parent packet/terminal proof is synthesized; stable positions/executions/fees/USD and terminal-flat acceptance remain independent and mandatory. Full Windows regression 930 passed, 6 POSIX-only skipped in 116.19s; normal/post-fix callback focus 38 passed in 16.64s. Status-only, execution-only and missing-parent-ack full lifecycles are synthetic. New VM validation pending; no new real order or quota change, no older fault cause inferred, no progress percentage increase.",
-      "2026-11-17 execution-backed callback continuation deployed (bec7253): VM normal/post-fix callback focus 38 passed in 26.82s and pip check passed; both private services active after observe-worker restart. Actual local health verification confirmed fresh idle observation, unapproved/stopped risk, four existing scopes, eight known-fee fills and no active intents/holds or new commissioning attempt. Latest Windows full suite 930 passed, 6 POSIX-only skipped in 116.19s. New missing-status/missing-parent-ack positive paths and future/conflicting execution rejections remain synthetic, not real combined commissioning acceptance. No numeric policy, scope, deadline or strategy enablement changes; percentages unchanged."
+      "2026-11-17 execution-backed callback continuation deployed (bec7253): VM normal/post-fix callback focus 38 passed in 26.82s and pip check passed; both private services active after observe-worker restart. Actual local health verification confirmed fresh idle observation, unapproved/stopped risk, four existing scopes, eight known-fee fills and no active intents/holds or new commissioning attempt. Latest Windows full suite 930 passed, 6 POSIX-only skipped in 116.19s. New missing-status/missing-parent-ack positive paths and future/conflicting execution rejections remain synthetic, not real combined commissioning acceptance. No numeric policy, scope, deadline or strategy enablement changes; percentages unchanged.",
+      "2026-11-17 parallel M7.3 work: consolidated the operator runbook for local service/readiness/incident checks, stale-source triage, physical Gateway authentication handoff, exclusive broker maintenance, owned-only recovery and unchanged release gates. Corrected stale documentation that said no recovery CLI was exposed. Commands/options checked against the installed CLI help and current worker/controller/recovery implementation; relative document links checked. Documentation-only delivery: no new tests, broker calls, policy edits, scope changes or percentage increase. Real commissioning/control acceptance remains pending."
     ],
     "blockers": [
       "Both Nov17 normal/post-fix scopes are used and retained, with four closed mechanical intents, eight known-fee fills and zero active intents/holds. No third entry, claim reset or replay. Broker reports next opening Nov18 14:30 UTC / 15:30 Stockholm; next entry-backed verification needs a later eligible day and fresh broker-confirmed regular session.",
       "Independent active owned USD source validation passed Nov17, but the combined commissioning flow remains not accepted after an open-order protocol rejection. Its exact validation predicate is unknown for that older event. M5.3 acceptance reopened for callback-boundary validation. Private risk remains unapproved/stopped; actual Resume/Emergency and genuine scheduled strategy acceptance remain pending.",
       "Completion estimates remain separate from acceptance/readiness. No closed strategy sample or profitability conclusion; no measured engineering-hour total."
     ],
-    "currentFeature": "M5.3",
+    "currentFeature": "M7.3",
     "phases": [
       {
         "id": "P1",
