@@ -1,9 +1,9 @@
 "use strict";
 window.ATLAS_TRACKER = {
-  "revision": "41742c78f95664f27aaa57c17ccd0df0fcbbf95a",
+  "revision": "bf7918be904c951f9a65045f9614f592f79bca60",
   "branch": "main",
   "progress": {
-    "updated": "2026-11-18",
+    "updated": "2026-11-19",
     "budgetHours": 18,
     "recordedHours": null,
     "milestones": [
@@ -131,51 +131,51 @@ window.ATLAS_TRACKER = {
         "id": "M4",
         "name": "Risk management",
         "budget": 2,
-        "status": "In progress",
-        "evidence": "2026-11-18 funds diagnostic delivery 2fe8cfe deployed: VM funds/source-history/evaluation focus 86 passed in 20.30s and pip check passed. Latest full Windows 951 passed/6 POSIX-only skipped in 133.34s. Actual post-deployment local checks verified both services active, observe mode, fresh idle native USD/allocation/open-session source, approval false, entries stopped, two explicit negative Nov18 scopes, six closed mechanical intentions, twelve known-fee fills, zero active intentions/holds/unfinished scopes and matching unchanged private policy versions for both daily claims. Private source history decoded and latest condition Recovered; historical recovery alone grants no current-source authority. No closed strategy sample; profit unknown. Earlier actual authenticated Edge/SSH accepted live financial ticks, closed known-fee mechanics history, disabled schedule/Resume, redacted activity and sign-out. M5.3 complete/M5 92%; independent active funds commissioning still pending. No third Nov18 entry or physical action pending.",
-        "next": "Full current-code VM regression passed (962). Complete active USD combined commissioning at a later eligible regular session; broker-reported next opening Nov19 15:30 Stockholm is planning only. Then validate independent supervised controls/runtime; no early strategy activation.",
+        "status": "Complete",
+        "evidence": "2026-11-19 actual normal commissioning accepted: protected one-share AAPL entry, independent active-position USD/allocation validation, native protection, known USD fees, selected fee/slippage bounds and terminal-flat owned exit all passed in the same run. Seven mechanical round trips are closed with fourteen fee-known fills; earlier negative scopes retained. Guarded independent paper approval and delegated flat Stop/Emergency/Stop-superseded Resume passed with broker writes forbidden and numeric limits unchanged. Actual authenticated Edge/SSH Resume, Stop and flat Emergency passed with no new broker attempts, changes to limits/allocation/history or strategy jobs. Actual unchanged-value Save revoked approval/stopped entries; fresh authenticated Resume independently reapproved without changing numeric limits. Paper supervision installed; private schedule enabled at 10:15 America/New_York while public defaults stay observe/disabled. Actual restart stopped entries; a fresh delegated initial-start request passed. Armed/enabled-schedule dashboard checks passed, then a later execution-report source rejection correctly paused entries; observation recovered without automatic rearming. Native open-order source failures had also fenced the first UI Resume. Operational source stability is under bounded no-order investigation; no cause guessed. Broker-backed planning target: Nov20 15:15 UTC / 16:15 Stockholm. No genuine strategy run or closed sample yet; no forced trade.",
+        "next": "Risk components accepted. Preserve all independent limits and fail-closed stop/restart behavior; continue M6/M7 runtime-source stability and genuine daily pipeline validation.",
         "features": [
           {
             "id": "M4.1",
             "name": "Position sizing and capital limits",
-            "status": "In progress",
-            "implementationStatus": "Shared sizing/cost budgets and owned USD adapter implemented; actual independent active-position USD/allocation/protection observation passed, with owner-only historical proof separate from failed commissioning",
-            "acceptanceGate": "Independent flat/active USD and allocation observations passed previously. Nov18 post-fix tracking/cleanup passed, but its independent active funds source rejected; combined commissioning remains not accepted. Six mechanics intentions closed, twelve known fees, zero holds and unchanged unapproved/stopped policy verified. Fixed private funds diagnostics deployed; guarded runtime/control acceptance remains pending.",
-            "completionPercent": 75,
-            "remainingPercent": 25,
-            "progressBasis": "Deployed with partial actual acceptance; final operational validation remains"
+            "status": "Complete",
+            "implementationStatus": "Implemented and accepted with actual commissioned paper sources and guarded controls",
+            "acceptanceGate": "Complete: actual combined active USD/allocation commissioning and guarded initial/authenticated risk activation passed. Limits, allocation marks and owned commitments survived UI configuration and control checks unchanged. No strategy profit or optimal sizing claim.",
+            "completionPercent": 100,
+            "remainingPercent": 0,
+            "progressBasis": "Required component implementation and validation accepted; genuine scheduled strategy integration is tracked separately in M6/M7"
           },
           {
             "id": "M4.2",
             "name": "Independent risk validation",
-            "status": "In progress",
-            "implementationStatus": "Independent actual-source approval integrated with accepted mechanics proof, material fee/fill correction signature, allocation/reservation consistency, daily-loss and later-stop fences",
-            "acceptanceGate": "Actual pinned paper identity, native USD funds, contract/session/rule and mechanical admission sources verified. Active-position USD valuation, independent runtime activation and supervised control acceptance remain pending; private risk approval is false.",
-            "completionPercent": 50,
-            "remainingPercent": 50,
-            "progressBasis": "Core implementation and automated validation; operational integration or acceptance remains"
+            "status": "Complete",
+            "implementationStatus": "Implemented and accepted with actual commissioned paper sources and guarded controls",
+            "acceptanceGate": "Complete: accepted mechanics proof plus fresh independent bound paper USD/funds/rules/calendar/reconciliation and allocation gates approved paper risk through the guarded controller. Source failures stopped entries; fresh observations did not auto-rearm. Synthetic invalid-source/limit/correction cases remain separate.",
+            "completionPercent": 100,
+            "remainingPercent": 0,
+            "progressBasis": "Required component implementation and validation accepted; genuine scheduled strategy integration is tracked separately in M6/M7"
           },
           {
             "id": "M4.3",
             "name": "Duplicate prevention and kill switch",
-            "status": "In progress",
-            "implementationStatus": "Pinned once-only journal and terminal-proof capacity retirement/tombstones implemented",
-            "acceptanceGate": "Actual once-only attempts and terminal/fee/flat reservation retirement accepted; replay/stop races and partial/unknown cases validated synthetically. Commissioned authenticated Resume/Emergency and runtime integration remain pending.",
-            "completionPercent": 75,
-            "remainingPercent": 25,
-            "progressBasis": "Deployed with partial actual acceptance; final operational validation remains"
+            "status": "Complete",
+            "implementationStatus": "Implemented and accepted with actual commissioned paper sources and guarded controls",
+            "acceptanceGate": "Complete: actual once-only native commissioning and reservation retirement, Stop fencing a queued Resume, restart pausing entries, authenticated Resume/Stop/flat Emergency passed. Active owned cancellation/flatten was verified in commissioning; the actual UI Emergency test used a flat book. Unknown/replay and partial-wire cases remain synthetic.",
+            "completionPercent": 100,
+            "remainingPercent": 0,
+            "progressBasis": "Required component implementation and validation accepted; genuine scheduled strategy integration is tracked separately in M6/M7"
           }
         ],
-        "completionPercent": 67,
-        "remainingPercent": 33
+        "completionPercent": 100,
+        "remainingPercent": 0
       },
       {
         "id": "M5",
         "name": "IBKR integration",
         "budget": 3,
-        "status": "In progress",
-        "evidence": "2026-11-18 post-fix a234b0c deployed: VM reconciliation/normal/post-fix focus 82 passed in 31.45s and pip check passed; Windows full 938 passed/6 POSIX-only skipped in 136.13s. Actual explicit post-fix test passed the fresh fill/protection reconciliation and completed protected one-share entry, once-only owned exit, known USD fee/terminal/flat and selected fee/slippage checks inside its own cleanup. It rejected independent active USD observation at funds/source_rejection, so complete commissioning remains not accepted. Both Nov18 claims are retained with explicit negative results, six mechanical intentions closed, twelve known-fee fills, zero active intentions/holds and zero unfinished scopes. Private policy byte-version unchanged, unapproved/stopped; observe worker restarted. A later read-only funds check passed flat/stable native USD, which neither reproduces nor identifies the older active-position failure. No third Nov18 entry or physical action pending.",
-        "next": "Order/fill/position tracking accepted independently. Complete combined active USD commissioning, then independent supervised control/runtime acceptance before strategy activation.",
+        "status": "Complete",
+        "evidence": "Nov19 complete actual mechanical commissioning accepted with active USD bridge, one-share native bracket, selected cost bounds and terminal/fee/flat proof. Seven closed mechanics round trips/fourteen fee-known fills retained; no strategy-generated order yet. Commissioned paper supervisor and guarded authenticated controls accepted separately.",
+        "next": "Broker components accepted; genuine scheduled strategy execution/evaluation remains M6/M7. Preserve owned-only recovery, strict source validation and every historical scope.",
         "features": [
           {
             "id": "M5.1",
@@ -183,123 +183,123 @@ window.ATLAS_TRACKER = {
             "status": "Complete",
             "completionPercent": 100,
             "remainingPercent": 0,
-            "progressBasis": "Required implementation and validation complete"
+            "progressBasis": "Required component implementation and validation accepted; genuine scheduled strategy integration is tracked separately in M6/M7"
           },
           {
             "id": "M5.2",
             "name": "Paper-trading orders",
-            "status": "In progress",
-            "implementationStatus": "Internal pinned once-only actor, SDK transmission, owned cancellation/flatten and continuous monitoring implemented; public execution remains disabled",
-            "acceptanceGate": "Six protected one-share mechanical round trips closed with twelve known-fee fills. Latest actual post-fix entry/protection and terminal-flat recovery plus selected fee/slippage checks passed. Complete commissioning rejected independent active funds observation; supervised strategy/runtime order activation remains pending.",
-            "completionPercent": 75,
-            "remainingPercent": 25,
-            "progressBasis": "Deployed with actual protected mechanical round trips; complete commissioning and runtime acceptance pending"
+            "status": "Complete",
+            "implementationStatus": "Pinned native paper orders, owned cancellation/flatten and supervision accepted with fully commissioned USD/risk sources; genuine strategy pipeline outcome remains M6/M7",
+            "acceptanceGate": "Complete for broker orders: actual Nov19 protected one-share commissioning passed all active USD/cost/terminal-flat checks, with paper supervision and authenticated controls accepted. Seven mechanical round trips closed with fourteen known-fee fills. A genuine strategy-generated entry has not occurred; its pipeline integration remains M6/M7.",
+            "completionPercent": 100,
+            "remainingPercent": 0,
+            "progressBasis": "Required component implementation and validation accepted; genuine scheduled strategy integration is tracked separately in M6/M7"
           },
           {
             "id": "M5.3",
             "name": "Orders, fills and positions",
             "status": "Complete",
             "implementationStatus": "Deployed native callback barrier, immutable repeated-observation handling, exact conflict rejection and durable redacted diagnostics; actual fresh post-entry reconciliation and owned cleanup passed",
-            "acceptanceGate": "Complete for order/fill/position tracking: actual Nov18 post-fix fresh one-share fill/protection reconciliation, known fees and terminal-flat owned cleanup passed in the same run, plus 82 focused VM tests. Complete commissioning remains not accepted because its separate active USD funds source rejected; risk/controller/strategy remain disabled. Exact raw repeated-callback shape of the prior rejection was not preserved.",
+            "acceptanceGate": "Complete: actual fresh fill/protection and stable execution/fee/position/terminal-flat tracking passed, followed by fully accepted Nov19 active USD commissioning. Repeated/conflicting callbacks and source failures still reject safely. Historical negative scopes are preserved; no older missing predicate guessed.",
             "completionPercent": 100,
             "remainingPercent": 0,
-            "progressBasis": "Required native order/fill/position implementation and actual fresh protected-entry/terminal/fee/flat tracking accepted; independent funds commissioning remains separate"
+            "progressBasis": "Required component implementation and validation accepted; genuine scheduled strategy integration is tracked separately in M6/M7"
           }
         ],
-        "completionPercent": 92,
-        "remainingPercent": 8
+        "completionPercent": 100,
+        "remainingPercent": 0
       },
       {
         "id": "M6",
         "name": "Automation and monitoring",
         "budget": 2,
         "status": "In progress",
-        "evidence": "2026-11-17 deployment 475da33 accepted for observation/reporting: full VM suite 930 passed in 351.06s and pip check passed; Windows full 924 passed, 6 POSIX-only skipped in 109.79s. Actual no-order/no-cancel/no-reporting-PnL USD source verification passed with eight fills/four scopes and unchanged policy/owned commitments. Actual local readiness report preserved negative commissioning, unknown older predicate, resolved claims, zero active intents/holds, unknown strategy performance and separate owner-only historical active USD proof. Actual authenticated Edge/SSH accepted live financial source updates, four closed commissioning histories/known fees, private incident Activity, disabled schedule/Resume, no account identifiers and sign-out. Observe worker/dashboard active; risk remains unapproved/stopped. New native callback sequencing and durable validation-code paths are synthetic-tested/deployed, with real entry-backed acceptance still pending. No additional broker order was sent for these acceptance checks.",
-        "next": "Private reports, source incidents and post-cleanup typed failure persistence are deployed. Actual independent risk/control and genuine scheduled-pipeline acceptance remain gated by complete commissioning; observe service remains running without a trading timer.",
+        "evidence": "2026-11-19 deployment 3117f47 accepted for component operation and diagnostics: Windows full 969 passed, 6 POSIX-only skipped in 134.87s; VM reconciliation/source/evaluation/commissioning/post-fix/recovery focus 158 passed in 62.34s and pip check passed. Core full VM prior to diagnostic-only changes was 962 passed. Actual post-deployment checks verified both services active, paper mode, fresh idle native USD/allocation, accepted mechanical/cost proof, independent approval true, private schedule enabled and a fresh guarded initial-start request succeeded after verified restart pause. At verification entries were armed, with fourteen known-fee fills, zero active intentions/holds/unfinished scopes and zero strategy jobs; no missed job was caught up. All eleven control outcomes were resolved (nine succeeded, two superseded). Actual authenticated flat control, unchanged-limit save/reapproval and passive armed/schedule dashboard checks passed. Nine new execution-predicate failures are synthetic tests, not a reproduced cause of the earlier real rejection. Twenty no-order monitor cycles did not reproduce it; no historical cause is guessed and source failure still pauses without automatic rearming. Next broker-backed planned daily window: Nov20 15:15 UTC / 16:15 Stockholm, subject to fresh readiness. M1-M5/M8 components complete; M6/M7 remain 75% pending source stability and a genuine daily outcome. No physical action pending.",
+        "next": "Observe first genuine eligible daily pipeline and any precisely labeled source rejection. Preserve fail-closed pauses, fresh explicit approval and no-catch-up/no-replay behavior; next planned window Nov20 16:15 Stockholm.",
         "features": [
           {
             "id": "M6.1",
             "name": "Trading-day scheduling",
             "status": "In progress",
             "implementationStatus": "Guarded paper daily pipeline implemented with one anchored market/day claim, 10:15 New York start window, persistent source quotes, genuine typed analysis and independent actor/risk gates; no catch-up or signal/order retry",
-            "acceptanceGate": "Synthetic daily-claim concurrency, disabled/closed/stale/missed-window, zero-candidate, no-trade, stop-during-analysis and retained-failure cases passed. Actual executable scheduling remains disabled and operational acceptance pending.",
-            "completionPercent": 50,
-            "remainingPercent": 50,
-            "progressBasis": "Core implementation and automated validation; actual scheduled paper pipeline remains uncommissioned"
+            "acceptanceGate": "Private 10:15 America/New_York paper schedule enabled; actual restart pause and fresh initial activation verified. No job was caught up after today's missed window. First actual eligible daily outcome remains pending; next broker-backed planning window Nov20 16:15 Stockholm, with fresh start-time validation required.",
+            "completionPercent": 75,
+            "remainingPercent": 25,
+            "progressBasis": "Deployed with partial actual runtime acceptance; final operational validation remains"
           },
           {
             "id": "M6.2",
             "name": "Logging and error handling",
             "status": "In progress",
             "implementationStatus": "Private allowlisted audit, source-bounded observation and commissioned paper supervisor implemented; restart pauses entries and recovery reconnects without rearm",
-            "acceptanceGate": "Actual private audit/flat-risk VM acceptance passed; mandatory execution-runtime integration and operational failure/recovery acceptance remain pending.",
+            "acceptanceGate": "Actual commission/risk/control audit and native source unavailable/recovered history accepted. Real protocol rejection/timeouts paused entries and fenced stale Resume; no automatic rearm occurred. Intermittent unattended source rejection is under no-order diagnosis; no raw payload or unproven cause is logged.",
             "completionPercent": 75,
             "remainingPercent": 25,
-            "progressBasis": "Deployed with partial actual acceptance; final operational validation remains"
+            "progressBasis": "Deployed with partial actual runtime acceptance; final operational validation remains"
           },
           {
             "id": "M6.3",
             "name": "Notifications and reports",
             "status": "In progress",
             "implementationStatus": "Private operational reports, bounded pinned-book incident-report CLI and authenticated incident Activity implemented and deployed; fixed labels, durable deduplication and verified historical recovery. No external notifications.",
-            "acceptanceGate": "Actual VM operational/incident reports and authenticated Activity presentation accepted. Incident report cannot connect to broker and preserves policy/commitments; historical recovery never claims current freshness. Synthetic outage/recovery/corruption/storage-failure cases pass on Windows and VM. Actual control and strategy financial reporting acceptance remains pending; no sample means unknown performance.",
+            "acceptanceGate": "Actual incident/control Activity and local evaluation report accepted: mechanical proof/costs verified, independent limits approved, no unclosed holds or unresolved scopes, strategy sample/profit unknown. Actual first genuine daily pipeline reporting remains pending.",
             "completionPercent": 75,
             "remainingPercent": 25,
-            "progressBasis": "Deployed private reports and incident presentation with partial actual acceptance; operational risk/control and financial reporting acceptance remains"
+            "progressBasis": "Deployed with partial actual runtime acceptance; final operational validation remains"
           }
         ],
-        "completionPercent": 67,
-        "remainingPercent": 33
+        "completionPercent": 75,
+        "remainingPercent": 25
       },
       {
         "id": "M7",
         "name": "Testing and commissioning",
         "budget": 3,
         "status": "In progress",
-        "evidence": "2026-11-17 deployment 475da33 accepted for observation/reporting: full VM suite 930 passed in 351.06s and pip check passed; Windows full 924 passed, 6 POSIX-only skipped in 109.79s. Actual no-order/no-cancel/no-reporting-PnL USD source verification passed with eight fills/four scopes and unchanged policy/owned commitments. Actual local readiness report preserved negative commissioning, unknown older predicate, resolved claims, zero active intents/holds, unknown strategy performance and separate owner-only historical active USD proof. Actual authenticated Edge/SSH accepted live financial source updates, four closed commissioning histories/known fees, private incident Activity, disabled schedule/Resume, no account identifiers and sign-out. Observe worker/dashboard active; risk remains unapproved/stopped. New native callback sequencing and durable validation-code paths are synthetic-tested/deployed, with real entry-backed acceptance still pending. No additional broker order was sent for these acceptance checks.",
-        "next": "Use the consolidated operations runbook for the next eligible commissioning and supervised control acceptance. Preserve all risk/ownership/source/quota checks; strategy evaluation still needs genuine scheduled outcomes.",
+        "evidence": "Actual Nov19 complete native mechanics/USD commissioning, guarded paper approval, authenticated controls/configuration, restart stop and commissioned dashboard acceptance passed. Evaluation verifies mechanical costs and reports no closed strategy sample. Runtime source-stability diagnosis and first genuine scheduled paper outcome remain.",
+        "next": "Complete runtime-source diagnosis and the next eligible genuine paper pipeline; valid zero-candidate/NO_TRADE outcomes are acceptable. Do not force an entry or manufacture profitability.",
         "features": [
           {
             "id": "M7.1",
             "name": "End-to-end integration tests",
             "status": "In progress",
             "implementationStatus": "Composed real parser/risk/journal/SDK mock-transport flow and real abrupt subprocess durability across staged/final entry, unknown flatten and daily-claim boundaries validated on Windows and VM",
-            "acceptanceGate": "Composed offline long/NO_TRADE, identity, freshness, Stop and first-wire unknown paths passed on Windows and VM with real parsers/risk/journal/SDK and mocked transports. Actual broker tracking/recovery accepted separately; active USD commissioning and actual supervised daily runtime remain pending. No forced trade or synthetic profitability claim.",
-            "completionPercent": 50,
-            "remainingPercent": 50,
-            "progressBasis": "Core implementation and automated validation; operational integration or acceptance remains"
+            "acceptanceGate": "Actual complete mechanical/USD lifecycle and commissioned control/UI integration accepted; composed long/NO_TRADE and unknown-wire tests remain synthetic. First genuine daily pipeline plus source-stability validation remain pending; no forced strategy entry.",
+            "completionPercent": 75,
+            "remainingPercent": 25,
+            "progressBasis": "Deployed with partial actual acceptance; genuine scheduled pipeline and final operational validation remain"
           },
           {
             "id": "M7.2",
             "name": "Paper-trading evaluation",
             "status": "In progress",
-            "completionPercent": 25,
-            "remainingPercent": 75,
-            "progressBasis": "Read-only evaluation foundation implemented; actual strategy sample and operational evaluation remain",
+            "completionPercent": 75,
+            "remainingPercent": 25,
+            "progressBasis": "Deployed with partial actual acceptance; genuine scheduled pipeline and final operational validation remain",
             "implementationStatus": "Private evaluation report separates mechanics from strategy, uses known net fees, preserves unknown performance and rejects concurrent accounting/policy changes",
-            "acceptanceGate": "Synthetic empty, mechanics-only, fee-net sample, missing terminal and concurrent-change rejection tests passed. Actual mechanics/calibration and genuine pipeline outcome evaluation remain pending. Report unknown strategy performance when no closed strategy sample exists; neither a forced trade nor proof of profitability is an MVP acceptance requirement."
+            "acceptanceGate": "Actual local evaluation verifies accepted mechanical commissioning, compatible selected costs, configured/approved independent limits and zero unfinished commitments. No closed strategy sample or profit claim. Evaluation of a genuine daily outcome remains pending; no forced trade/profitability requirement."
           },
           {
             "id": "M7.3",
             "name": "Readiness review and defects",
             "status": "In progress",
-            "completionPercent": 50,
-            "remainingPercent": 50,
-            "progressBasis": "Core readiness checklist, independent evidence distinctions and concurrent-state rejection implemented and tested; actual operational readiness remains pending",
+            "completionPercent": 75,
+            "remainingPercent": 25,
+            "progressBasis": "Deployed with partial actual acceptance; genuine scheduled pipeline and final operational validation remain",
             "implementationStatus": "Private readiness checklist/defect diagnostics and consolidated operator runbook implemented; commands and maintenance boundaries verified against current implementation",
-            "acceptanceGate": "Core readiness checklist and redaction/consistency tests passed on Windows and VM, with actual no-order private-book report acceptance. Final active USD bridge, supervised controls and genuine runtime evaluation remain required before readiness acceptance."
+            "acceptanceGate": "Core commissioned paper readiness, operator controls and private report accepted. Intermittent native source rejection and first genuine daily outcome remain final readiness gates. Source recovery alone cannot resume entries; public defaults remain disabled."
           }
         ],
-        "completionPercent": 42,
-        "remainingPercent": 58
+        "completionPercent": 75,
+        "remainingPercent": 25
       },
       {
         "id": "M8",
         "name": "Trading dashboard and controls",
         "budget": 3,
-        "status": "In progress",
-        "evidence": "2026-11-17 deployment 475da33 accepted for observation/reporting: full VM suite 930 passed in 351.06s and pip check passed; Windows full 924 passed, 6 POSIX-only skipped in 109.79s. Actual no-order/no-cancel/no-reporting-PnL USD source verification passed with eight fills/four scopes and unchanged policy/owned commitments. Actual local readiness report preserved negative commissioning, unknown older predicate, resolved claims, zero active intents/holds, unknown strategy performance and separate owner-only historical active USD proof. Actual authenticated Edge/SSH accepted live financial source updates, four closed commissioning histories/known fees, private incident Activity, disabled schedule/Resume, no account identifiers and sign-out. Observe worker/dashboard active; risk remains unapproved/stopped. New native callback sequencing and durable validation-code paths are synthetic-tested/deployed, with real entry-backed acceptance still pending. No additional broker order was sent for these acceptance checks.",
-        "next": "Validate live financial timer and stable form-version changes on VM and actual private browser; preserve independently commissioned controls. M8.6/M8.7 operational Resume/Emergency/edit integration remains pending actual active USD commissioning.",
+        "status": "Complete",
+        "evidence": "All dashboard components accepted: actual authenticated financial refresh, redacted Activity, mechanical history/unknown strategy performance, commissioned schedule/armed-state display, guarded flat Resume/Stop/Emergency, and unchanged-limit save that revoked approval before fresh independent Resume. Control QA preserved numeric limits, allocation marks and broker attempts. No genuine strategy performance claimed.",
+        "next": "Dashboard component validation complete. Continue M6/M7 operational source diagnosis and first eligible genuine paper pipeline; broker error recovery never rearms entries.",
         "features": [
           {
             "id": "M8.1",
@@ -309,7 +309,7 @@ window.ATLAS_TRACKER = {
             "acceptanceGate": "Complete: authenticated VM native USD view and genuine automatic source timestamp update passed. Source staleness/failure/mixed policy and active-PnL negative cases remain synthetic. Source recovery never grants trading authority.",
             "completionPercent": 100,
             "remainingPercent": 0,
-            "progressBasis": "Required implementation and validation complete"
+            "progressBasis": "Required component implementation and validation accepted; genuine scheduled strategy integration is tracked separately in M6/M7"
           },
           {
             "id": "M8.2",
@@ -319,57 +319,57 @@ window.ATLAS_TRACKER = {
             "acceptanceGate": "Complete: actual VM/Edge worker-generated operational activity, empty accepted-decision state, no rendered account identifiers and authenticated access passed; typed synthetic decision rows/escaping cases passed separately. No genuine trading signal or execution approval inferred.",
             "completionPercent": 100,
             "remainingPercent": 0,
-            "progressBasis": "Required implementation and validation complete"
+            "progressBasis": "Required component implementation and validation accepted; genuine scheduled strategy integration is tracked separately in M6/M7"
           },
           {
             "id": "M8.3",
             "name": "Positions and trade history",
             "status": "Complete",
             "implementationStatus": "Owned intent/position/latest-correction execution history view implemented",
-            "acceptanceGate": "Complete: Windows and full VM regressions plus actual authenticated Edge/SSH data acceptance passed 2026-11-13. Closed commissioning history is excluded from strategy performance; zero strategy trades remain unknown. Schedule is correctly disabled; execution-control commissioning remains separate.",
+            "acceptanceGate": "Complete: actual authenticated commissioned paper dashboard accepted closed known-fee mechanical history, unknown strategy performance and enabled 10:15 New York schedule. Mechanical activity is excluded from strategy metrics. Paper control and configuration acceptance passed separately.",
             "completionPercent": 100,
             "remainingPercent": 0,
-            "progressBasis": "Required implementation and actual private browser/data acceptance complete"
+            "progressBasis": "Required component implementation and validation accepted; genuine scheduled strategy integration is tracked separately in M6/M7"
           },
           {
             "id": "M8.4",
             "name": "Performance metrics",
             "status": "Complete",
             "implementationStatus": "Closed-trade fee-based net performance and drawdown view implemented; empty history unknown",
-            "acceptanceGate": "Complete: Windows and full VM regressions plus actual authenticated Edge/SSH data acceptance passed 2026-11-13. Closed commissioning history is excluded from strategy performance; zero strategy trades remain unknown. Schedule is correctly disabled; execution-control commissioning remains separate.",
+            "acceptanceGate": "Complete: actual authenticated commissioned paper dashboard accepted closed known-fee mechanical history, unknown strategy performance and enabled 10:15 New York schedule. Mechanical activity is excluded from strategy metrics. Paper control and configuration acceptance passed separately.",
             "completionPercent": 100,
             "remainingPercent": 0,
-            "progressBasis": "Required implementation and actual private browser/data acceptance complete"
+            "progressBasis": "Required component implementation and validation accepted; genuine scheduled strategy integration is tracked separately in M6/M7"
           },
           {
             "id": "M8.5",
             "name": "Schedule monitor",
             "status": "Complete",
-            "implementationStatus": "Disabled job/New York schedule monitor implemented; trading service not commissioned",
-            "acceptanceGate": "Complete: Windows and full VM regressions plus actual authenticated Edge/SSH data acceptance passed 2026-11-13. Closed commissioning history is excluded from strategy performance; zero strategy trades remain unknown. Schedule is correctly disabled; execution-control commissioning remains separate.",
+            "implementationStatus": "Actual private commissioned paper supervision and enabled 10:15 New York schedule display accepted; public default remains disabled",
+            "acceptanceGate": "Complete: actual authenticated commissioned paper dashboard accepted closed known-fee mechanical history, unknown strategy performance and enabled 10:15 New York schedule. Mechanical activity is excluded from strategy metrics. Paper control and configuration acceptance passed separately.",
             "completionPercent": 100,
             "remainingPercent": 0,
-            "progressBasis": "Required implementation and actual private browser/data acceptance complete"
+            "progressBasis": "Required component implementation and validation accepted; genuine scheduled strategy integration is tracked separately in M6/M7"
           },
           {
             "id": "M8.6",
             "name": "Pause, resume and emergency stop",
-            "status": "In progress",
-            "implementationStatus": "Authenticated resume/emergency buttons queue durable requests; independent source/version/stop-generation approval and owned-only recovery worker integration implemented and tested",
-            "acceptanceGate": "Local entry stop accepted; synthetic authenticated UI queue, actual-source activation boundary, emergency priority, unknown outcome retention and restart/reconnect cases passed. Actual commissioned paper resume/emergency lifecycle acceptance remains pending.",
-            "completionPercent": 50,
-            "remainingPercent": 50,
-            "progressBasis": "Core implementation and automated validation; operational integration or acceptance remains"
+            "status": "Complete",
+            "implementationStatus": "Actual authenticated flat Resume/Stop/Emergency, owner-only guarded source approval and restart/queued-request fencing accepted; active owned exits verified in commissioning",
+            "acceptanceGate": "Complete: actual commissioned authenticated Resume, local Stop and flat-book Emergency succeeded with unchanged limits/allocation/history and no new broker attempts. Actual restart paused entries; stale queued Resume was superseded. Active owned exit behavior was verified by native commissioning; active UI queue composition also has synthetic coverage.",
+            "completionPercent": 100,
+            "remainingPercent": 0,
+            "progressBasis": "Required component implementation and validation accepted; genuine scheduled strategy integration is tracked separately in M6/M7"
           },
           {
             "id": "M8.7",
             "name": "Safe configuration editing",
-            "status": "In progress",
-            "implementationStatus": "Private atomic editing, allocation-profit baseline and same-byte version gates implemented; actual unchanged-value form save accepted",
-            "acceptanceGate": "Actual private VM/Edge unchanged-value save preserved semantic policy, allocation mark and commitments with approval false/stopped entries. Synthetic active-hold/reinvestment/stale-edit cases passed. Commissioned execution-aware resume integration remains pending separately.",
-            "completionPercent": 75,
-            "remainingPercent": 25,
-            "progressBasis": "Deployed with partial actual acceptance; final operational validation remains"
+            "status": "Complete",
+            "implementationStatus": "Actual commissioned unchanged-value Save revoked approval/stopped entries; fresh guarded Resume reapproved, preserving numeric limits, allocation marks and commitments",
+            "acceptanceGate": "Complete: actual commissioned unchanged-value form Save stopped entries and revoked independent approval, preserving numeric limits/allocation/commitments; fresh authenticated Resume revalidated approval. Active-hold, reinvestment, corrupt and stale-edit negative cases remain synthetic.",
+            "completionPercent": 100,
+            "remainingPercent": 0,
+            "progressBasis": "Required component implementation and validation accepted; genuine scheduled strategy integration is tracked separately in M6/M7"
           },
           {
             "id": "M8.8",
@@ -379,11 +379,11 @@ window.ATLAS_TRACKER = {
             "acceptanceGate": "Complete: loopback-only listener, owner-only files, single-use/expiry/revocation/concurrency tests, actual unauthorized/authorized browser gating/sign-out and no secret/account data in service logs.",
             "completionPercent": 100,
             "remainingPercent": 0,
-            "progressBasis": "Required implementation and validation complete"
+            "progressBasis": "Required component implementation and validation accepted; genuine scheduled strategy integration is tracked separately in M6/M7"
           }
         ],
-        "completionPercent": 91,
-        "remainingPercent": 9
+        "completionPercent": 100,
+        "remainingPercent": 0
       }
     ],
     "checks": [
@@ -562,14 +562,17 @@ window.ATLAS_TRACKER = {
       "2026-11-18 continuation: actual API listener and both observe/dashboard services remain active; no new broker entry or claim. Closed a diagnostic gap in commissioning-only recovery: actual typed reconciliation context from failed cleanup is now retained after reducing work, including when there was no original observation error. Observation and owned-recovery events are distinct; both causes survive, while absent legacy operation stays unknown. Auxiliary storage failure cannot replace the original commissioning/recovery exception or release holds. Focused Windows commissioning/source-health tests 59 passed in 12.96s, including cleanup-only, dual-cause and unavailable-storage cases; broker faults remain synthetic. Full Windows regression 956 passed, 6 POSIX-only skipped in 119.07s; VM deployment and focused validation pending. Limits, deadlines, quotas, private approval and percentages unchanged.",
       "PortalNexy 99a2d89 deployed ATLAS 0f60b9e: eight portal unit tests and desktop/mobile Edge QA passed; all ten actual hosted assets matched local SHA-256 bytes. Snapshot shows M5.3 Complete, M5 92%, M4 67% and both used negative Nov18 claims. This is publication evidence, not additional commissioning acceptance.",
       "2026-11-18 recovery-history correction 15c5198 deployed: Windows full regression 956 passed, 6 POSIX-only skipped in 119.07s; focused VM commissioning/post-fix/source-history/recovery suite 84 passed in 37.01s, pip check passed. Actual post-deployment checks confirmed both services active, fresh idle/open-session native USD/allocation, observe mode, unapproved/stopped risk, unchanged policy versions, two retained negative Nov18 scopes, twelve known-fee fills and zero active intentions/holds/unfinished scopes. Existing private history decoded with absent legacy operation left unknown. Initial browser attempt failed before authentication; launcher readiness refreshed and complete authenticated Edge/SSH smoke then passed live financial ticks, closed mechanical history/known fees, disabled schedule/Resume, redacted Activity and sign-out. New cleanup-only/dual-cause/storage-failure cases remain synthetic; no real new failure, order, quota or risk approval created. Percentages unchanged: M4 67%, M5 92%, M6 67%, M7 42%, M8 91%.",
-      "2026-11-18 full VM continuation on 97fc42d: all 962 tests passed in 383.91s, including POSIX-only cases; pip check passed. Latest Windows code regression remains 956 passed/6 POSIX-only skipped in 119.07s. Broker/source transports and crash/fault cases in this regression are synthetic; no additional actual commissioning acceptance inferred. After service restoration, actual local checks verified both services active, fresh idle/open-session native USD/allocation, observe mode, unapproved/stopped risk, twelve fills, zero active intentions/holds and both retained negative Nov18 scopes with matching unchanged policy versions. A separate actual contract-calendar diagnostic with order/cancel/reporting-PnL methods forbidden reported next opening 2026-11-19 14:30 UTC / 15:30 Europe/Stockholm; owned journal signature and policy byte-version stayed unchanged. This is planning information only: reacquire identity, calendar, quotes, funds, rules and reconciliation at execution time. No third Nov18 entry or physical action pending; percentages unchanged."
+      "2026-11-18 full VM continuation on 97fc42d: all 962 tests passed in 383.91s, including POSIX-only cases; pip check passed. Latest Windows code regression remains 956 passed/6 POSIX-only skipped in 119.07s. Broker/source transports and crash/fault cases in this regression are synthetic; no additional actual commissioning acceptance inferred. After service restoration, actual local checks verified both services active, fresh idle/open-session native USD/allocation, observe mode, unapproved/stopped risk, twelve fills, zero active intentions/holds and both retained negative Nov18 scopes with matching unchanged policy versions. A separate actual contract-calendar diagnostic with order/cancel/reporting-PnL methods forbidden reported next opening 2026-11-19 14:30 UTC / 15:30 Europe/Stockholm; owned journal signature and policy byte-version stayed unchanged. This is planning information only: reacquire identity, calendar, quotes, funds, rules and reconciliation at execution time. No third Nov18 entry or physical action pending; percentages unchanged.",
+      "2026-11-19 actual normal commissioning accepted: protected one-share AAPL entry, independent active-position USD/allocation validation, native protection, known USD fees, selected fee/slippage bounds and terminal-flat owned exit all passed in the same run. Seven mechanical round trips are closed with fourteen fee-known fills; earlier negative scopes retained. Guarded independent paper approval and delegated flat Stop/Emergency/Stop-superseded Resume passed with broker writes forbidden and numeric limits unchanged. Actual authenticated Edge/SSH Resume, Stop and flat Emergency passed with no new broker attempts, changes to limits/allocation/history or strategy jobs. Actual unchanged-value Save revoked approval/stopped entries; fresh authenticated Resume independently reapproved without changing numeric limits. Paper supervision installed; private schedule enabled at 10:15 America/New_York while public defaults stay observe/disabled. Actual restart stopped entries; a fresh delegated initial-start request passed. Armed/enabled-schedule dashboard checks passed, then a later execution-report source rejection correctly paused entries; observation recovered without automatic rearming. Native open-order source failures had also fenced the first UI Resume. Operational source stability is under bounded no-order investigation; no cause guessed. Broker-backed planning target: Nov20 15:15 UTC / 16:15 Stockholm. No genuine strategy run or closed sample yet; no forced trade.",
+      "2026-11-19 operational diagnosis: twenty bounded actual paper-monitor cycles with all order/cancel methods forbidden completed without reproducing the rejection, with zero blocked write attempts, fourteen fills, zero active intentions/holds and unchanged policy bytes. This does not identify the earlier execution-report cause or guarantee unattended continuity. Added nine fixed rejecting execution predicates (account/time/scope/packet, price/fee numeric, cached identity, fee identity, batch bound), retaining precise whole-share errors. Future private diagnostics retain exact predicates; old missing causes remain unknown. No data validation, source age, disconnect/hold rule, numeric limit, quota or automatic rearm behavior was relaxed. Focused Windows reconciliation/source/evaluation tests 106 passed in 20.57s; full Windows regression 969 passed, 6 POSIX-only skipped in 134.87s; focused VM validation/deployment pending. New private browser harness passed actual authenticated flat controls, commissioned unchanged-value save/reapproval and passive armed/enabled-schedule display, without new broker attempts or changed numeric limits/allocation/history.",
+      "2026-11-19 deployment 3117f47 accepted for component operation and diagnostics: Windows full 969 passed, 6 POSIX-only skipped in 134.87s; VM reconciliation/source/evaluation/commissioning/post-fix/recovery focus 158 passed in 62.34s and pip check passed. Core full VM prior to diagnostic-only changes was 962 passed. Actual post-deployment checks verified both services active, paper mode, fresh idle native USD/allocation, accepted mechanical/cost proof, independent approval true, private schedule enabled and a fresh guarded initial-start request succeeded after verified restart pause. At verification entries were armed, with fourteen known-fee fills, zero active intentions/holds/unfinished scopes and zero strategy jobs; no missed job was caught up. All eleven control outcomes were resolved (nine succeeded, two superseded). Actual authenticated flat control, unchanged-limit save/reapproval and passive armed/schedule dashboard checks passed. Nine new execution-predicate failures are synthetic tests, not a reproduced cause of the earlier real rejection. Twenty no-order monitor cycles did not reproduce it; no historical cause is guessed and source failure still pauses without automatic rearming. Next broker-backed planned daily window: Nov20 15:15 UTC / 16:15 Stockholm, subject to fresh readiness. M1-M5/M8 components complete; M6/M7 remain 75% pending source stability and a genuine daily outcome. No physical action pending."
     ],
     "blockers": [
-      "Both Nov18 normal/post-fix scopes are used and explicitly not accepted; no third entry or claim reset. Twelve known-fee fills, six closed mechanical intentions and zero active intentions/holds/unfinished scopes retained. Actual broker calendar reports next opening Nov19 14:30 UTC / 15:30 Stockholm; fresh verification is mandatory then. No physical action currently pending.",
-      "M5.3 fresh entry/protection and terminal/fill/fee/flat tracking accepted on the actual post-fix run. Combined commissioning rejected funds/source_rejection during active USD observation; the exact older funds predicate is unknown. Private risk stays unapproved/stopped; independent control/runtime and genuine scheduled strategy acceptance remain pending.",
-      "Completion estimates remain separate from acceptance/readiness. No closed strategy sample or profitability conclusion; no measured engineering-hour total."
+      "Intermittent native snapshot rejection previously paused entries and fenced stale Resume. Twenty no-order monitor cycles did not reproduce it; precise execution-predicate diagnostics are deployed. A fresh guarded post-deployment start succeeded and entries were armed at verification. Source stability remains under validation; a new failure/restart still pauses without automatic rearming. No cause was guessed.",
+      "No genuine daily strategy outcome yet. Broker calendar projects the next configured 10:15 New York window on Nov20 at 15:15 UTC / 16:15 Stockholm; fresh start-time sources/readiness remain mandatory. No catch-up, forced signal, claim reset or extra mechanical round trip.",
+      "Seven mechanical round trips/fourteen known-fee fills are separate from strategy performance. No closed strategy sample or profitability conclusion; engineering hours remain unmeasured. No physical action currently pending."
     ],
-    "currentFeature": "M4.1",
+    "currentFeature": "M6.2",
     "phases": [
       {
         "id": "P1",
