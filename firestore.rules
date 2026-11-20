@@ -1,7 +1,27 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // This empty shell has no client data features. Historical records remain stored.
+    function founder() {
+      return request.auth != null
+        && request.auth.token.email == 'mithunkurian@gmail.com'
+        && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+    function publisher() {
+      return request.auth != null
+        && request.auth.uid == 'atlas-portal-relay-v1'
+        && request.auth.token.atlas_relay == true
+        && request.auth.token.firebase.sign_in_provider == 'custom';
+    }
+    match /atlas_operator_live_v1/current {
+      allow get: if founder();
+      allow create, update: if publisher()
+        && request.resource.data.keys().hasOnly(['schema', 'payload'])
+        && request.resource.data.schema == 1
+        && request.resource.data.payload is string
+        && request.resource.data.payload.size() <= 131072;
+    }
+    // No client commands, list access, publisher reads, or access to legacy records.
     match /{document=**} { allow read, write: if false; }
   }
 }

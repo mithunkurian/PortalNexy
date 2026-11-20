@@ -27,7 +27,7 @@ async function main(){
   await page.goto('http://127.0.0.1:8766/',{waitUntil:'networkidle'});
   await page.locator('#portal-app').waitFor({state:'visible'});
   assert.equal(await page.locator('main h1').innerText(),'Development Journal.');
-  assert.equal(await page.locator('nav a').count(),7);
+  assert.equal(await page.locator('nav a').count(),8);
   assert.equal(await page.locator('#sidebar .brand-mark').count(),0);
   assert.match(await page.locator('#sidebar .brand').innerText(),/nexy/);
   assert.equal(await page.locator('#user-name').innerText(),'Founder');
@@ -213,11 +213,11 @@ async function main(){
   await page.locator('#atlas-refresh-status').filter({hasText:'Latest status unavailable'}).waitFor();
   assert.equal(await page.locator('main h1').innerText(),'Development Tracker');
   assert.equal(await page.locator('.atlas-milestone').count(),8);
-  assert.equal(await page.locator('.atlas-features li').count(),29);
+  assert.equal(await page.locator('.atlas-features li').count(),await page.evaluate(()=>ATLAS_TRACKER.progress.milestones.flatMap(m=>m.features).length));
   assert.equal(await page.locator('.atlas-milestone[open]').count(),1);
   assert.equal(await page.locator('.atlas-phase').count(),4);
   assert.equal(await page.locator('.atlas-station-node').count(),8);
-  assert.equal(await page.locator('.atlas-feature-stop').count(),29);
+  assert.equal(await page.locator('.atlas-feature-stop').count(),await page.evaluate(()=>ATLAS_TRACKER.progress.milestones.flatMap(m=>m.features).length));
   assert.equal(await page.locator('.atlas-feature-stop.validated').count(),await page.evaluate(()=>window.ATLAS_TRACKER.progress.milestones.flatMap(m=>m.features).filter(f=>f.status==='Complete').length));
   assert.equal(await page.locator('.atlas-feature-stop.current').count(),1);
   assert.equal(await page.locator('.atlas-current-feature').getAttribute('aria-current'),'step');
@@ -307,7 +307,7 @@ async function main(){
   assert.equal(await page.locator('#portal-app').isVisible(),false);
   assert.match(await page.locator('#login-error-msg').innerText(),/Access denied/);
   assert.deepEqual(errors,[]);
-  console.log('ATLAS tracker and Nexy journal PASS: eight milestones/29 features, search/status filters, GitHub refresh/fallback, escaped content, direct route, responsive layouts;  milestones, timeline search/filters, navigation, desktop/mobile, founder access, sign-out, login errors, no trading or data requests.');
+  console.log('ATLAS tracker and Nexy journal PASS: eight milestones/current feature set, search/status filters, GitHub refresh/fallback, escaped content, direct route, responsive layouts;  milestones, timeline search/filters, navigation, desktop/mobile, founder access, sign-out, login errors, no trading or data requests.');
  }finally{if(browser)await browser.close();await new Promise(r=>server.close(r));}
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

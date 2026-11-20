@@ -52,17 +52,19 @@ function renderTimeline() {
   }).join('') : '<p class="empty-results" role="status">No entries match your search.</p>';
 }
 function renderWorkspace() {
-  const view = ['#overview','#development-tracker','#agentic-architecture','#communication-room','#agent-activity-monitor','#ledger'].includes(location.hash) ? location.hash.slice(1) : 'development-journal';
+  window.AtlasLive?.leave();
+  const view = ['#overview','#development-tracker','#agentic-architecture','#communication-room','#agent-activity-monitor','#ledger','#atlas-dashboard'].includes(location.hash) ? location.hash.slice(1) : 'development-journal';
   document.querySelectorAll('nav a').forEach(link => {
     if (link.hash === '#' + view) link.setAttribute('aria-current','page');
     else link.removeAttribute('aria-current');
   });
-  const title = view === 'overview' ? 'Overview' : view === 'development-tracker' ? 'Development Tracker' : view === 'agentic-architecture' ? 'Agentic Architecture' : view === 'communication-room' ? 'Communication Room' : view === 'agent-activity-monitor' ? 'Agent Activity Monitor' : view === 'ledger' ? 'Ledger' : 'Development Journal';
+  const title = view === 'atlas-dashboard' ? 'ATLAS Dashboard' : view === 'overview' ? 'Overview' : view === 'development-tracker' ? 'Development Tracker' : view === 'agentic-architecture' ? 'Agentic Architecture' : view === 'communication-room' ? 'Communication Room' : view === 'agent-activity-monitor' ? 'Agent Activity Monitor' : view === 'ledger' ? 'Ledger' : 'Development Journal';
   document.title = `Nexy · ${title}`;
   document.getElementById('current-view').textContent = title;
   document.getElementById('workspace').classList.toggle('monitor-screen',['agent-activity-monitor','ledger'].includes(view));
   document.getElementById('workspace').classList.toggle('ledger-screen',view === 'ledger');
-  document.getElementById('workspace').innerHTML = view === 'overview' ? overview() : view === 'development-tracker' ? atlasTrackerView() : view === 'agentic-architecture' ? architectureView() : view === 'communication-room' ? communicationView() : view === 'agent-activity-monitor' ? monitorView() : view === 'ledger' ? ledgerView() : journalView();
+  document.getElementById('workspace').innerHTML = view === 'atlas-dashboard' ? AtlasLive.view() : view === 'overview' ? overview() : view === 'development-tracker' ? atlasTrackerView() : view === 'agentic-architecture' ? architectureView() : view === 'communication-room' ? communicationView() : view === 'agent-activity-monitor' ? monitorView() : view === 'ledger' ? ledgerView() : journalView();
+  if (view === 'atlas-dashboard') AtlasLive.enter();
   if (view === 'development-tracker') bindAtlasTracker();
   if (view === 'development-journal') {
     activeFilter = 'all';

@@ -12,7 +12,7 @@ spec.loader.exec_module(build)
 
 class ShellTests(unittest.TestCase):
     def test_only_shell_assets_are_published(self):
-        self.assertEqual(set(build.ASSETS), {'index.html', 'portal-shell.css', 'portal-shell.js', 'portal-auth.js', 'nexy-journal.js', 'atlas-progress.js', 'development-tracker.js', 'communication-room.js', 'agent-monitor.js', 'ledger.js'})
+        self.assertEqual(set(build.ASSETS), {'index.html', 'portal-shell.css', 'portal-shell.js', 'portal-auth.js', 'nexy-journal.js', 'atlas-progress.js', 'development-tracker.js', 'communication-room.js', 'agent-monitor.js', 'ledger.js', 'atlas-live.js'})
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             for asset in build.ASSETS:
@@ -43,7 +43,10 @@ class ShellTests(unittest.TestCase):
     def test_shell_cannot_issue_firestore_commands(self):
         rules = (ROOT / 'firestore.rules').read_text()
         self.assertIn('allow read, write: if false;', rules)
-        self.assertNotIn('allow create', rules)
+        self.assertIn("allow get: if founder();", rules)
+        self.assertIn("sign_in_provider == 'google.com'", rules)
+        self.assertNotIn('allow write:', rules)
+        self.assertNotIn('allow delete', rules)
 
 
 if __name__ == '__main__':

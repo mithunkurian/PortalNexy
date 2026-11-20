@@ -15,6 +15,7 @@ const googleProvider = new firebase.auth.GoogleAuthProvider();
 const ALLOWED_EMAIL = "mithunkurian@gmail.com";
 
 auth.onAuthStateChanged(user => {
+  window.AtlasLive?.setUser(user?.email === ALLOWED_EMAIL ? user : null);
   const signInButton = document.getElementById('google-signin-btn');
   signInButton.disabled = false;
   signInButton.textContent = 'Sign in with Google';
