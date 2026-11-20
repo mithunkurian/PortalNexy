@@ -115,6 +115,24 @@ VM dashboard. There is no portal command collection. Existing legacy
 collections remain denied. Key/config files stay owner-only on the VM;
 credentials are never part of the hosting bundle.
 
+The default page focuses on today's eight-stage activity timeline and the
+capital/P&L cards. Stage buttons provide recorded status, scheduled/actual times,
+counts and next requirements. The rail becomes vertical on phones. Positions,
+trade history, activity, decisions, performance and read-only settings open in
+native accessible dialogs that retain focus through refresh and clear on logout.
+Dates use readable Stockholm time without seconds; scheduled analysis also
+shows New York time. Only the scheduled-start countdown is calculated; execution
+duration remains unknown without evidence. No-trade outcomes skip execution;
+daily analysis completion does not imply active trades are closed.
+
+The VM's auxiliary daily stage events are scoped to its pinned book and New York
+market day. Missing old events stay unknown; failures and missed windows never
+trigger replay. Current order activity comes from durable strategy entry attempts,
+with terminal/retired intentions, matching totals and zero active holds required
+for a completed daily workflow. Commissioning checks remain separate. Pipeline
+states beyond the actual observed waiting/paused view are validated with
+synthetic tests until a genuine eligible scheduled run occurs.
+
 Validation:
 
 ```powershell
@@ -127,5 +145,11 @@ allow/deny tests against proposed rules without database writes. Browser QA
 uses synthetic auth/data. Actual Nov20 acceptance additionally verified the
 signed-in founder Edge page, VM publisher authentication/write and HTTP 403
 for anonymous/publisher reads, historical reads and command writes.
+The later daily-workflow enhancement also passed isolated browser QA against
+the deployed hosting URL with synthetic auth/data. Set
+`ATLAS_TEST_BASE_URL=https://portalnexy.web.app/` before running the private
+browser test. Real eight-stage VM publication was verified separately.
+The existing owner tab could not be refreshed by its desktop helper; no new
+owner-window acceptance is claimed for the enhanced layout.
 Deploy rule changes explicitly with `firebase.cmd deploy --only firestore:rules
 --project portalnexy`; hosting-only releases do not update access rules.

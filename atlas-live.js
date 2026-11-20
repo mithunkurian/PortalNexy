@@ -8,30 +8,95 @@ window.AtlasLive = (() => {
   const usd = v => v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v)) ? new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(Number(v)) : 'Unknown';
   const age = stamp => { const n = Date.parse(stamp); return Number.isFinite(n) ? (Date.now()-n)/1000 : Infinity; };
   const table = (headers, rows) => `<div class="atlas-table-wrap"><table class="atlas-live-table"><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.length ? rows.map(row=>`<tr>${row.map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${headers.length}">No recorded entries.</td></tr>`}</tbody></table></div>`;
-  function view() { return `<section class="page-intro"><p class="eyebrow">ATLAS / PRIVATE PAPER MONITOR</p><h1>ATLAS Dashboard</h1><p>NASDAQ · USD · paper trading</p></section><div id="atlas-live-content" aria-live="polite"></div>`; }
+  let modal = null, returnFocus = null, revision = 0, renderedRevision = -1, renderedFreshness = null;
+  const names = {scheduled:'Scheduled',readiness:'Readiness checks',screening:'Market screening',analysis:'News & AI analysis',risk:'Risk checks',orders:'Orders & active trades',reconciliation:'Reconciliation',completed:'Completed'};
+  const statuses = new Set(['upcoming','running','completed','skipped','blocked','unknown']);
+  const ordinal = n => `${n}${n%100>=11&&n%100<=13?'th':({1:'st',2:'nd',3:'rd'}[n%10]||'th')}`;
+  function stamp(value, zone='Europe/Stockholm') {
+    const date = new Date(value || ''); if(!Number.isFinite(date.getTime())) return 'Not recorded';
+    const parts = new Intl.DateTimeFormat('en-GB',{timeZone:zone,day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}).formatToParts(date);
+    const part = type => parts.find(p=>p.type===type)?.value || '';
+    return `${ordinal(Number(part('day')))} ${part('month')}. ${part('year')} · ${part('hour')}:${part('minute')} ${part('dayPeriod').toUpperCase()}`;
+  }
+  const statusName = status => ({upcoming:'Upcoming',running:'Running',completed:'Completed',skipped:'Skipped',blocked:'Blocked',unknown:'Unknown'}[status] || 'Unknown');
+  function stages() {
+    return Object.entries(names).map(([id,label])=>{
+      const row = data?.daily?.stages?.find(r=>r.id===id);
+      const status = statuses.has(row?.status) ? row.status : 'unknown';
+      return {...row,id,label,status:age(data?.published_at)>30&&status==='running'?'unknown':status,
+        detail:row?.detail || 'Detailed stage evidence is not available yet.'};
+    });
+  }
+  function view() { return `<section class="page-intro"><p class="eyebrow">ATLAS / PRIVATE PAPER MONITOR</p><h1>ATLAS Dashboard</h1><p>NASDAQ · USD · paper trading</p></section><div id="atlas-live-content"></div><dialog id="atlas-live-dialog" class="atlas-dialog" aria-labelledby="atlas-dialog-title"><header><div><p class="eyebrow">ATLAS / DETAILS</p><h2 id="atlas-dialog-title">Details</h2></div><button type="button" class="atlas-dialog-close" aria-label="Close details">×</button></header><div id="atlas-dialog-body"></div></dialog>`; }
+  function freshness() {
+    const relay = age(data?.published_at)>=-2&&age(data?.published_at)<=30;
+    return {relay,source:relay&&data?.source_valid===true&&age(data?.source_at)>=-2&&age(data?.source_at)<=15};
+  }
+  function remaining() {
+    const daily=data?.daily, delay=Date.parse(daily?.scheduled_at)-Date.now();
+    if(!daily) return 'Detailed daily activity is not available yet.';
+    if(daily.job_status) return daily.stages?.find(r=>r.id==='completed')?.status==='completed'?'Daily activity finished.':'Time remaining: not yet known.';
+    if(data.schedule?.enabled!==true) return 'Daily schedule is disabled.';
+    if(!Number.isFinite(delay)) return 'Next scheduled time is not confirmed.';
+    if(delay<=-60000) return 'The configured window ended without a recorded job; no catch-up.';
+    if(delay<=0) return 'The configured window has arrived; execution requires fresh readiness.';
+    const minutes=Math.ceil(delay/60000), hours=Math.floor(minutes/60);
+    return `Configured start in ${hours?`${hours}h `:''}${minutes%60}m · session eligibility checked at runtime`;
+  }
   function render() {
     const target = document.getElementById('atlas-live-content');
     if (!target) return;
     if (!data) { target.innerHTML = `<section class="panel"><h2>Private connection</h2><p role="status">${esc(state)}</p></section>`; return; }
-    const relayFresh = age(data.published_at) >= -2 && age(data.published_at) <= 30;
-    const sourceFresh = relayFresh && data.source_valid === true && age(data.source_at) >= -2 && age(data.source_at) <= 15;
-    const label = !relayFresh ? 'Telemetry offline / stale' : !sourceFresh ? 'Broker source unavailable / stale' : data.execution_enabled ? 'Paper entries armed' : 'Paper entries paused';
-    const history = data.history || {}, perf = history.performance || {}, limits = data.limits || {}, configured = limits.configured_limits || {};
-    const money = sourceFresh ? data.money || {} : {};
-    const intents = Array.isArray(history.intents) ? history.intents : [], fills = Array.isArray(history.fills) ? history.fills : [];
-    const strategy = intents.filter(r=>r.origin==='strategy'), mechanics = intents.filter(r=>r.origin==='commissioning');
-    const metric = (name, value, note) => `<article class="panel atlas-metric"><span>${esc(name)}</span><strong>${esc(value)}</strong><small>${esc(note)}</small></article>`;
-    target.innerHTML = `<section class="panel atlas-connection"><div><p class="eyebrow">${esc(label)}</p><h2>${sourceFresh ? 'Connected to ATLAS' : 'Current financial values unknown'}</h2><p>Source: ${esc(data.source_at || 'Unknown')} · Relay: ${esc(data.published_at)}</p><p>${esc(state)} · Mode: ${esc(data.mode)} · Phase: ${esc(data.phase)} · Regular session: ${sourceFresh ? data.session_open === true ? 'Open' : data.session_open === false ? 'Closed' : 'Unknown' : 'Unknown'}</p></div><span class="pill">Read-only</span></section>
-      <div class="atlas-metrics">${metric('Allocated capital',usd(money.strategy_capital_usd),'Verified current allocation')}${metric('Owned daily P&L',usd(money.owned_day_pnl_usd),'Includes known owned fees')}${metric('Open exposure',usd(money.owned_exposure_usd),'ATLAS-owned positions')}${metric('Open risk',usd(money.owned_open_risk_usd),'Independent current policy')}</div>
-      <section class="panel"><h2>Strategy performance</h2><p>${esc(strategy.length)} strategy intentions recorded · ${esc(perf.closed_trades ?? 'Unknown')} closed strategy trades · Net ${esc(perf.verified === true && perf.closed_trades > 0 ? usd(perf.net_profit_usd) : 'Unknown')}</p><p>${esc(mechanics.length)} commissioning intentions and ${esc(history.total_fills ?? 'Unknown')} total owned fills are recorded separately. Verified closed commissioning net: ${esc(usd(history.commissioning_net_usd))}. Mechanical checks do not establish strategy profitability.</p></section>
-      <section class="panel"><h2>Positions & trade intentions</h2><p>Last recorded history; open quantities require fresh broker reconciliation. Showing up to 100 intentions.</p>${table(['Symbol','Origin','State','Owned shares','Entry','Stop','Target'],intents.map(r=>[r.symbol,r.origin,r.state,r.owned_shares,usd(r.entry_usd),usd(r.stop_usd),usd(r.target_usd)]))}</section>
-      <section class="panel"><h2>Owned fills</h2><p>Latest 200 fills · known fees shown per execution.</p>${table(['UTC time','Symbol','Origin','Side','Shares','Price','Fee'],fills.map(r=>[r.time_utc,r.symbol,r.origin,r.side,r.shares,usd(r.price_usd),usd(r.fee_usd)]))}</section>
-      <section class="panel"><h2>Configured limits & schedule</h2><p>Configured allocation ${esc(usd(limits.capital_limit))} · Daily loss cap ${esc(usd(limits.daily_loss_limit))} · Trade risk ${esc(usd(configured.risk_per_trade))} · Position cap ${esc(usd(configured.max_position_value))} · Maximum positions ${esc(configured.max_positions)} · Reinvestment ${limits.reinvest_profits === true ? 'enabled with cap' : 'off'}</p><p>Daily schedule ${data.schedule?.enabled === true ? 'enabled' : 'disabled'} · ${esc(data.schedule?.run_time)} ${esc(data.schedule?.timezone)}. Each run still requires fresh sources and independent risk acceptance; missed windows are not replayed.</p><p>Stop, Resume, Emergency and limit editing remain on the private VM dashboard.</p></section>
-      <section class="panel"><h2>Daily jobs</h2>${table(['Day','Result','Contexts','Decisions','Entry attempts'],(data.jobs || []).map(r=>[r['Market day'],r.Result,r['Eligible contexts'],r['Analysis decisions'],r['Entry attempts']]))}</section>
-      <section class="panel"><h2>Recent control outcomes</h2>${table(['Requested UTC','Control','Result'],(data.controls || []).map(r=>[r['Requested (UTC)'],r.Control,r.Result]))}</section>
-      <section class="panel"><h2>Recent activity</h2>${table(['UTC time','Component','Result','Duration ms'],(data.activity || []).map(r=>[r.time_utc,r.activity,r.result,r.duration_ms]))}</section>
-      <section class="panel"><h2>Analysis decisions</h2>${table(['Generated UTC','Symbol','Decision','Entry','Stop','Target'],(data.decisions || []).map(r=>[r['Generated (UTC)'],r.Symbol,r.Decision,usd(r['Entry (USD)']),usd(r['Stop (USD)']),usd(r['Target (USD)'])]))}</section>`;
+    const fresh=freshness(), freshKey=`${fresh.relay}:${fresh.source}`;
+    if(renderedRevision===revision&&renderedFreshness===freshKey){const countdown=document.getElementById('atlas-start-countdown');if(countdown)countdown.textContent=remaining();return;}
+    const focused=document.activeElement?.closest('[data-detail]')?.dataset.detail;
+    renderedRevision=revision;renderedFreshness=freshKey;
+    const history=data.history||{},perf=history.performance||{},money=fresh.source?data.money||{}:{};
+    const timeline=stages(),resolved=timeline.filter(r=>['completed','skipped'].includes(r.status)).length;
+    const headline=!fresh.relay?'Live updates unavailable':!fresh.source?'Paused: broker data unavailable':data.daily?.summary||'Connected to ATLAS';
+    const connection=!fresh.relay?'Current status cannot be confirmed. Last recorded activity is shown.':!fresh.source?'Current financial values unknown. Fresh broker data is required.':data.execution_enabled?'Independent paper entries are enabled.':'Paper entries are paused.';
+    const metric=(name,value,note)=>`<article class="panel atlas-metric"><span>${esc(name)}</span><strong>${esc(value)}</strong><small>${esc(note)}</small></article>`;
+    const detailButton=(id,label,note)=>`<button type="button" class="atlas-detail-button" data-detail="${id}"><span>${esc(label)}</span><small>${esc(note)}</small><b aria-hidden="true">↗</b></button>`;
+    target.innerHTML=`<section class="panel atlas-connection"><div><p class="eyebrow">TODAY / PAPER TRADING</p><h2 aria-live="polite">${esc(headline)}</h2><p>${esc(connection)}</p><p class="atlas-time">Last broker update: ${esc(stamp(data.source_at))} · Stockholm time</p></div><span class="pill">Read-only</span></section>
+      <div class="atlas-metrics">${metric('Allocated capital',usd(money.strategy_capital_usd),'Verified current allocation')}${metric('Owned daily P&L',usd(money.owned_day_pnl_usd),'Market day · New York')}${metric('Open exposure',usd(money.owned_exposure_usd),'ATLAS-owned positions')}${metric('Open risk',usd(money.owned_open_risk_usd),'Independent current policy')}</div>
+      <section class="panel atlas-daily" aria-labelledby="atlas-daily-title"><div class="atlas-daily-heading"><div><p class="eyebrow">DAILY ACTIVITY</p><h2 id="atlas-daily-title">Today's progress</h2><p>${esc(data.daily?.summary||'Waiting for detailed stage evidence')}</p></div><span class="atlas-resolved">${resolved} of ${timeline.length} stages resolved</span></div>
+      <p id="atlas-start-countdown">${esc(remaining())}</p><p class="atlas-time">Configured start: ${esc(stamp(data.daily?.scheduled_at))} Stockholm · ${esc(stamp(data.daily?.scheduled_at,'America/New_York'))} New York</p>
+      <ol class="atlas-stage-track">${timeline.map((r,i)=>`<li class="atlas-stage ${r.status}"><button type="button" data-detail="stage:${r.id}" aria-label="${esc(r.label)}: ${statusName(r.status)}" title="${esc(`${r.label} · ${statusName(r.status)}\n${r.detail}\nScheduled: ${stamp(r.scheduled_at)}\nStarted: ${stamp(r.started_at)}\nFinished: ${stamp(r.finished_at)}`)}"><span class="atlas-stage-node" aria-hidden="true">${r.status==='completed'?'✓':r.status==='skipped'?'−':i+1}</span><span class="atlas-stage-name">${esc(r.label)}</span><span class="atlas-stage-status">${statusName(r.status)}</span></button></li>`).join('')}</ol>
+      <div class="atlas-stage-legend" aria-label="Stage status legend">${['completed','running','upcoming','skipped','blocked','unknown'].map(s=>`<span class="${s}"><i aria-hidden="true"></i>${statusName(s)}</span>`).join('')}</div><p class="atlas-time">Select a stage for its recorded times, results and next requirement. A no-trade decision can complete the day without placing an order.</p></section>
+      <section class="panel atlas-performance-summary"><div><p class="eyebrow">STRATEGY PERFORMANCE</p><h2>${esc(perf.closed_trades??'Unknown')} closed strategy trades</h2><p>Net ${esc(perf.verified===true&&perf.closed_trades>0?usd(perf.net_profit_usd):'not yet available')} · Commissioning checks are reported separately.</p></div><button type="button" class="atlas-secondary-button" data-detail="performance">Performance details</button></section>
+      <section class="panel atlas-detail-section" aria-labelledby="atlas-details-title"><p class="eyebrow">EXPLORE THE RECORD</p><h2 id="atlas-details-title">Details when you need them</h2><div class="atlas-detail-grid">${detailButton('positions','Positions','Owned quantities and trade intentions')}${detailButton('history','Trade history',`${history.total_fills??'Unknown'} recorded owned fills`)}${detailButton('activity','Activity','Daily jobs and operational events')}${detailButton('decisions','Decisions','AI decisions and proposed prices')}${detailButton('settings','Settings','Read-only limits, schedule and connection')}</div></section>`;
+    if(focused&&!modal) target.querySelector(`[data-detail="${focused}"]`)?.focus({preventScroll:true});
+    if(modal)renderModal();
   }
+  function detailContent(key) {
+    const history=data.history||{},limits=data.limits||{},configured=limits.configured_limits||{},perf=history.performance||{};
+    if(key.startsWith('stage:')) {
+      const row=stages().find(r=>r.id===key.slice(6));if(!row)return null;
+      return {title:row.label,body:`<p class="atlas-stage-detail-status ${row.status}">${statusName(row.status)}</p><p>${esc(row.detail)}</p><dl class="atlas-detail-list"><dt>Scheduled</dt><dd>${row.scheduled_at?esc(stamp(row.scheduled_at)):'Not separately scheduled'}</dd><dt>Started</dt><dd>${esc(stamp(row.started_at))}</dd><dt>Finished</dt><dd>${esc(stamp(row.finished_at))}</dd><dt>Recorded count</dt><dd>${esc(row.count??'Not recorded')}</dd><dt>Time remaining</dt><dd>${row.id==='scheduled'&&row.status==='upcoming'?esc(remaining()):'Not yet known; no execution duration is assumed.'}</dd></dl><p class="atlas-time">All times shown in Stockholm. ${!freshness().relay?'Live updates are unavailable; these are last recorded events.':'Only recorded execution evidence marks a stage complete.'}</p>`};
+    }
+    if(key==='positions')return {title:'Positions & trade intentions',body:`<p>Last recorded owned history. Fresh broker reconciliation is required to confirm current quantities. Showing up to 100 intentions.</p>${table(['Symbol','Origin','State','Owned shares','Entry','Stop','Target'],(history.intents||[]).map(r=>[r.symbol,r.origin==='commissioning'?'Commissioning check':'Strategy',r.state,r.owned_shares,usd(r.entry_usd),usd(r.stop_usd),usd(r.target_usd)]))}`};
+    if(key==='history')return {title:'Trade history',body:`<p>Latest 200 owned fills. Commissioning checks are separate from strategy performance. Verified closed commissioning net: ${esc(usd(history.commissioning_net_usd))}.</p>${table(['Time · Stockholm','Symbol','Origin','Side','Shares','Price','Fee'],(history.fills||[]).map(r=>[stamp(r.time_utc),r.symbol,r.origin==='commissioning'?'Commissioning check':'Strategy',r.side,r.shares,usd(r.price_usd),usd(r.fee_usd)]))}`};
+    if(key==='activity')return {title:'Activity & daily jobs',body:`<h3>Daily jobs</h3>${table(['Market day','Result','Started · Stockholm','Finished · Stockholm','Contexts','Decisions','Entry attempts'],(data.jobs||[]).map(r=>[stamp(`${r['Market day']}T12:00:00Z`).split(' · ')[0],r.Result,stamp(r['Started (UTC)']),stamp(r['Finished (UTC)']),r['Eligible contexts'],r['Analysis decisions'],r['Entry attempts']]))}<h3>Recent activity</h3>${table(['Time · Stockholm','Component','Result','Duration'],(data.activity||[]).map(r=>[stamp(r.time_utc),r.activity,r.result,r.duration_ms===null?'Not recorded':`${(Number(r.duration_ms)/1000).toFixed(1)}s`]))}<h3>Control outcomes</h3>${table(['Requested · Stockholm','Control','Result'],(data.controls||[]).map(r=>[stamp(r['Requested (UTC)']),r.Control,r.Result]))}`};
+    if(key==='decisions')return {title:'Analysis decisions',body:`<p>Proposals remain subject to independent risk checks; a proposal is not an order.</p>${table(['Generated · Stockholm','Symbol','Decision','Entry','Stop','Target','Expires · Stockholm'],(data.decisions||[]).map(r=>[stamp(r['Generated (UTC)']),r.Symbol,r.Decision,usd(r['Entry (USD)']),usd(r['Stop (USD)']),usd(r['Target (USD)']),stamp(r['Expires (UTC)'])]))}`};
+    if(key==='settings')return {title:'Settings & connection',body:`<p>Read-only. Changes and Stop, Resume or Emergency actions remain on the private VM dashboard.</p><dl class="atlas-detail-list"><dt>Configured allocation</dt><dd>${esc(usd(limits.capital_limit))}</dd><dt>Daily loss cap</dt><dd>${esc(usd(limits.daily_loss_limit))}</dd><dt>Risk per trade</dt><dd>${esc(usd(configured.risk_per_trade))}</dd><dt>Position cap</dt><dd>${esc(usd(configured.max_position_value))}</dd><dt>Maximum positions</dt><dd>${esc(configured.max_positions)}</dd><dt>Reinvestment</dt><dd>${limits.reinvest_profits===true?'Enabled with a cap':'Off'}</dd><dt>Daily schedule</dt><dd>${data.schedule?.enabled===true?'Enabled':'Disabled'} · 10:15 AM New York</dd><dt>Broker update</dt><dd>${esc(stamp(data.source_at))}</dd><dt>Portal update</dt><dd>${esc(stamp(data.published_at))}</dd><dt>Display timezone</dt><dd>Stockholm</dd></dl>`};
+    if(key==='performance')return {title:'Performance details',body:`<p>Only reconciled closed strategy trades with known fees contribute to strategy metrics.</p><dl class="atlas-detail-list"><dt>Closed strategy trades</dt><dd>${esc(perf.closed_trades??'Unknown')}</dd><dt>Strategy net P&L</dt><dd>${esc(perf.verified===true&&perf.closed_trades>0?usd(perf.net_profit_usd):'Not yet available')}</dd><dt>Win rate</dt><dd>${perf.verified===true&&perf.closed_trades>0?esc(perf.win_rate_percent)+'%':'Not yet available'}</dd><dt>Closed trade drawdown</dt><dd>${esc(perf.verified===true&&perf.closed_trades>0?usd(perf.max_closed_trade_drawdown_usd):'Not yet available')}</dd><dt>Commissioning net</dt><dd>${esc(usd(history.commissioning_net_usd))}</dd></dl><p>Mechanical checks do not establish strategy profitability.</p>`};
+    return null;
+  }
+  function renderModal() {
+    if(!modal||!data)return;const content=detailContent(modal);if(!content)return;
+    document.getElementById('atlas-dialog-title').textContent=content.title;
+    document.getElementById('atlas-dialog-body').innerHTML=content.body;
+  }
+  function openDetail(key) {
+    if(!data||!detailContent(key))return;const dialog=document.getElementById('atlas-live-dialog');if(!dialog)return;
+    modal=key;returnFocus=key;renderModal();if(!dialog.open)dialog.showModal();
+  }
+  function bindDialog() {
+    const dialog=document.getElementById('atlas-live-dialog');if(!dialog||dialog.dataset.bound)return;
+    dialog.dataset.bound='true';dialog.querySelector('button').addEventListener('click',()=>dialog.close());
+    dialog.addEventListener('close',()=>{modal=null;dialog.querySelector('#atlas-dialog-body').textContent='';if(active&&returnFocus)document.querySelector(`#atlas-live-content [data-detail="${returnFocus}"]`)?.focus({preventScroll:true});});
+  }
+  document.addEventListener('click',event=>{const button=event.target.closest?.('#atlas-live-content [data-detail]');if(button)openDetail(button.dataset.detail);});
   async function poll(epoch) {
     if (!active || !user || epoch !== generation || document.hidden) return;
     controller = new AbortController(); const current = controller;
@@ -47,14 +112,14 @@ window.AtlasLive = (() => {
       const documentData = JSON.parse(raw), parsed = JSON.parse(documentData.fields.payload.stringValue);
       if (parsed.schema !== 1 || parsed.scope !== 'NASDAQ_US' || parsed.currency !== 'USD' || parsed.paper_only !== true || !Array.isArray(parsed.history?.intents) || !Array.isArray(parsed.history?.fills)) throw new Error('scope');
       if (epoch !== generation || !active) return;
-      data = parsed; state = 'Private telemetry received'; render();
+      data = parsed; revision++; state = 'Private telemetry received'; render();
     } catch (_) {
-      if (epoch === generation && active) { data = null; state = 'Private telemetry unavailable. Sign in with the founder Google account; the VM relay must be online.'; render(); }
+      if (epoch === generation && active) { data = null; document.getElementById('atlas-live-dialog')?.close(); state = 'Private telemetry unavailable. Sign in with the founder Google account; the VM relay must be online.'; render(); }
     } finally { clearTimeout(timeout); if (controller === current) controller = null; }
   }
-  function leave() { active = false; generation++; clearInterval(timer); clearInterval(ticker); controller?.abort(); controller = null; data = null; }
-  function enter() { leave(); active = true; state = user ? 'Connecting to private telemetry…' : 'Sign in to view private paper telemetry.'; render(); const epoch = generation; poll(epoch); timer = setInterval(()=>{if (!controller) poll(epoch);},5000); ticker = setInterval(render,1000); }
+  function leave() { active = false; modal=null; renderedRevision=-1; renderedFreshness=null; document.getElementById('atlas-live-dialog')?.close(); const privateBody=document.getElementById('atlas-dialog-body'); if(privateBody)privateBody.textContent=''; generation++; clearInterval(timer); clearInterval(ticker); controller?.abort(); controller = null; data = null; }
+  function enter() { leave(); bindDialog(); active = true; state = user ? 'Connecting to private telemetry…' : 'Sign in to view private paper telemetry.'; render(); const epoch = generation; poll(epoch); timer = setInterval(()=>{if (!controller) poll(epoch);},5000); ticker = setInterval(render,1000); }
   function setUser(next) { leave(); user = next; if (location.hash === '#atlas-dashboard') enter(); }
-  document.addEventListener('visibilitychange',()=>{ if (active) { data = null; state = 'Refreshing private telemetry…'; controller?.abort(); render(); if (!document.hidden) { const epoch = ++generation; clearInterval(timer); poll(epoch); timer=setInterval(()=>{if(!controller)poll(epoch);},5000); } } });
+  document.addEventListener('visibilitychange',()=>{ if (active) { data = null; document.getElementById('atlas-live-dialog')?.close(); state = 'Refreshing private telemetry…'; controller?.abort(); render(); if (!document.hidden) { const epoch = ++generation; clearInterval(timer); poll(epoch); timer=setInterval(()=>{if(!controller)poll(epoch);},5000); } } });
   return {view, enter, leave, setUser};
 })();
