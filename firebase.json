@@ -4,6 +4,7 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
+    "site": "portalnexy",
     "public": "public",
     "ignore": [
       "firebase.json",

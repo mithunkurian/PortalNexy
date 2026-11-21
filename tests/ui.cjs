@@ -277,7 +277,9 @@ async function main(){
   await page.getByRole('button',{name:'Refresh latest status',exact:true}).click();
   await page.locator('#atlas-refresh-status').filter({hasText:'Latest status retrieved'}).waitFor();
   assert.equal(await page.locator('#atlas-milestones img').count(),0);
-  assert.match(await page.locator('.atlas-milestone[open]').innerText(),/Fresh public tracker <img/);
+  const refreshedM2=page.locator('[data-milestone="M2"]');
+  if(await refreshedM2.getAttribute('open')===null) await refreshedM2.locator('summary').click();
+  assert.match(await refreshedM2.innerText(),/Fresh public tracker <img/);
   await page.evaluate(evidence=>{atlasLatest.progress.milestones[1].evidence=evidence;renderWorkspace();},realEvidence);
   fs.mkdirSync(path.resolve(__dirname,'../.firebase/ui-qa'),{recursive:true});
   await page.screenshot({path:path.resolve(__dirname,'../.firebase/ui-qa/atlas-tracker-desktop.png'),fullPage:true});
