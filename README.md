@@ -125,6 +125,13 @@ shows New York time. Only the scheduled-start countdown is calculated; execution
 duration remains unknown without evidence. No-trade outcomes skip execution;
 daily analysis completion does not imply active trades are closed.
 
+After a failed daily job, stages that never ran show Skipped. The failed-stage
+dialog can show allowlisted failure categories, source boundaries and API codes
+when the VM recorded them. Codes may include informational messages and are not
+by themselves a cause. Older failures keep their cause unknown; a screening
+failure is distinct from a completed AI NO_TRADE decision. No failure replays
+the consumed daily claim or resumes entries.
+
 The VM's auxiliary daily stage events are scoped to its pinned book and New York
 market day. Missing old events stay unknown; failures and missed windows never
 trigger replay. Current order activity comes from durable strategy entry attempts,

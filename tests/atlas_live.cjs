@@ -8,7 +8,7 @@ const fixed='2026-11-20T08:00:00Z';
 function dailyFixture(scenario){
  const ids=['scheduled','readiness','screening','analysis','risk','orders','reconciliation','completed'];
  const stages=ids.map(id=>({id,status:scenario==='complete'?(['risk','orders','reconciliation'].includes(id)?'skipped':'completed'):scenario==='blocked'?(id==='screening'?'blocked':['scheduled','readiness'].includes(id)?'completed':'upcoming'):scenario==='running'?(id==='analysis'?'running':['scheduled','readiness','screening'].includes(id)?'completed':'upcoming'):'upcoming',detail:'Only recorded stage evidence is used.',scheduled_at:id==='scheduled'?'2026-11-20T15:15:00Z':null,started_at:scenario==='scheduled'?null:fixed,finished_at:scenario==='complete'?fixed:null,count:scenario==='complete'?0:null}));
- return {market_day:'2026-11-20',scheduled_at:'2026-11-20T15:15:00Z',summary:scenario==='complete'?'Daily activity completed':scenario==='running'?'News & AI analysis in progress':scenario==='blocked'?'Daily activity stopped; review the recorded stage':'Waiting for scheduled analysis',job_status:scenario==='complete'?'complete':scenario==='scheduled'?null:scenario==='blocked'?'failed':'running',stages,estimated_finish_at:null};
+ return {market_day:'2026-11-20',scheduled_at:'2026-11-20T15:15:00Z',summary:scenario==='complete'?'Daily activity completed':scenario==='running'?'News & AI analysis in progress':scenario==='blocked'?'Daily activity stopped; review the recorded stage':'Waiting for scheduled analysis',job_status:scenario==='complete'?'complete':scenario==='scheduled'?null:scenario==='blocked'?'failed':'running',stages,estimated_finish_at:null,failure:scenario==='blocked'?{stage:'screening',kind:'timeout',boundary:'scanner_parameters',api_codes:[162],recorded_at:fixed}:null};
 }
 async function main(){
  const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+req.url.split('?')[0]);if(!file.startsWith(root+path.sep)||!fs.existsSync(file)){res.writeHead(404);return res.end();}res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':'text/html');res.end(fs.readFileSync(file));});
@@ -54,6 +54,11 @@ async function main(){
   scenario='blocked';await page.evaluate(()=>window.__authListener(window.__user));
   await page.getByRole('heading',{name:'Daily activity stopped; review the recorded stage',exact:true}).waitFor();
   assert.equal(await page.locator('.atlas-stage.blocked').count(),1);
+  await page.locator('[data-detail="stage:screening"]').click();
+  assert.match(await page.locator('#atlas-dialog-body').innerText(),/Recorded failure/);
+  assert.match(await page.locator('#atlas-dialog-body').innerText(),/scanner parameters/);
+  assert.match(await page.locator('#atlas-dialog-body').innerText(),/162/);
+  await page.keyboard.press('Escape');
   scenario='complete';await page.evaluate(()=>window.__authListener(window.__user));
   await page.getByRole('heading',{name:'Daily activity completed',exact:true}).waitFor();
   assert.match(await page.locator('.atlas-resolved').innerText(),/8 of 8/);
