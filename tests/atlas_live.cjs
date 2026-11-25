@@ -73,7 +73,7 @@ async function main(){
   assert.match(await page.locator('[data-position-health]').innerText(),/no open commitments/);
   healthState='hold';await page.evaluate(()=>window.__authListener(window.__user));
   await page.getByText(/Owned commitments are being supervised/).waitFor();
-  assert.match(await page.locator('[data-position-health]').innerText(),/Hold: fresh native state/);
+  assert.match(await page.locator('[data-position-health]').innerText(),/Hold: fresh broker state/);
   healthState='exit';await page.evaluate(()=>window.__authListener(window.__user));
   await page.getByText(/Exit or owned recovery was triggered/).waitFor();
   stale=true;
