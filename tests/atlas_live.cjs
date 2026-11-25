@@ -8,7 +8,7 @@ const fixed='2026-11-20T08:00:00Z';
 function dailyFixture(scenario){
  const ids=['scheduled','readiness','screening','analysis','risk','orders','reconciliation','completed'];
  const stages=ids.map(id=>({id,status:scenario==='complete'?(['risk','orders','reconciliation'].includes(id)?'skipped':'completed'):scenario==='blocked'?(id==='screening'?'blocked':['scheduled','readiness'].includes(id)?'completed':'upcoming'):scenario==='running'?(id==='analysis'?'running':['scheduled','readiness','screening'].includes(id)?'completed':'upcoming'):'upcoming',detail:'Only recorded stage evidence is used.',scheduled_at:id==='scheduled'?'2026-11-20T15:15:00Z':null,started_at:scenario==='scheduled'?null:fixed,finished_at:scenario==='complete'?fixed:null,count:scenario==='complete'?0:null}));
- return {market_day:'2026-11-20',scheduled_at:'2026-11-20T15:15:00Z',summary:scenario==='complete'?'Daily activity completed':scenario==='running'?'News & AI analysis in progress':scenario==='blocked'?'Daily activity stopped; review the recorded stage':'Waiting for scheduled analysis',job_status:scenario==='complete'?'complete':scenario==='scheduled'?null:scenario==='blocked'?'failed':'running',stages,estimated_finish_at:null,failure:scenario==='blocked'?{stage:'screening',kind:'timeout',boundary:'scanner_parameters',api_codes:[162],recorded_at:fixed}:null};
+ return {market_day:'2026-11-20',scheduled_at:'2026-11-20T15:15:00Z',summary:scenario==='complete'?'Daily activity completed':scenario==='running'?'News & AI analysis in progress':scenario==='blocked'?'Daily activity stopped; review the recorded stage':'Waiting for scheduled analysis',job_status:scenario==='complete'?'complete':scenario==='scheduled'?null:scenario==='blocked'?'failed':'running',stages,estimated_finish_at:null,decision_summary:scenario==='complete'?'The ranked scan checked up to 5 results for NASDAQ-listed USD common stocks with a minimum price of USD 10. The broker returned no results under these settings; individual upstream filter exclusion counts were not supplied. Quote freshness, spread, news, AI analysis and risk checks were not reached; no strategy order was attempted.':scenario==='blocked'?'The run stopped during screening because of a system failure, not an AI NO_TRADE decision.':'No final recorded outcome is available yet.',failure:scenario==='blocked'?{stage:'screening',kind:'timeout',boundary:'scanner_parameters',api_codes:[162],recorded_at:fixed}:null};
 }
 async function main(){
  const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+req.url.split('?')[0]);if(!file.startsWith(root+path.sep)||!fs.existsSync(file)){res.writeHead(404);return res.end();}res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':'text/html');res.end(fs.readFileSync(file));});
@@ -19,7 +19,7 @@ async function main(){
   await context.route('**/firebasejs/**',r=>r.fulfill({contentType:'text/javascript',body:mock}));
   await context.addInitScript(()=>{window.__user={uid:'synthetic-owner',email:'mithunkurian@gmail.com',emailVerified:true,displayName:'Founder',getIdTokenResult:async()=>({token:'synthetic-token',signInProvider:'google.com'})};});
   let count=0,stale=false,hostile=false,scenario='scheduled';
-  await context.route(endpoint,r=>{count++;assert.equal(r.request().method(),'GET');const stamp=fixed;const data={schema:1,scope:'NASDAQ_US',currency:'USD',paper_only:true,published_at:stamp,source_at:stale?'2020-01-01T00:00:00Z':stamp,source_valid:true,execution_enabled:true,mode:'paper',phase:'idle',session_open:true,money:{strategy_capital_usd:'20000',owned_day_pnl_usd:'-1.25',owned_exposure_usd:'100',owned_open_risk_usd:'5'},limits:{capital_limit:'20000',daily_loss_limit:'200',reinvest_profits:false,configured_limits:{risk_per_trade:'50',max_positions:3,max_position_value:'2000'}},schedule:{enabled:true,run_time:'10:15',timezone:'America/New_York'},history:{intents:[{symbol:hostile?'<img src=x onerror=alert(1)>':'AAPL',origin:'commissioning',state:'closed',owned_shares:0,entry_usd:'100',stop_usd:'99',target_usd:'102'}],fills:[],total_fills:0,performance:{closed_trades:0,verified:true,net_profit_usd:null}},jobs:[],controls:[]};data.daily=dailyFixture(scenario);return r.fulfill({contentType:'application/json',body:JSON.stringify({fields:{payload:{stringValue:JSON.stringify(data)}}})});});
+  await context.route(endpoint,r=>{count++;assert.equal(r.request().method(),'GET');const stamp=fixed;const data={schema:1,scope:'NASDAQ_US',currency:'USD',paper_only:true,published_at:stamp,source_at:stale?'2020-01-01T00:00:00Z':stamp,source_valid:true,execution_enabled:true,mode:'paper',phase:'idle',session_open:true,money:{strategy_capital_usd:'20000',owned_day_pnl_usd:'-1.25',owned_exposure_usd:'100',owned_open_risk_usd:'5'},limits:{capital_limit:'20000',daily_loss_limit:'200',reinvest_profits:false,configured_limits:{risk_per_trade:'50',max_positions:3,max_position_value:'2000'}},schedule:{enabled:true,run_time:'10:15',timezone:'America/New_York'},history:{intents:[{symbol:hostile?'<img src=x onerror=alert(1)>':'AAPL',origin:'commissioning',state:'closed',owned_shares:0,entry_usd:'100',stop_usd:'99',target_usd:'102'}],fills:[],total_fills:0,performance:{closed_trades:0,verified:true,net_profit_usd:null}},jobs:[],controls:[]};data.daily=dailyFixture(scenario);if(hostile)data.daily.decision_summary='<img src=x onerror=alert(1)>';return r.fulfill({contentType:'application/json',body:JSON.stringify({fields:{payload:{stringValue:JSON.stringify(data)}}})});});
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.clock.setFixedTime(new Date(fixed));
   await page.goto((process.env.ATLAS_TEST_BASE_URL||'http://127.0.0.1:8767/index.html')+'#atlas-dashboard');
@@ -63,11 +63,20 @@ async function main(){
   await page.getByRole('heading',{name:'Daily activity completed',exact:true}).waitFor();
   assert.match(await page.locator('.atlas-resolved').innerText(),/8 of 8/);
   assert.equal(await page.locator('.atlas-stage.skipped').count(),3);
+  await page.locator('[data-detail="decisions"]').click();
+  await page.getByRole('heading',{name:"Today's trade explanation",exact:true}).waitFor();
+  assert.match(await page.locator('[data-daily-decision-summary]').innerText(),/minimum price of USD 10/);
+  assert.match(await page.locator('[data-daily-decision-summary]').innerText(),/not reached/);
+  await page.keyboard.press('Escape');
   stale=true;
   await page.getByRole('heading',{name:'Paused: broker data unavailable',exact:true}).waitFor({timeout:10000});
   assert.doesNotMatch(await page.locator('.atlas-metrics').innerText(),/\$20,000|\$100\.00|\$5\.00/);
   hostile=true;
   await page.locator('[data-detail="positions"]').click();
+  await page.getByText('<img src=x onerror=alert(1)>',{exact:true}).waitFor({timeout:10000});
+  assert.equal(await page.locator('#atlas-live-dialog img').count(),0);
+  await page.keyboard.press('Escape');
+  await page.locator('[data-detail="decisions"]').click();
   await page.getByText('<img src=x onerror=alert(1)>',{exact:true}).waitFor({timeout:10000});
   assert.equal(await page.locator('#atlas-live-dialog img').count(),0);
   await page.evaluate(()=>window.__authListener(null));

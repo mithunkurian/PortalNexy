@@ -132,6 +132,12 @@ by themselves a cause. Older failures keep their cause unknown; a screening
 failure is distinct from a completed AI NO_TRADE decision. No failure replays
 the consumed daily claim or resumes entries.
 
+Decisions also shows a daily explanation of at most four sentences. Future
+zero-candidate summaries use recorded broker price bounds, NASDAQ/USD common-stock
+verification and fixed rejection counts, and name the later checks not reached.
+Today's legacy run has no saved per-filter breakdown; the explanation explicitly
+keeps the exact reason unknown. Current settings never substitute for past evidence.
+
 The VM's auxiliary daily stage events are scoped to its pinned book and New York
 market day. Missing old events stay unknown; failures and missed windows never
 trigger replay. Current order activity comes from durable strategy entry attempts,
