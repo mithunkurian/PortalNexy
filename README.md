@@ -138,6 +138,21 @@ verification and fixed rejection counts, and name the later checks not reached.
 Today's legacy run has no saved per-filter breakdown; the explanation explicitly
 keeps the exact reason unknown. Current settings never substitute for past evidence.
 
+The private paper worker can opt into fresh fifteen-minute opportunities from
+10:15 until before 13:00 New York (last slot 12:45), with the original daily claim
+and later slot claims kept separately. Scans require a flat book, no unresolved
+holds, fresh broker-calendar/source gates and independent enabled risk. Missing
+a slot never catches up or replays it. New scans pause while owned commitments
+are monitored, and position supervision continues after the scan cutoff.
+
+The native worker records minute-level Hold / Exit-trigger / Unconfirmed reviews.
+A Hold requires fresh protection/risk evidence bound to the same owned book;
+stale reviews, changed commitments or unavailable broker/relay sources show
+Unconfirmed. An exit trigger is not terminal-flat proof. Stop/target, daily loss
+and recorded expiry/close deadlines remain independent; no model overrides them.
+Source recovery never automatically rearms entries. Real open-position review
+acceptance remains separate from synthetic tests and a flat-book live display.
+
 The VM's auxiliary daily stage events are scoped to its pinned book and New York
 market day. Missing old events stay unknown; failures and missed windows never
 trigger replay. Current order activity comes from durable strategy entry attempts,
