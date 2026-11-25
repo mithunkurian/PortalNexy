@@ -77,7 +77,7 @@ async function main(){
   healthState='exit';await page.evaluate(()=>window.__authListener(window.__user));
   await page.getByText(/Exit or owned recovery was triggered/).waitFor();
   stale=true;
-  await page.getByRole('heading',{name:'Paused: broker data unavailable',exact:true}).waitFor({timeout:10000});
+  await page.getByRole('heading',{name:'Broker status unconfirmed',exact:true}).waitFor({timeout:10000});
   assert.doesNotMatch(await page.locator('.atlas-metrics').innerText(),/\$20,000|\$100\.00|\$5\.00/);
   assert.match(await page.locator('[data-position-health]').innerText(),/health unconfirmed/);
   hostile=true;

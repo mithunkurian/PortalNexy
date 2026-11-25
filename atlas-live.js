@@ -75,7 +75,7 @@ window.AtlasLive = (() => {
     renderedRevision=revision;renderedFreshness=freshKey;
     const history=data.history||{},perf=history.performance||{},money=fresh.source?data.money||{}:{};
     const timeline=stages(),resolved=timeline.filter(r=>['completed','skipped'].includes(r.status)).length;
-    const headline=!fresh.relay?'Live updates unavailable':!fresh.source?'Paused: broker data unavailable':data.daily?.summary||'Connected to ATLAS';
+    const headline=!fresh.relay?'Live updates unavailable':!fresh.source?'Broker status unconfirmed':data.daily?.summary||'Connected to ATLAS';
     const connection=!fresh.relay?'Current status cannot be confirmed. Last recorded activity is shown.':!fresh.source?'Current financial values unknown. Fresh broker data is required.':data.execution_enabled?'Independent paper entries are enabled.':'Paper entries are paused.';
     const metric=(name,value,note)=>`<article class="panel atlas-metric"><span>${esc(name)}</span><strong>${esc(value)}</strong><small>${esc(note)}</small></article>`;
     const detailButton=(id,label,note)=>`<button type="button" class="atlas-detail-button" data-detail="${id}"><span>${esc(label)}</span><small>${esc(note)}</small><b aria-hidden="true">↗</b></button>`;
