@@ -146,6 +146,13 @@ a slot never catches up or replays it. New scans pause while owned commitments
 are monitored, and position supervision continues after the scan cutoff.
 
 The native worker records minute-level Hold / Exit-trigger / Unconfirmed reviews.
+A shared Scheduled/Readiness metro interchange now splits into two colored
+routes: the fifteen-minute opportunity loop and the minute-level position-health
+loop. Return rails show no-entry/next-slot and Hold/review behavior, with entry
+handoff, exit/reconciliation and a flat-book return to scans only within their
+window. The eight recorded attempt stations retain their status/detail dialogs;
+the separate health-review station never treats a completed attempt as a verified
+Hold. Mobile stacks both routes on a shared rail. Select a loop for its rules.
 A Hold requires fresh protection/risk evidence bound to the same owned book;
 stale reviews, changed commitments or unavailable broker/relay sources show
 Unconfirmed. An exit trigger is not terminal-flat proof. Stop/target, daily loss

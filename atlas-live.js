@@ -65,6 +65,37 @@ window.AtlasLive = (() => {
     if(health.state==='exit')return 'Exit or owned recovery was triggered; terminal flat confirmation is still required.';
     return 'Position health unconfirmed: broker checks must verify protection and decide hold or recovery.';
   }
+  function metroStage(row,index) {
+    return `<li class="atlas-stage ${row.status}"><button type="button" data-detail="stage:${row.id}" aria-label="${esc(row.label)}: ${statusName(row.status)}" title="${esc(`${row.label} · ${statusName(row.status)}\n${row.detail}\nScheduled: ${stamp(row.scheduled_at)}\nStarted: ${stamp(row.started_at)}\nFinished: ${stamp(row.finished_at)}`)}"><span class="atlas-stage-node" aria-hidden="true">${row.status==='completed'?'✓':row.status==='skipped'?'−':index+1}</span><span class="atlas-stage-name">${esc(row.label)}</span><span class="atlas-stage-status">${statusName(row.status)}</span></button></li>`;
+  }
+  function metroMap(timeline) {
+    const stops=ids=>ids.map(id=>metroStage(timeline.find(r=>r.id===id),timeline.findIndex(r=>r.id===id))).join('');
+    const recurring=data.schedule?.rescan_minutes===15;
+    const health=data.position_health,reviewAge=Date.now()-Date.parse(health?.last_review?.observed_at);
+    const verified=freshness().source&&Number.isFinite(reviewAge)&&reviewAge>=0&&reviewAge<=60000;
+    const review=health?.state==='no_open_positions'&&freshness().source?'idle':verified&&['hold','exit'].includes(health?.state)?health.state:'unconfirmed';
+    return `<div class="atlas-daily-metro" aria-label="Daily schedule with opportunity and position-health loops">
+      <ol class="atlas-stage-track atlas-metro-shared" aria-label="Shared readiness route">${stops(['scheduled','readiness'])}</ol>
+      <div class="atlas-metro-fork" aria-hidden="true"><i></i><i></i><b></b></div>
+      <div class="atlas-metro-branches">
+        <section class="atlas-loop atlas-loop-scan" aria-labelledby="atlas-scan-loop-title">
+          <header><span class="atlas-route-badge">01</span><div><h3 id="atlas-scan-loop-title">Opportunity scan loop</h3><p>${recurring?'Every 15 minutes · 10:15–12:45 New York':'Daily 10:15 New York · intraday scans off'}</p></div></header>
+          <p id="atlas-start-countdown" class="atlas-loop-state">${esc(remaining())}</p>
+          <div class="atlas-loop-path"><span class="atlas-loop-return" aria-hidden="true"></span><ol class="atlas-stage-track atlas-branch-stops" aria-label="Opportunity scan stations">${stops(['screening','analysis','risk'])}</ol>
+          <button class="atlas-loop-repeat" data-detail="loop:scan"><span aria-hidden="true">↶</span><span>${recurring?'No entry → next 15-minute slot':'No entry → next eligible daily window'}<small>Only while flat and ready · no catch-up</small></span></button></div>
+          <p class="atlas-loop-transfer"><span aria-hidden="true">→</span> Accepted entry joins the position loop</p>
+        </section>
+        <section class="atlas-loop atlas-loop-health" aria-labelledby="atlas-health-loop-title">
+          <header><span class="atlas-route-badge">02</span><div><h3 id="atlas-health-loop-title">Position health loop</h3><p>Every minute · continues after 1 PM</p></div></header>
+          <p data-position-health class="atlas-loop-state">${esc(healthText())}</p>
+          <div class="atlas-loop-path"><span class="atlas-loop-return" aria-hidden="true"></span><ol class="atlas-stage-track atlas-branch-stops" aria-label="Position supervision stations">${stops(['orders'])}<li class="atlas-health-stop ${review}"><button data-detail="loop:health" aria-label="Minute-level hold or exit review"><span class="atlas-stage-node" aria-hidden="true">↻</span><span class="atlas-stage-name">Protection &amp; risk review</span><span class="atlas-stage-status">${{idle:'No open position',hold:'Hold',exit:'Exit trigger',unconfirmed:'Unconfirmed'}[review]}</span></button></li></ol>
+          <button class="atlas-loop-repeat" data-detail="loop:hold"><span aria-hidden="true">↶</span><span>Hold → review again within a minute<small>Exit trigger → reconcile the owned position</small></span></button></div>
+          <ol class="atlas-stage-track atlas-branch-stops atlas-exit-stops" aria-label="Exit and resolution stations">${stops(['reconciliation','completed'])}</ol>
+          <p class="atlas-loop-transfer"><span aria-hidden="true">↶</span> Flat &amp; reconciled → scan loop, if still in its window</p>
+        </section>
+      </div><p class="atlas-metro-note">Stations show the latest attempt. Position reviews continue while a commitment is open; unavailable broker data never means Hold.</p>
+    </div>`;
+  }
   function render() {
     const target = document.getElementById('atlas-live-content');
     if (!target) return;
@@ -82,8 +113,8 @@ window.AtlasLive = (() => {
     target.innerHTML=`<section class="panel atlas-connection"><div><p class="eyebrow">TODAY / PAPER TRADING</p><h2 aria-live="polite">${esc(headline)}</h2><p>${esc(connection)}</p><p class="atlas-time">Last broker update: ${esc(stamp(data.source_at))} · Stockholm time</p></div><span class="pill">Read-only</span></section>
       <div class="atlas-metrics">${metric('Allocated capital',usd(money.strategy_capital_usd),'Verified current allocation')}${metric('Owned daily P&L',usd(money.owned_day_pnl_usd),'Market day · New York')}${metric('Open exposure',usd(money.owned_exposure_usd),'ATLAS-owned positions')}${metric('Open risk',usd(money.owned_open_risk_usd),'Independent current policy')}</div>
       <section class="panel atlas-daily" aria-labelledby="atlas-daily-title"><div class="atlas-daily-heading"><div><p class="eyebrow">DAILY ACTIVITY</p><h2 id="atlas-daily-title">Today's progress</h2><p>${esc(data.daily?.summary||'Waiting for detailed stage evidence')}</p></div><span class="atlas-resolved">${resolved} of ${timeline.length} stages resolved</span></div>
-      <p id="atlas-start-countdown">${esc(remaining())}</p><p data-position-health>${esc(healthText())}</p><p class="atlas-time">Attempt start: ${esc(stamp(data.daily?.scheduled_at))} Stockholm · ${esc(stamp(data.daily?.scheduled_at,'America/New_York'))} New York</p>
-      <ol class="atlas-stage-track">${timeline.map((r,i)=>`<li class="atlas-stage ${r.status}"><button type="button" data-detail="stage:${r.id}" aria-label="${esc(r.label)}: ${statusName(r.status)}" title="${esc(`${r.label} · ${statusName(r.status)}\n${r.detail}\nScheduled: ${stamp(r.scheduled_at)}\nStarted: ${stamp(r.started_at)}\nFinished: ${stamp(r.finished_at)}`)}"><span class="atlas-stage-node" aria-hidden="true">${r.status==='completed'?'✓':r.status==='skipped'?'−':i+1}</span><span class="atlas-stage-name">${esc(r.label)}</span><span class="atlas-stage-status">${statusName(r.status)}</span></button></li>`).join('')}</ol>
+      <p class="atlas-time">Attempt start: ${esc(stamp(data.daily?.scheduled_at))} Stockholm · ${esc(stamp(data.daily?.scheduled_at,'America/New_York'))} New York</p>
+      ${metroMap(timeline)}
       <div class="atlas-stage-legend" aria-label="Stage status legend">${['completed','running','upcoming','skipped','blocked','unknown'].map(s=>`<span class="${s}"><i aria-hidden="true"></i>${statusName(s)}</span>`).join('')}</div><p class="atlas-time">Select a stage for its recorded times, results and next requirement. A no-trade decision can complete the day without placing an order.</p></section>
       <section class="panel atlas-performance-summary"><div><p class="eyebrow">STRATEGY PERFORMANCE</p><h2>${esc(perf.closed_trades??'Unknown')} closed strategy trades</h2><p>Net ${esc(perf.verified===true&&perf.closed_trades>0?usd(perf.net_profit_usd):'not yet available')} · Commissioning checks are reported separately.</p></div><button type="button" class="atlas-secondary-button" data-detail="performance">Performance details</button></section>
       <section class="panel atlas-detail-section" aria-labelledby="atlas-details-title"><p class="eyebrow">EXPLORE THE RECORD</p><h2 id="atlas-details-title">Details when you need them</h2><div class="atlas-detail-grid">${detailButton('positions','Positions','Owned quantities and trade intentions')}${detailButton('history','Trade history',`${history.total_fills??'Unknown'} recorded owned fills`)}${detailButton('activity','Activity','Daily jobs and operational events')}${detailButton('decisions','Decisions','Why today did or did not trade')}${detailButton('settings','Settings','Read-only limits, schedule and connection')}</div></section>`;
@@ -92,6 +123,8 @@ window.AtlasLive = (() => {
   }
   function detailContent(key) {
     const history=data.history||{},limits=data.limits||{},configured=limits.configured_limits||{},perf=history.performance||{};
+    if(key==='loop:scan')return {title:'How the scan loop repeats',body:`<p>${esc(remaining())}</p><p>When intraday scans are enabled, fresh opportunities start every 15 minutes from 10:15 through 12:45 New York, while flat and independently ready. No new scan starts at 1 PM.</p><p>No eligible entry returns to the next planned slot. An owned commitment transfers priority to position supervision. Missed or failed slots never replay; source recovery does not automatically resume entries.</p>`};
+    if(key==='loop:health'||key==='loop:hold')return {title:'Minute-level position supervision',body:`<p>${esc(healthText())}</p><p>Native broker protection, daily-loss limits and exit deadlines determine Hold or owned exit/recovery. A Hold needs fresh verified evidence; unavailable data or an overdue review is Unconfirmed.</p><p>Hold returns to another review within a minute while sources are healthy. An exit trigger leads to reconciliation; it does not prove the position is closed. Monitoring continues after 1 PM. Once flat and reconciled, a later scan still needs its own open window and fresh readiness.</p>`};
     if(key.startsWith('stage:')) {
       const row=stages().find(r=>r.id===key.slice(6));if(!row)return null;
       const failure=data.daily?.failure?.stage===row.id?data.daily.failure:null;
