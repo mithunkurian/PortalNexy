@@ -76,6 +76,17 @@ window.AtlasLive = (() => {
     const loopStop=(x,y,key,label,note,route)=>`<li class="atlas-map-stop atlas-map-loop-stop ${route}" style="left:${x/11.2}%;top:${y/5.2}%"><button data-detail="loop:${key}"><span class="atlas-stage-node" aria-hidden="true">↶</span><span class="atlas-stage-name">${label}</span><span class="atlas-stage-status">${note}</span></button></li>`;
     return `<div class="atlas-daily-metro" aria-label="Daily schedule with opportunity and position-health loops">
       <div class="atlas-map-key"><span><i class="main"></i>Main flow <b>→</b></span><span id="atlas-scan-loop-title"><i class="scan"></i>Opportunity scan loop · ${recurring?'every 15 min':'intraday off'}</span><span id="atlas-health-loop-title"><i class="health"></i>Position health loop · every minute</span></div>
+      <section class="atlas-flow-guide" aria-labelledby="atlas-flow-guide-title">
+        <h3 id="atlas-flow-guide-title">How to follow the paths</h3>
+        <div class="atlas-flow-guide-routes">
+          <article class="main"><h4>Blue: Move forward</h4><p class="atlas-guide-arrows">→ Left to right</p><p>Get ready → look for a trade → check it is safe → open a paper trade → watch it → close and count.</p></article>
+          <article class="scan"><h4>Pink: Nothing good to buy?</h4><p class="atlas-guide-arrows">↑ Up · ← left · ↓ down</p><p>Wait for the next 15-minute slot, then check readiness and look again. This loop runs only when there is no open or pending trade and safety checks pass.</p></article>
+          <article class="health"><h4>Green: Already have a trade?</h4><p class="atlas-guide-arrows">↓ Down · → right · ↑ up · ← left · ↑ back</p><p>Check it every minute. Keep it? Go around and return to Health review. Close it? Follow blue to the right, to Reconciliation.</p></article>
+        </div>
+        <p class="atlas-guide-time"><strong>After 1 PM New York:</strong> stop looking for new trades, but keep watching any open trade.</p>
+        <p class="atlas-guide-status"><strong>Blocked</strong> means stop here and wait. <strong>Unconfirmed</strong> means we do not know yet; it never means safe to keep a trade. Fresh data alone does not restart paused entries.</p>
+        <details class="atlas-guide-stations"><summary>What do the station names mean?</summary><dl><dt>Scheduled</dt><dd>Wait for the planned time.</dd><dt>Readiness</dt><dd>Are the connection, market and safety checks ready?</dd><dt>Screening</dt><dd>Look for a possible trade.</dd><dt>News &amp; AI</dt><dd>Read the news and study the idea.</dd><dt>Risk checks</dt><dd>Is the trade safe enough under our limits?</dd><dt>Entry / position</dt><dd>Open a paper trade.</dd><dt>Health review</dt><dd>Should we keep watching it or close it?</dd><dt>Reconciliation</dt><dd>Check that orders and shares match; confirm a close and count the money.</dd><dt>Attempt resolved</dt><dd>This attempt is finished. It does not mean position monitoring has stopped.</dd></dl></details>
+      </section>
       <p class="atlas-map-pan">Swipe or scroll across the map to follow the route. Select any station for details.</p>
       <div class="atlas-map-scroll" tabindex="0" role="region" aria-label="Daily route map; scroll horizontally on smaller screens">
       <div class="atlas-route-board">
@@ -112,6 +123,7 @@ window.AtlasLive = (() => {
     const fresh=freshness(), freshKey=`${fresh.relay}:${fresh.source}`;
     if(renderedRevision===revision&&renderedFreshness===freshKey){const countdown=document.getElementById('atlas-start-countdown');if(countdown)countdown.textContent=remaining();return;}
     const currentMap=target.querySelector('.atlas-map-scroll'),pan=currentMap?.scrollLeft||0,mapHadFocus=document.activeElement===currentMap;
+    const currentGuide=target.querySelector('.atlas-guide-stations'),guideOpen=!!currentGuide?.open,guideHadFocus=document.activeElement===currentGuide?.querySelector('summary');
     const focused=document.activeElement?.closest('[data-detail]')?.dataset.detail;
     renderedRevision=revision;renderedFreshness=freshKey;
     const history=data.history||{},perf=history.performance||{},money=fresh.source?data.money||{}:{};
@@ -130,6 +142,8 @@ window.AtlasLive = (() => {
       <section class="panel atlas-detail-section" aria-labelledby="atlas-details-title"><p class="eyebrow">EXPLORE THE RECORD</p><h2 id="atlas-details-title">Details when you need them</h2><div class="atlas-detail-grid">${detailButton('positions','Positions','Owned quantities and trade intentions')}${detailButton('history','Trade history',`${history.total_fills??'Unknown'} recorded owned fills`)}${detailButton('activity','Activity','Daily jobs and operational events')}${detailButton('decisions','Decisions','Why today did or did not trade')}${detailButton('settings','Settings','Read-only limits, schedule and connection')}</div></section>`;
     const nextMap=target.querySelector('.atlas-map-scroll');
     if(nextMap){nextMap.scrollLeft=pan;if(mapHadFocus)nextMap.focus({preventScroll:true});}
+    const nextGuide=target.querySelector('.atlas-guide-stations');
+    if(nextGuide){nextGuide.open=guideOpen;if(guideHadFocus)nextGuide.querySelector('summary').focus({preventScroll:true});}
     if(focused&&!modal) target.querySelector(`[data-detail="${focused}"]`)?.focus({preventScroll:true});
     if(modal)renderModal();
   }

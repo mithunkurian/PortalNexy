@@ -74,6 +74,17 @@ async function main(){
   assert.equal(await page.locator('[data-detail^="stage:"]').count(),8);
   await page.locator('#atlas-scan-loop-title').waitFor();
   await page.locator('#atlas-health-loop-title').waitFor();
+  await page.getByRole('heading',{name:'How to follow the paths',exact:true}).waitFor();
+  assert.match(await page.locator('.atlas-flow-guide .main').innerText(),/Left to right/);
+  assert.match(await page.locator('.atlas-flow-guide .scan').innerText(),/Up · ← left · ↓ down/);
+  assert.match(await page.locator('.atlas-flow-guide .health').innerText(),/return to Health review/);
+  assert.match(await page.locator('.atlas-guide-time').innerText(),/keep watching any open trade/);
+  await page.locator('.atlas-guide-stations summary').click();
+  assert.match(await page.locator('.atlas-guide-stations').innerText(),/Check that orders and shares match/);
+  await page.waitForTimeout(5500);
+  assert.equal(await page.locator('.atlas-guide-stations').evaluate(e=>e.open),true);
+  assert.equal(await page.locator('.atlas-guide-stations summary').evaluate(e=>e===document.activeElement),true);
+  await page.locator('.atlas-guide-stations summary').click();
   await page.locator('[data-detail="loop:scan"]').click();
   await page.getByRole('dialog',{name:'How the scan loop repeats',exact:true}).waitFor();
   assert.match(await page.locator('#atlas-dialog-body').innerText(),/12:45 New York/);

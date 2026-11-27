@@ -147,6 +147,11 @@ are monitored, and position supervision continues after the scan cutoff.
 
 The native worker records minute-level Hold / Exit-trigger / Unconfirmed reviews.
 The daily flow uses one horizontal blue main line with circular, clickable stations.
+An always-visible plain-language key explains left-to-right blue flow, the pink
+up/left/down scan return, and the green down/right/up/left/back Hold return.
+It explains the 1 PM cutoff, Blocked/Unconfirmed and the need for fresh checks.
+A station-name glossary stays expanded, with keyboard focus preserved, across
+normal telemetry refreshes. The key stacks on phones without changing the map.
 A pink no-entry branch returns through the next eligible slot and flat/readiness
 checks; a green Hold branch returns to health review without another order. Exit
 continues to reconciliation and attempt resolution. Route colors describe logic;
