@@ -111,6 +111,7 @@ window.AtlasLive = (() => {
     if (!data) { target.innerHTML = `<section class="panel"><h2>Private connection</h2><p role="status">${esc(state)}</p></section>`; return; }
     const fresh=freshness(), freshKey=`${fresh.relay}:${fresh.source}`;
     if(renderedRevision===revision&&renderedFreshness===freshKey){const countdown=document.getElementById('atlas-start-countdown');if(countdown)countdown.textContent=remaining();return;}
+    const currentMap=target.querySelector('.atlas-map-scroll'),pan=currentMap?.scrollLeft||0,mapHadFocus=document.activeElement===currentMap;
     const focused=document.activeElement?.closest('[data-detail]')?.dataset.detail;
     renderedRevision=revision;renderedFreshness=freshKey;
     const history=data.history||{},perf=history.performance||{},money=fresh.source?data.money||{}:{};
@@ -127,6 +128,8 @@ window.AtlasLive = (() => {
       <div class="atlas-stage-legend" aria-label="Stage status legend">${['completed','running','upcoming','skipped','blocked','unknown'].map(s=>`<span class="${s}"><i aria-hidden="true"></i>${statusName(s)}</span>`).join('')}</div><p class="atlas-time">Select a stage for its recorded times, results and next requirement. A no-trade decision can complete the day without placing an order.</p></section>
       <section class="panel atlas-performance-summary"><div><p class="eyebrow">STRATEGY PERFORMANCE</p><h2>${esc(perf.closed_trades??'Unknown')} closed strategy trades</h2><p>Net ${esc(perf.verified===true&&perf.closed_trades>0?usd(perf.net_profit_usd):'not yet available')} · Commissioning checks are reported separately.</p></div><button type="button" class="atlas-secondary-button" data-detail="performance">Performance details</button></section>
       <section class="panel atlas-detail-section" aria-labelledby="atlas-details-title"><p class="eyebrow">EXPLORE THE RECORD</p><h2 id="atlas-details-title">Details when you need them</h2><div class="atlas-detail-grid">${detailButton('positions','Positions','Owned quantities and trade intentions')}${detailButton('history','Trade history',`${history.total_fills??'Unknown'} recorded owned fills`)}${detailButton('activity','Activity','Daily jobs and operational events')}${detailButton('decisions','Decisions','Why today did or did not trade')}${detailButton('settings','Settings','Read-only limits, schedule and connection')}</div></section>`;
+    const nextMap=target.querySelector('.atlas-map-scroll');
+    if(nextMap){nextMap.scrollLeft=pan;if(mapHadFocus)nextMap.focus({preventScroll:true});}
     if(focused&&!modal) target.querySelector(`[data-detail="${focused}"]`)?.focus({preventScroll:true});
     if(modal)renderModal();
   }

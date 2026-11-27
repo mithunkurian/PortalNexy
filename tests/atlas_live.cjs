@@ -91,6 +91,11 @@ async function main(){
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   assert.ok(await page.locator('.atlas-map-scroll').evaluate(e=>e.scrollWidth>e.clientWidth));
   await page.locator('.atlas-map-scroll').evaluate(e=>e.scrollLeft=e.scrollWidth);
+  const pan=await page.locator('.atlas-map-scroll').evaluate(e=>e.scrollLeft);
+  await page.locator('.atlas-map-scroll').focus();
+  await page.waitForTimeout(5500);
+  assert.ok(Math.abs(await page.locator('.atlas-map-scroll').evaluate(e=>e.scrollLeft)-pan)<2);
+  assert.equal(await page.locator('.atlas-map-scroll').evaluate(e=>e===document.activeElement),true);
   await page.locator('[data-detail="stage:completed"]').click();
   await page.getByRole('dialog',{name:'Completed',exact:true}).waitFor();
   await page.keyboard.press('Escape');
