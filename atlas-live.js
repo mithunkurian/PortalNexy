@@ -65,35 +65,44 @@ window.AtlasLive = (() => {
     if(health.state==='exit')return 'Exit or owned recovery was triggered; terminal flat confirmation is still required.';
     return 'Position health unconfirmed: broker checks must verify protection and decide hold or recovery.';
   }
-  function metroStage(row,index) {
-    return `<li class="atlas-stage ${row.status}"><button type="button" data-detail="stage:${row.id}" aria-label="${esc(row.label)}: ${statusName(row.status)}" title="${esc(`${row.label} · ${statusName(row.status)}\n${row.detail}\nScheduled: ${stamp(row.scheduled_at)}\nStarted: ${stamp(row.started_at)}\nFinished: ${stamp(row.finished_at)}`)}"><span class="atlas-stage-node" aria-hidden="true">${row.status==='completed'?'✓':row.status==='skipped'?'−':index+1}</span><span class="atlas-stage-name">${esc(row.label)}</span><span class="atlas-stage-status">${statusName(row.status)}</span></button></li>`;
-  }
   function metroMap(timeline) {
-    const stops=ids=>ids.map(id=>metroStage(timeline.find(r=>r.id===id),timeline.findIndex(r=>r.id===id))).join('');
     const recurring=data.schedule?.rescan_minutes===15;
     const health=data.position_health,reviewAge=Date.now()-Date.parse(health?.last_review?.observed_at);
     const verified=freshness().source&&Number.isFinite(reviewAge)&&reviewAge>=0&&reviewAge<=60000;
     const review=health?.state==='no_open_positions'&&freshness().source?'idle':verified&&['hold','exit'].includes(health?.state)?health.state:'unconfirmed';
+    const positions={scheduled:60,readiness:180,screening:300,analysis:420,risk:540,orders:660,reconciliation:900,completed:1020};
+    const labels={scheduled:'Scheduled',readiness:'Readiness',screening:'Screening',analysis:'News & AI',risk:'Risk checks',orders:'Entry / position',reconciliation:'Reconciliation',completed:'Attempt resolved'};
+    const station=(r,i)=>`<li class="atlas-map-stop atlas-stage ${r.status}" style="left:${positions[r.id]/11.2}%;top:46.1538%"><button data-detail="stage:${r.id}" aria-label="${esc(r.label)}: ${statusName(r.status)}"><span class="atlas-stage-node" aria-hidden="true">${r.status==='completed'?'✓':r.status==='skipped'?'−':i+1}</span><span class="atlas-stage-name">${labels[r.id]}</span><span class="atlas-stage-status">${statusName(r.status)}</span></button></li>`;
+    const loopStop=(x,y,key,label,note,route)=>`<li class="atlas-map-stop atlas-map-loop-stop ${route}" style="left:${x/11.2}%;top:${y/5.2}%"><button data-detail="loop:${key}"><span class="atlas-stage-node" aria-hidden="true">↶</span><span class="atlas-stage-name">${label}</span><span class="atlas-stage-status">${note}</span></button></li>`;
     return `<div class="atlas-daily-metro" aria-label="Daily schedule with opportunity and position-health loops">
-      <ol class="atlas-stage-track atlas-metro-shared" aria-label="Shared readiness route">${stops(['scheduled','readiness'])}</ol>
-      <div class="atlas-metro-fork" aria-hidden="true"><i></i><i></i><b></b></div>
-      <div class="atlas-metro-branches">
-        <section class="atlas-loop atlas-loop-scan" aria-labelledby="atlas-scan-loop-title">
-          <header><span class="atlas-route-badge">01</span><div><h3 id="atlas-scan-loop-title">Opportunity scan loop</h3><p>${recurring?'Every 15 minutes · 10:15–12:45 New York':'Daily 10:15 New York · intraday scans off'}</p></div></header>
-          <p id="atlas-start-countdown" class="atlas-loop-state">${esc(remaining())}</p>
-          <div class="atlas-loop-path"><span class="atlas-loop-return" aria-hidden="true"></span><ol class="atlas-stage-track atlas-branch-stops" aria-label="Opportunity scan stations">${stops(['screening','analysis','risk'])}</ol>
-          <button class="atlas-loop-repeat" data-detail="loop:scan"><span aria-hidden="true">↶</span><span>${recurring?'No entry → next 15-minute slot':'No entry → next eligible daily window'}<small>Only while flat and ready · no catch-up</small></span></button></div>
-          <p class="atlas-loop-transfer"><span aria-hidden="true">→</span> Accepted entry joins the position loop</p>
-        </section>
-        <section class="atlas-loop atlas-loop-health" aria-labelledby="atlas-health-loop-title">
-          <header><span class="atlas-route-badge">02</span><div><h3 id="atlas-health-loop-title">Position health loop</h3><p>Every minute · continues after 1 PM</p></div></header>
-          <p data-position-health class="atlas-loop-state">${esc(healthText())}</p>
-          <div class="atlas-loop-path"><span class="atlas-loop-return" aria-hidden="true"></span><ol class="atlas-stage-track atlas-branch-stops" aria-label="Position supervision stations">${stops(['orders'])}<li class="atlas-health-stop ${review}"><button data-detail="loop:health" aria-label="Minute-level hold or exit review"><span class="atlas-stage-node" aria-hidden="true">↻</span><span class="atlas-stage-name">Protection &amp; risk review</span><span class="atlas-stage-status">${{idle:'No open position',hold:'Hold',exit:'Exit trigger',unconfirmed:'Unconfirmed'}[review]}</span></button></li></ol>
-          <button class="atlas-loop-repeat" data-detail="loop:hold"><span aria-hidden="true">↶</span><span>Hold → review again within a minute<small>Exit trigger → reconcile the owned position</small></span></button></div>
-          <ol class="atlas-stage-track atlas-branch-stops atlas-exit-stops" aria-label="Exit and resolution stations">${stops(['reconciliation','completed'])}</ol>
-          <p class="atlas-loop-transfer"><span aria-hidden="true">↶</span> Flat &amp; reconciled → scan loop, if still in its window</p>
-        </section>
-      </div><p class="atlas-metro-note">Stations show the latest attempt. Position reviews continue while a commitment is open; unavailable broker data never means Hold.</p>
+      <div class="atlas-map-key"><span><i class="main"></i>Main flow <b>→</b></span><span id="atlas-scan-loop-title"><i class="scan"></i>Opportunity scan loop · ${recurring?'every 15 min':'intraday off'}</span><span id="atlas-health-loop-title"><i class="health"></i>Position health loop · every minute</span></div>
+      <p class="atlas-map-pan">Swipe or scroll across the map to follow the route. Select any station for details.</p>
+      <div class="atlas-map-scroll" tabindex="0" role="region" aria-label="Daily route map; scroll horizontally on smaller screens">
+      <div class="atlas-route-board">
+        <svg class="atlas-route-lines" viewBox="0 0 1120 520" aria-hidden="true">
+          <defs><marker id="atlas-arrow-main" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#20677d"/></marker><marker id="atlas-arrow-scan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b85ba8"/></marker><marker id="atlas-arrow-health" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#27805e"/></marker></defs>
+          <path class="atlas-rail scan" d="M540 240 V105 Q540 80 515 80 H205 Q180 80 180 105 V240"/>
+          <path class="atlas-rail health" d="M780 240 V375 Q780 400 805 400 H925 Q950 400 950 375 V350 Q950 325 925 325 H805 Q780 325 780 300 V240"/>
+          <path class="atlas-rail main" d="M60 240 H1020"/>
+          <path class="atlas-direction scan" d="M380 80 H350" marker-end="url(#atlas-arrow-scan)"/><path class="atlas-direction scan" d="M180 180 V208" marker-end="url(#atlas-arrow-scan)"/>
+          <path class="atlas-direction main" d="M225 240 H250 M585 240 H610 M820 240 H850 M945 240 H970" marker-end="url(#atlas-arrow-main)"/>
+          <path class="atlas-direction health" d="M830 400 H855" marker-end="url(#atlas-arrow-health)"/><path class="atlas-direction health" d="M860 325 H830" marker-end="url(#atlas-arrow-health)"/>
+        </svg>
+        <span class="atlas-route-caption scan" style="left:31%;top:2%">NO ENTRY → NEXT ELIGIBLE SLOT</span>
+        <span class="atlas-route-caption scan atlas-map-condition" style="left:48.2%;top:30%">No eligible entry</span>
+        <span class="atlas-route-caption atlas-map-condition" style="left:54%;top:35%">Accepted entry →</span>
+        <span class="atlas-route-caption atlas-map-condition" style="left:75%;top:35%">Exit / resolution →</span>
+        <span class="atlas-route-caption health" style="left:78%;top:94%">HOLD → REVIEW AGAIN</span>
+        <ol class="atlas-route-stations" aria-label="Recorded attempt stations and current position review">${timeline.map(station).join('')}
+          <li class="atlas-map-stop atlas-health-stop ${review}" style="left:69.6429%;top:46.1538%"><button data-detail="loop:health" aria-label="Minute-level hold or exit review"><span class="atlas-stage-node" aria-hidden="true">↻</span><span class="atlas-stage-name">Health review</span><span class="atlas-stage-status">${{idle:'No open position',hold:'Hold',exit:'Exit trigger',unconfirmed:'Unconfirmed'}[review]}</span></button></li>
+          ${loopStop(420,80,'scan',recurring?'Next 15-min slot':'Next daily slot',recurring?'Last start 12:45 NY':'Intraday disabled','scan')}
+          ${loopStop(270,80,'flat','Flat & ready','Fresh checks each time','scan')}
+          ${loopStop(900,400,'hold','Hold / wait','Review within a minute','health')}
+        </ol>
+      </div></div>
+      <div class="atlas-map-notes"><p id="atlas-start-countdown" class="scan">${esc(remaining())}</p><p data-position-health class="health">${esc(healthText())}</p></div>
+      <p class="atlas-metro-note">No eligible entry at screening, analysis or risk returns to the next slot and fresh readiness. Hold returns to health review; an exit proceeds to reconciliation. Once flat, another scan still needs its open window. New scans stop before 1 PM New York; position monitoring continues.</p>
+      <p class="atlas-metro-note">Route colors explain the flow. Station colors show recorded attempt status; unavailable broker data never means Hold.</p>
     </div>`;
   }
   function render() {
@@ -123,7 +132,7 @@ window.AtlasLive = (() => {
   }
   function detailContent(key) {
     const history=data.history||{},limits=data.limits||{},configured=limits.configured_limits||{},perf=history.performance||{};
-    if(key==='loop:scan')return {title:'How the scan loop repeats',body:`<p>${esc(remaining())}</p><p>When intraday scans are enabled, fresh opportunities start every 15 minutes from 10:15 through 12:45 New York, while flat and independently ready. No new scan starts at 1 PM.</p><p>No eligible entry returns to the next planned slot. An owned commitment transfers priority to position supervision. Missed or failed slots never replay; source recovery does not automatically resume entries.</p>`};
+    if(key==='loop:scan'||key==='loop:flat')return {title:'How the scan loop repeats',body:`<p>${esc(remaining())}</p><p>When intraday scans are enabled, fresh opportunities start every 15 minutes from 10:15 through 12:45 New York, while flat and independently ready. No new scan starts at 1 PM.</p><p>No eligible entry returns to the next planned slot. An owned commitment transfers priority to position supervision. Missed or failed slots never replay; source recovery does not automatically resume entries.</p>`};
     if(key==='loop:health'||key==='loop:hold')return {title:'Minute-level position supervision',body:`<p>${esc(healthText())}</p><p>Native broker protection, daily-loss limits and exit deadlines determine Hold or owned exit/recovery. A Hold needs fresh verified evidence; unavailable data or an overdue review is Unconfirmed.</p><p>Hold returns to another review within a minute while sources are healthy. An exit trigger leads to reconciliation; it does not prove the position is closed. Monitoring continues after 1 PM. Once flat and reconciled, a later scan still needs its own open window and fresh readiness.</p>`};
     if(key.startsWith('stage:')) {
       const row=stages().find(r=>r.id===key.slice(6));if(!row)return null;
